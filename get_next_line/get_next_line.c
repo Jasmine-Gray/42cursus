@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:02 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/06 13:27:44 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/06 14:08:03 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,27 @@
 
 char	*road_file(int fd, char *str)
 {
+	char	*buf;
+	ssize_t	r;
+
+	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buf)
+		return (NULL);
+	r = 1;
+	while (size != 0 && !ft_strchr(str, '\n'))
+	{
+		r = read(fd, buf, BUFFER_SIZE);
+		if (r < 0)
+		{
+			free(str);
+			free(buf);
+			return (NULL);
+		}
+		buf[r] = '\0';
+		str = ft_strjoin(str, buf);
+	}
+	free(buf);
+	return (str);
 }
 
 char	*get_a_line(*str)
@@ -23,14 +44,14 @@ char	*get_a_line(*str)
 	char	*buf;
 
 	i = 0;
-	if (!str)
+	if (!str[i])
 		return (NULL);
 	flag = 0;
 	while (str[i] && str[i] != '\n')
 		i++;
 	if (str[i] == '\n')
 		flag = 1;
-	buf = (char *)malloc(sizeof char) * (i + flag + 1);
+	buf = (char *)malloc(sizeof(char) * (i + flag + 1));
 	if (!buf)
 		return (NULL);
 	ft_strlcpy(buf, str, i + flag + 1);
@@ -39,6 +60,27 @@ char	*get_a_line(*str)
 
 char	*road_next_line(*str)
 {
+	size_t	i;
+	char	buf;
+
+	i = 0;
+	if (!str[i])
+	{
+		free(str);
+		return (NULL);
+	}
+	while (str[i] && str[i] != '\n')
+		i++;
+  buf = (char *)malloc(sizeof(char) * (ft_strlen(str) - i + 1);
+  if (!buf)
+  {
+		free(str);
+		return (NULL);
+  }
+  
+  ft_strlcpy(buf, &str[i], ft_strlen(str) - i + 1);
+  free(str);
+  return (buf);
 }
 
 char	*get_next_line(int fd)
@@ -48,9 +90,15 @@ char	*get_next_line(int fd)
 
 	if (0 > fd || 0 >= BUFFER_SIZE)
 		return (NULL);
-	str =
-		if (!str) return (NULL);
-	line =
-		str =
-			return (line);
+	str = road_file(fd, str);
+	if (!str)
+		return (NULL);
+	line = get_a_line(str);
+	str = road_next_line(str);
+	return (line);
 }
+
+//int main(void)
+//{
+//
+//}
