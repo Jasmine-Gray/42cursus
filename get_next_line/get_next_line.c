@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:02 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/06 14:08:03 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/06 14:37:42 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ char	*road_file(int fd, char *str)
 	if (!buf)
 		return (NULL);
 	r = 1;
-	while (size != 0 && !ft_strchr(str, '\n'))
+	while (r != 0 && !ft_strchr(str, '\n'))
 	{
 		r = read(fd, buf, BUFFER_SIZE);
 		if (r < 0)
@@ -37,7 +37,7 @@ char	*road_file(int fd, char *str)
 	return (str);
 }
 
-char	*get_a_line(*str)
+char	*get_a_line(char *str)
 {
 	size_t	i;
 	size_t	flag;
@@ -58,10 +58,10 @@ char	*get_a_line(*str)
 	return (buf);
 }
 
-char	*road_next_line(*str)
+char	*road_next_line(char *str)
 {
 	size_t	i;
-	char	buf;
+	char	*buf;
 
 	i = 0;
 	if (!str[i])
@@ -71,16 +71,15 @@ char	*road_next_line(*str)
 	}
 	while (str[i] && str[i] != '\n')
 		i++;
-  buf = (char *)malloc(sizeof(char) * (ft_strlen(str) - i + 1);
-  if (!buf)
-  {
+	buf = (char *)malloc(sizeof(char) * (ft_strlen(str) - i + 1));
+	if (!buf)
+	{
 		free(str);
 		return (NULL);
-  }
-  
-  ft_strlcpy(buf, &str[i], ft_strlen(str) - i + 1);
-  free(str);
-  return (buf);
+	}
+	ft_strlcpy(buf, &str[i], ft_strlen(str) - i + 1);
+	free(str);
+	return (buf);
 }
 
 char	*get_next_line(int fd)

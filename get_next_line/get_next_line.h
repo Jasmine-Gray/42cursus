@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:26:35 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/06 14:09:29 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/06 14:37:32 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,10 @@
 
 char	*get_next_line(int fd);
 char	*road_file(int fd, char *str);
-char	*get_a_line(*str);
-char	*road_next_line(*str);
+char	*get_a_line(char *str);
+char	*road_next_line(char *str);
 size_t	ft_strlen(const char *s);
+size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize);
 char	*ft_strchr(const char *s, int c);
 char	*ft_strjoin(char const *s1, char const *s2);
 

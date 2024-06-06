@@ -6,36 +6,58 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:22 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/06 14:10:05 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/06 14:40:02 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t	ft_strlen(const char *s)
+size_t	ft_strlen(const char *str)
 {
 	size_t	i;
 
 	i = 0;
-	while (s[i])
+	while (str[i])
 		i++;
 	return (i);
 }
 
-ft_strlcpy()
+size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 {
+	size_t	src_len;
+
+	src_len = 0;
+	while (dstsize > 1 && *src != '\0')
+	{
+		*dst++ = *src++;
+		src_len++;
+		dstsize--;
+	}
+	if (dstsize > 0)
+	{
+		*dst = '\0';
+	}
+	while (*src != '\0')
+	{
+		src_len++;
+		src++;
+	}
+	return (src_len);
 }
 
-char	*ft_strchr(const char *s, int c)
+char	*ft_strchr(const char *str, int c)
 {
-	while (*s)
+	char	cc;
+
+	cc = (char)c;
+	while (*str != '\0')
 	{
-		if (*s == (char)c)
-			return ((char *)s);
-		s++;
+		if (*str == cc)
+			return ((char *)str);
+		str++;
 	}
-	if (c == 0)
-		return ((char *)s);
+	if (cc == '\0')
+		return ((char *)str);
 	return (NULL);
 }
 
