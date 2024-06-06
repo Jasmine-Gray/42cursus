@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:22 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/06 14:40:02 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/06 16:53:51 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 	size_t	src_len;
 
 	src_len = 0;
-	while (dstsize > 1 && *src != '\0')
+	//while (dstsize > 1 && *src != '\0')
+	while (dstsize > 0 && *src != '\0')
 	{
 		*dst++ = *src++;
 		src_len++;
@@ -74,10 +75,16 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	str = (char *)malloc(len1 + len2 + 1);
 	if (!str)
 		return (NULL);
-	while (*s1)
-		*str++ = *s1++;
-	while (*s2)
-		*str++ = *s2++;
-	*str = 0;
-	return (str - len1 - len2);
+  if (s1)
+        ft_strlcpy(str, s1, len1 + 1);
+  if (s2)
+    ft_strlcpy(str + len1, s2, len2 + 1);
+  str[len1 + len2] = '\0';
+  return (str);
+//	while (*s1)
+//		*str++ = *s1++;
+//	while (*s2)
+//		*str++ = *s2++;
+//	*str = 0;
+//	return (str - len1 - len2);
 }

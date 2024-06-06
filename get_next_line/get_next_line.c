@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:02 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/06 14:37:42 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/06 16:46:52 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,3 @@ char	*get_next_line(int fd)
 	return (line);
 }
 
-//int main(void)
-//{
-//
-//}
