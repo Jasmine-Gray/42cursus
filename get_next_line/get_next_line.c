@@ -6,16 +6,17 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:02 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/17 22:33:24 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/18 19:36:59 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include <stdio.h>
 
 char	*road_file(int fd, char *str)
 {
 	char	*buf;
-	ssize_t	r;
+	static ssize_t	r;
 
 	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buf)
@@ -32,6 +33,7 @@ char	*road_file(int fd, char *str)
 			return (NULL);
 		}
 		buf[r] = '\0';
+    printf("buf=%s\n, str=%s\n", buf, str);
 		str = ft_strjoin(str, buf);
 	}
 	free(buf);
@@ -91,7 +93,9 @@ char	*get_next_line(int fd)
 
 	if (0 > fd || 0 >= BUFFER_SIZE)
 		return (NULL);
+  str = "";
 	str = road_file(fd, str);
+  printf("result=%s\n", str);
 	if (!str)
 		return (NULL);
 	line = get_a_line(str);
