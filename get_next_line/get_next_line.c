@@ -6,18 +6,18 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:02 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/27 19:15:29 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/27 21:43:45 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <stdio.h>
 
-char	*road_file(int fd)
+char	*read_file(int fd)
 {
 	char	*buf;
 	char	*str;
-	char	*tmp;
+	//char	*tmp;
 	ssize_t	r;
 
 	str = NULL;
@@ -27,9 +27,10 @@ char	*road_file(int fd)
 	while ((r = read(fd, buf, BUFFER_SIZE)) > 0)
 	{
 		buf[r] = '\0';
-		tmp = ft_strjoin(str, buf);
-		free(str);
-		str = tmp;
+		str = ft_strjoin(str, buf);
+		//tmp = ft_strjoin(str, buf);
+		//free(str);
+		//str = tmp;
 		if (!str)
 		{
 			free(buf);
@@ -70,7 +71,7 @@ char	*get_a_line(char *str)
 	return (buf);
 }
 
-char	*road_next_line(char *str)
+char	*read_next_line(char *str)
 {
 	size_t	i;
 	char	*buf;
@@ -91,9 +92,10 @@ char	*road_next_line(char *str)
 	}
 	i++;
 	ft_strlcpy(buf, &str[i], ft_strlen(str) - i + 1);
-	//	printf("road_next_line_str1=%s\n", str);
+  
+	//	printf("read_next_line_str1=%s\n", str);
 	free(str);
-	//	printf("road_next_line_str2=%s\n", str);
+	//	printf("read_next_line_str2=%s\n", str);
 	return (buf);
 }
 
@@ -104,15 +106,22 @@ char	*get_next_line(int fd)
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	if (!str || !*str)
+
+  if (!str || !*str)
 	{
 		free(str);
-		str = road_file(fd);
+		str = read_file(fd);
 		if (!str)
-			return (NULL);
+      return (NULL);
 	}
+  
+  //free(str);
+  //str = read_file(fd);
+  //if (!str)
+  //  return (NULL);
+
 	line = get_a_line(str);
-	str = road_next_line(str);
+	str = read_next_line(str);
 	//	printf("gnl_line===%s\n", line);
 	return (line);
 }

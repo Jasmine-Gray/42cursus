@@ -6,13 +6,13 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:22 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/27 19:13:37 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/27 21:43:48 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t	ft_strlen(const char *str)
+size_t	ft_strlen(char *str)
 {
 	size_t	i;
 
@@ -22,7 +22,7 @@ size_t	ft_strlen(const char *str)
 	return (i);
 }
 
-size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
+size_t	ft_strlcpy(char *dst, char *src, size_t dstsize)
 {
 	size_t	src_len;
 
@@ -36,10 +36,11 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 		}
 		*dst = '\0';
 	}
+  //free(src);
 	return (src_len);
 }
 
-char	*ft_strchr(const char *str, int c)
+char	*ft_strchr(char *str, int c)
 {
 	char	cc;
 
@@ -55,7 +56,7 @@ char	*ft_strchr(const char *str, int c)
 	return (NULL);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*result;
 	size_t	len_s1;
@@ -77,31 +78,9 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	if (!result)
 		return (NULL);
 	if (s1)
-		ft_strlcpy(result, s1, len_s1 + 1);
+		ft_strlcpy(result, (char *)s1, len_s1 + 1);
 	if (s2)
-		ft_strlcpy(result + len_s1, s2, len_s2 + 1);
+		ft_strlcpy(result + len_s1, (char *)s2, len_s2 + 1);
+  free(s1);
 	return (result);
 }
-
-char	*ft_strdup(const char *s1)
-{
-	char	*p;
-	size_t	len;
-	size_t	i;
-
-	len = 0;
-	while (s1[len] != '\0')
-		len++;
-	p = malloc(sizeof(char) * (len + 1));
-	if (p == NULL)
-		return (NULL);
-	i = 0;
-	while (i < len)
-	{
-		p[i] = s1[i];
-		i++;
-	}
-	p[i] = '\0';
-	return (p);
-}
-
