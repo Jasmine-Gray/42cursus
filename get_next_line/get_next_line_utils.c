@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:22 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/27 18:24:28 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/27 19:13:37 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,14 @@ char	*ft_strjoin(char const *s1, char const *s2)
 
 	if (!s1 && !s2)
 		return (NULL);
-	len_s1 = s1 ? ft_strlen(s1) : 0;
-	len_s2 = s2 ? ft_strlen(s2) : 0;
+	if (s1)
+		len_s1 = ft_strlen(s1);
+	else
+		len_s1 = 0;
+	if (s2)
+		len_s2 = ft_strlen(s2);
+	else
+		len_s2 = 0;
 	total_len = len_s1 + len_s2 + 1;
 	result = (char *)malloc(sizeof(char) * total_len);
 	if (!result)
@@ -77,53 +83,25 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (result);
 }
 
-// char	*ft_strjoin(char const *s1, char const *s2)
-// {
-// 	char	*str;
-// 	size_t	s1_len;
-// 	size_t	s2_len;
-// 	size_t	i;
-//
-// 	i = 0;
-// 	if (s1 == NULL || s2 == NULL)
-// 		return (NULL);
-// 	s1_len = ft_strlen(s1);
-// 	s2_len = ft_strlen(s2);
-// 	str = malloc(s1_len + s2_len + 1);
-// 	if (str == NULL)
-// 		return (NULL);
-// 	while (i < s1_len)
-// 	{
-// 		str[i] = s1[i];
-// 		i++;
-// 	}
-// 	ft_strlcpy(&(str[i]), s2, s2_len + 1);
-// 	return (str);
-// }
+char	*ft_strdup(const char *s1)
+{
+	char	*p;
+	size_t	len;
+	size_t	i;
 
-// static size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
-// {
-// 	size_t	dstlen;
-// 	size_t	srclen;
-// 	size_t	i;
-//
-//   if (!dst || !src)
-//     return (0);
-//
-// 	dstlen = 0;
-// 	srclen = 0;
-// 	i = 0;
-// 	while (dst[dstlen] != '\0' && dstlen < dstsize)
-// 		dstlen++;
-// 	while (src[srclen] != '\0')
-// 		srclen++;
-// 	if (dstlen == dstsize)
-// 		return (dstlen + srclen);
-// 	while (src[i] != '\0' && dstlen + i < dstsize - 1)
-// 	{
-// 		dst[dstlen + i] = src[i];
-// 		i++;
-// 	}
-// 	dst[dstlen + i] = '\0';
-// 	return (dstlen + srclen);
-// }
+	len = 0;
+	while (s1[len] != '\0')
+		len++;
+	p = malloc(sizeof(char) * (len + 1));
+	if (p == NULL)
+		return (NULL);
+	i = 0;
+	while (i < len)
+	{
+		p[i] = s1[i];
+		i++;
+	}
+	p[i] = '\0';
+	return (p);
+}
+
