@@ -6,14 +6,14 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 18:46:46 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/27 14:52:24 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/27 15:07:12 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//#include "get_next_line.h"
-//#include <fcntl.h>
-//#include <stdio.h>
-//#include <string.h>
+#include "get_next_line.h"
+#include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
 
 // int	main(int argc, char **argv)
 // {
@@ -45,25 +45,25 @@
 // 	return (0);
 // }
 
-// int	main(void)
-// {
-// 	int		fd;
-// 	char	*line;
-// 
-// 	fd = open("test1.txt", O_RDONLY);
-// 	if (fd == -1)
-// 	{
-// 		printf("Failed to open file\n");
-// 		return (1);
-// 	}
-// 	while ((line = get_next_line(fd)) != NULL)
-// 	{
-// 		printf("%s", line);
-// 		free(line);
-// 	}
-// 	close(fd);
-// 	return (0);
-// }
+int	main(void)
+{
+	int		fd;
+	char	*line;
+
+	fd = open("test1.txt", O_RDONLY);
+	if (fd == -1)
+	{
+		printf("Failed to open file\n");
+		return (1);
+	}
+	while ((line = get_next_line(fd)) != NULL)
+	{
+		printf("result===%s", line);
+		free(line);
+	}
+	close(fd);
+	return (0);
+}
 
 // #include "get_next_line.h"
 // #include <fcntl.h>

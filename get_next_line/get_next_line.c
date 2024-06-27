@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:02 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/27 14:53:48 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/27 15:09:36 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,8 @@ char	*road_file(int fd)
 			free(buf);
 			return (NULL);
 		}
-    //printf("buf=%s\n", buf);
-    //printf("str=%s\n", str);
+    printf("buf=%s\n", buf);
+    printf("str=%s\n", str);
 	}
 	free(buf);
 	if (r == -1)
@@ -44,7 +44,7 @@ char	*road_file(int fd)
 		free(str);
 		return (NULL);
 	}
-  //printf("str===%s\n", str);
+  printf("str===%s\n", str);
 	return (str);
 
 }
@@ -67,6 +67,7 @@ char	*get_a_line(char *str)
 	if (!buf)
 		return (NULL);
 	ft_strlcpy(buf, str, i + flag + 1);
+  printf("get_a_line_buf=%s\n", buf);
 	return (buf);
 }
 
@@ -109,7 +110,7 @@ char	*get_next_line(int fd)
   //{
   line = get_a_line(str);
   str = road_next_line(str);
-  //printf("result===%s\n", line);
+  printf("gnl_line===%s\n", line);
   //}
   return (line);
 }
