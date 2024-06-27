@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:22 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/26 04:50:31 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/27 12:25:37 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,25 +58,7 @@ char	*ft_strchr(const char *str, int c)
 // char	*ft_strjoin(char const *s1, char const *s2)
 // {
 // 	char	*str;
-// 
-// 	size_t len1, len2;
-// 	if (!s1 && !s2)
-// 		return (NULL);
-// 	len1 = s1 ? ft_strlen(s1) : 0;
-// 	len2 = s2 ? ft_strlen(s2) : 0;
-// 	str = malloc(len1 + len2 + 1);
-// 	if (!str)
-// 		return (NULL);
-// 	if (s1)
-// 		ft_strlcpy(str, s1, len1 + 1);
-// 	ft_strlcat(str + len1, s2, len2 + 1);
-// 	return (str);
-// }
-
-// char	*ft_strjoin(char const *s1, char const *s2)
-// {
-// 	char	*str;
-// 
+//
 // 	size_t len1, len2;
 // 	if (!s1 && !s2)
 // 		return (NULL);
@@ -115,30 +97,6 @@ char	*ft_strjoin(char const *s1, char const *s2)
 
 // char	*ft_strjoin(char const *s1, char const *s2)
 // {
-// 	char	*result;
-// 	size_t	len_s1;
-// 	size_t	len_s2;
-// 	size_t	total_len;
-// 
-// 	if (!s1 && !s2)
-// 		return (NULL);
-// 	else if (!s1)
-// 		return (ft_strdup(s2));
-// 	else if (!s2)
-// 		return (ft_strdup(s1));
-// 	len_s1 = ft_strlen(s1);
-// 	len_s2 = ft_strlen(s2);
-// 	total_len = len_s1 + len_s2 + 1;
-// 	result = (char *)malloc(sizeof(char) * total_len);
-// 	if (!result)
-// 		return (NULL);
-// 	ft_strlcpy(result, s1, len_s1 + 1);
-// 	ft_strlcat(result + len_s1, s2, len_s2 + 1);
-// 	return (result);
-// }
-
-// char	*ft_strjoin(char const *s1, char const *s2)
-// {
 // 	char	*str;
 // 	size_t	s1_len;
 // 	size_t	s2_len;
@@ -161,29 +119,29 @@ char	*ft_strjoin(char const *s1, char const *s2)
 // 	return (str);
 // }
 
-static size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
-{
-	size_t	dstlen;
-	size_t	srclen;
-	size_t	i;
-
-  if (!dst || !src)
-    return (0);
-
-	dstlen = 0;
-	srclen = 0;
-	i = 0;
-	while (dst[dstlen] != '\0' && dstlen < dstsize)
-		dstlen++;
-	while (src[srclen] != '\0')
-		srclen++;
-	if (dstlen == dstsize)
-		return (dstlen + srclen);
-	while (src[i] != '\0' && dstlen + i < dstsize - 1)
-	{
-		dst[dstlen + i] = src[i];
-		i++;
-	}
-	dst[dstlen + i] = '\0';
-	return (dstlen + srclen);
-}
+// static size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
+// {
+// 	size_t	dstlen;
+// 	size_t	srclen;
+// 	size_t	i;
+//
+//   if (!dst || !src)
+//     return (0);
+//
+// 	dstlen = 0;
+// 	srclen = 0;
+// 	i = 0;
+// 	while (dst[dstlen] != '\0' && dstlen < dstsize)
+// 		dstlen++;
+// 	while (src[srclen] != '\0')
+// 		srclen++;
+// 	if (dstlen == dstsize)
+// 		return (dstlen + srclen);
+// 	while (src[i] != '\0' && dstlen + i < dstsize - 1)
+// 	{
+// 		dst[dstlen + i] = src[i];
+// 		i++;
+// 	}
+// 	dst[dstlen + i] = '\0';
+// 	return (dstlen + srclen);
+// }
