@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:02 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/27 15:09:36 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/27 18:24:32 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,8 @@ char	*road_file(int fd)
 			free(buf);
 			return (NULL);
 		}
-    printf("buf=%s\n", buf);
-    printf("str=%s\n", str);
+		//printf("buf=%s\n", buf);
+		//printf("str=%s\n", str);
 	}
 	free(buf);
 	if (r == -1)
@@ -44,9 +44,8 @@ char	*road_file(int fd)
 		free(str);
 		return (NULL);
 	}
-  printf("str===%s\n", str);
+	//printf("str===%s\n", str);
 	return (str);
-
 }
 
 char	*get_a_line(char *str)
@@ -67,7 +66,7 @@ char	*get_a_line(char *str)
 	if (!buf)
 		return (NULL);
 	ft_strlcpy(buf, str, i + flag + 1);
-  printf("get_a_line_buf=%s\n", buf);
+	//printf("get_a_line_buf=%s\n", buf);
 	return (buf);
 }
 
@@ -92,7 +91,9 @@ char	*road_next_line(char *str)
 	}
 	i++;
 	ft_strlcpy(buf, &str[i], ft_strlen(str) - i + 1);
+	//	printf("road_next_line_str1=%s\n", str);
 	free(str);
+	//	printf("road_next_line_str2=%s\n", str);
 	return (buf);
 }
 
@@ -101,16 +102,17 @@ char	*get_next_line(int fd)
 	static char	*str;
 	char		*line;
 
-	if (0 > fd || 0 >= BUFFER_SIZE)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	str = road_file(fd);
-	if (!str)
-		return (NULL);
-  //while (str)
-  //{
-  line = get_a_line(str);
-  str = road_next_line(str);
-  printf("gnl_line===%s\n", line);
-  //}
-  return (line);
+	if (!str || !*str)
+	{
+		free(str);
+		str = road_file(fd);
+		if (!str)
+			return (NULL);
+	}
+	line = get_a_line(str);
+	str = road_next_line(str);
+	//	printf("gnl_line===%s\n", line);
+	return (line);
 }

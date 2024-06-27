@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:22 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/27 12:25:37 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/27 18:24:28 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,24 +54,6 @@ char	*ft_strchr(const char *str, int c)
 		return ((char *)str);
 	return (NULL);
 }
-
-// char	*ft_strjoin(char const *s1, char const *s2)
-// {
-// 	char	*str;
-//
-// 	size_t len1, len2;
-// 	if (!s1 && !s2)
-// 		return (NULL);
-// 	len1 = s1 ? ft_strlen(s1) : 0;
-// 	len2 = s2 ? ft_strlen(s2) : 0;
-// 	str = malloc(len1 + len2 + 1);
-// 	if (!str)
-// 		return (NULL);
-// 	if (s1)
-// 		ft_strlcpy(str, s1, len1 + 1);
-// 	ft_strlcat(str + len1, s2, len2 + 1);
-// 	return (str);
-// }
 
 char	*ft_strjoin(char const *s1, char const *s2)
 {
