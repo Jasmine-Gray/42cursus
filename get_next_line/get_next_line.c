@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:02 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/27 21:43:45 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/27 22:13:05 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,8 @@ char	*read_next_line(char *str)
 	i = 0;
 	while (str[i] && str[i] != '\n')
 		i++;
+  //if (str[i] == '\n')
+  //  i++;
 	if (!str[i])
 	{
 		free(str);
@@ -107,18 +109,18 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 
-  if (!str || !*str)
-	{
-		free(str);
-		str = read_file(fd);
-		if (!str)
-      return (NULL);
-	}
+  // if (!str || !*str)
+	// {
+	// 	free(str);
+	// 	str = read_file(fd);
+	// 	if (!str)
+  //     return (NULL);
+	// }
   
   //free(str);
-  //str = read_file(fd);
-  //if (!str)
-  //  return (NULL);
+  str = read_file(fd);
+  if (!str)
+    return (NULL);
 
 	line = get_a_line(str);
 	str = read_next_line(str);
