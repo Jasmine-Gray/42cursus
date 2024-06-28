@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:02 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/29 04:54:15 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/29 05:22:25 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,27 +20,31 @@ static char	*read_file(int fd, char *str)
 	buf = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buf)
 		return (NULL);
+
 	bytes = 1;
-	while (bytes != 0 && !ft_strchr(str, '\n'))
+
+	//while (bytes != 0 && !ft_strchr(str, '\n'))
+	while (bytes > 0 && !ft_strchr(str, '\n'))
 	{
 		bytes = read(fd, buf, BUFFER_SIZE);
 		if (bytes < 0)
 		{
 			free(buf);
+      free(str);
 			return (NULL);
 		}
     buf[bytes] = '\0';
 		str = ft_strjoin(str, buf);
-    //if (!str)
-    //{
-      //free(str);
-      //return (NULL);
-    //}
+    if (!str)
+    {
+      free(str);
+      free(buf);
+      return (NULL);
+    }
 		// if (!ft_strchr(str, '\n'))
 		// 	bytes = 0;
 	}
-  free(str);
-	free(buf);
+  free(buf);
 	return (str);
 }
 
@@ -56,7 +60,7 @@ static char	*get_line(char *str)
 		i++;
 	if (str[i] == '\n')
 		i++;
-	buf = (char *)malloc(sizeof(char) * i + 1);
+	buf = (char *)malloc(sizeof(char) * (i + 1));
 	if (!buf)
 		return (NULL);
   // printf("str=%s\n", str);

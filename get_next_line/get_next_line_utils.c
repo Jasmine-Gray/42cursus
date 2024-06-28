@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:22 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/29 04:54:18 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/29 05:22:27 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,14 +73,20 @@ char	*ft_strjoin(char *s1, char *s2)
     s1 = (char *)malloc(1);
     s1[0] = '\0';
   }
+
+  // if (!s1)
+  //   s1 = "";
+  // if (!s2)
+  //   s2 = "";
+
   len_s1 = ft_strlen(s1);
   len_s2 = ft_strlen(s2);
 	total_len = len_s1 + len_s2 + 1;
 	result = (char *)malloc(sizeof(char) * total_len);
 	if (!result)
 		return (NULL);
-  ft_strlcpy(result, s1, len_s1);
-  ft_strlcpy(result + len_s1, s2, len_s2);
+  ft_strlcpy(result, s1, len_s1 + 1);
+  ft_strlcpy(result + len_s1, s2, len_s2 + 1);
 	//free(s1);
 	return (result);
 }
