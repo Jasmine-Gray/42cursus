@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:26:35 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/29 03:21:39 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/29 07:56:19 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,5 +27,6 @@ char	*get_next_line(int fd);
 size_t	ft_strlcpy(char *dst, char *src, size_t dstsize);
 char	*ft_strchr(char *s, int c);
 char	*ft_strjoin(char *s1, char *s2);
+char	*ft_strdup(char *str);
 
 #endif

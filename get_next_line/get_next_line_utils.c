@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:22 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/29 05:22:27 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/29 07:56:14 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@ static size_t	ft_strlen(const char *str)
 	size_t	i;
 
 	i = 0;
-  if (!str)
-    return (0);
-  if (!str[0])
-    return (0);
+	if (!str)
+		return (0);
+	if (!str[0])
+		return (0);
 	while (str[i])
 		i++;
 	return (i);
@@ -48,8 +48,8 @@ char	*ft_strchr(char *str, int c)
 	char	cc;
 
 	cc = (char)c;
-  if (!str)
-    return (NULL);
+	if (!str)
+		return (NULL);
 	while (*str != '\0')
 	{
 		if (*str == cc)
@@ -69,24 +69,37 @@ char	*ft_strjoin(char *s1, char *s2)
 	size_t	total_len;
 
 	if (!s1)
-  {
-    s1 = (char *)malloc(1);
-    s1[0] = '\0';
-  }
-
-  // if (!s1)
-  //   s1 = "";
-  // if (!s2)
-  //   s2 = "";
-
-  len_s1 = ft_strlen(s1);
-  len_s2 = ft_strlen(s2);
+	{
+		s1 = (char *)malloc(1);
+		s1[0] = '\0';
+	}
+	// if (!s1)
+	//   s1 = "";
+	// if (!s2)
+	//   s2 = "";
+	len_s1 = ft_strlen(s1);
+	len_s2 = ft_strlen(s2);
 	total_len = len_s1 + len_s2 + 1;
 	result = (char *)malloc(sizeof(char) * total_len);
 	if (!result)
 		return (NULL);
-  ft_strlcpy(result, s1, len_s1 + 1);
-  ft_strlcpy(result + len_s1, s2, len_s2 + 1);
+	ft_strlcpy(result, s1, len_s1 + 1);
+	ft_strlcpy(result + len_s1, s2, len_s2 + 1);
 	//free(s1);
 	return (result);
+}
+
+char	*ft_strdup(char *str)
+{
+	char	*dup;
+	size_t	len;
+
+	if (!str)
+		return (NULL);
+	len = ft_strlen(str);
+	dup = (char *)malloc(sizeof(char) * (len + 1));
+	if (!dup)
+		return (NULL);
+	ft_strlcpy(dup, str, len + 1);
+	return (dup);
 }
