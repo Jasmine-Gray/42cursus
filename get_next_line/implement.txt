@@ -1,0 +1,63 @@
+0. 
+func name: get_next_line
+args: fd(ファイルディスクリプタ)
+return value: 改行までの文字列
+
+1. 
+func name: read_file 
+args: staticをした文字列
+中身: buffer size分毎回read関数を呼ぶ。 read(fd, str, BUFFER_SIZE); 改行を見つけたら終わり。もしくは、終端文字を見つけたら終わり。
+return value: 戻り値は、読み取った文字列。
+
+aaaaaaaaaaaaa
+bb/bbbbbbbbbb
+-> aaaaaaaaaaa\nbb
+
+2. 
+func name: get_line
+args: buffer分のstr
+中身: 改行または終端文字を見つける。
+return value: 改行または終端文字までの文字列
+
+aaaaaaaaaaa\nbb
+-> aaaaaaaaaaa\n
+
+3.
+func name: ???????
+args:buffer分のstr
+中身: 改行までスキップさせる。もし改行がなかったらreturn (NULL);
+戻り値: 改行以降の余った文字列.ただし、この戻り値は、staticをする。
+
+aaaaaaaaaaa\nbb
+-> bb(static)
+
+・・・・・・・・・・・・・・・・・・　
+
+2回目(BUFFER_SIZE 4)
+1.  
+args: bb
+return value: bb/bbbb/bbbb/bb\0/
+
+2. 
+args: bb/bbbb/bbbb/bb\0 
+return value: bb/bbbb/bbbb/bb\0 
+
+3. 
+args: bb/bbbb/bbbb/bb\0 
+return value: NULL
+static NULL
+
+・・・・・・・・・・・・・・・・・・
+3回目(BUFFER_SIZE 4)
+1.  
+args: NULL
+return value: NULL
+
+2. 
+args: bb/bbbb/bbbb/bb\0 
+return value: bb/bbbb/bbbb/bb\0 
+
+3. 
+args: bb/bbbb/bbbb/bb\0 
+return value: NULL
+static NULL
