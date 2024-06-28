@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:02 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/27 22:13:05 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/28 19:39:43 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,11 @@ char	*get_a_line(char *str)
 {
 	size_t	i;
 	size_t	flag;
+	size_t	j;
 	char	*buf;
 
 	i = 0;
+	j = 0;
 	if (!str[i])
 		return (NULL);
 	while (str[i] && str[i] != '\n')
@@ -66,7 +68,13 @@ char	*get_a_line(char *str)
 	buf = (char *)malloc(sizeof(char) * (i + flag + 1));
 	if (!buf)
 		return (NULL);
-	ft_strlcpy(buf, str, i + flag + 1);
+	while(j < i + flag)
+	{
+		buf[j] = str[j];
+		j++; 
+	}
+	buf[j] = '\0';
+	//ft_strlcpy(&buf, str, i + flag + 1);
 	//printf("get_a_line_buf=%s\n", buf);
 	return (buf);
 }
@@ -83,7 +91,7 @@ char	*read_next_line(char *str)
   //  i++;
 	if (!str[i])
 	{
-		free(str);
+			free(str);
 		return (NULL);
 	}
 	buf = (char *)malloc(sizeof(char) * (ft_strlen(str) - i + 1));
