@@ -6,12 +6,18 @@ return value: 改行までの文字列
 1. 
 func name: read_file 
 args: staticをした文字列
-中身: buffer size分毎回read関数を呼ぶ。 read(fd, str, BUFFER_SIZE); 改行を見つけたら終わり。もしくは、終端文字を見つけたら終わり。
+中身: buffer size分毎回read関数を呼ぶ。 
+呼んだらmallocでbuffer size分確保する。
+確保したものをstrに結合する。
+改行を見つけたら終わり。もしくは、終端文字を見つけたら終わり。
 return value: 戻り値は、読み取った文字列。
 
 aaaaaaaaaaaaa
 bb/bbbbbbbbbb
 -> aaaaaaaaaaa\nbb
+
+aaaa/aaaa/aaaa/a\n
+bb/
 
 2. 
 func name: get_line

@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:22 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/28 19:42:41 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/29 02:03:54 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ size_t	ft_strlcpy(char *dst, char *src, size_t dstsize)
 		}
 		*dst = '\0';
 	}
-  //free(src);
 	return (src_len);
 }
 
@@ -81,6 +80,6 @@ char	*ft_strjoin(char *s1, char *s2)
 		ft_strlcpy(result, (char *)s1, len_s1 + 1);
 	if (s2)
 		ft_strlcpy(result + len_s1, (char *)s2, len_s2 + 1);
-  free(s1);
+	free(s1);
 	return (result);
 }
