@@ -6,17 +6,21 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:25:22 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/29 02:03:54 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/29 04:54:18 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-size_t	ft_strlen(char *str)
+static size_t	ft_strlen(const char *str)
 {
 	size_t	i;
 
 	i = 0;
+  if (!str)
+    return (0);
+  if (!str[0])
+    return (0);
 	while (str[i])
 		i++;
 	return (i);
@@ -44,6 +48,8 @@ char	*ft_strchr(char *str, int c)
 	char	cc;
 
 	cc = (char)c;
+  if (!str)
+    return (NULL);
 	while (*str != '\0')
 	{
 		if (*str == cc)
@@ -62,24 +68,19 @@ char	*ft_strjoin(char *s1, char *s2)
 	size_t	len_s2;
 	size_t	total_len;
 
-	if (!s1 && !s2)
-		return (NULL);
-	if (s1)
-		len_s1 = ft_strlen(s1);
-	else
-		len_s1 = 0;
-	if (s2)
-		len_s2 = ft_strlen(s2);
-	else
-		len_s2 = 0;
+	if (!s1)
+  {
+    s1 = (char *)malloc(1);
+    s1[0] = '\0';
+  }
+  len_s1 = ft_strlen(s1);
+  len_s2 = ft_strlen(s2);
 	total_len = len_s1 + len_s2 + 1;
 	result = (char *)malloc(sizeof(char) * total_len);
 	if (!result)
 		return (NULL);
-	if (s1)
-		ft_strlcpy(result, (char *)s1, len_s1 + 1);
-	if (s2)
-		ft_strlcpy(result + len_s1, (char *)s2, len_s2 + 1);
-	free(s1);
+  ft_strlcpy(result, s1, len_s1);
+  ft_strlcpy(result + len_s1, s2, len_s2);
+	//free(s1);
 	return (result);
 }

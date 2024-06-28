@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/08 18:46:46 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/29 02:03:55 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/29 04:54:16 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,18 +28,18 @@ int	main(void)
 		return (1);
 	}
 
-	// int i = 0;
-	// while ((line = get_next_line(fd)) != NULL)
-	// {
-	// 	printf("i = %d : ",i++);
-	// 	printf("result===%s", line);
-	// 	free(line);
-  // }
+	int i = 0;
+	while ((line = get_next_line(fd)) != NULL)
+	{
+		printf("i = %d : ",i++);
+		printf("result===%s", line);
+		free(line);
+  }
 
 	printf("BUFFER_SIZE=%d\n", BUFFER_SIZE);
 
-	line = get_next_line(fd);
-	printf("result===%s\n", line);
+	// line = get_next_line(fd);
+	// printf("result===%s\n", line);
 	// line = get_next_line(fd);
 	// printf("result===%s\n", line);
 	// line = get_next_line(fd);

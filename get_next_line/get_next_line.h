@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/23 22:26:35 by mishimod          #+#    #+#             */
-/*   Updated: 2024/06/29 01:51:35 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/06/29 03:21:39 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@
 # include <unistd.h>
 
 char	*get_next_line(int fd);
-size_t	ft_strlen(char *s);
 size_t	ft_strlcpy(char *dst, char *src, size_t dstsize);
 char	*ft_strchr(char *s, int c);
 char	*ft_strjoin(char *s1, char *s2);
