@@ -38,7 +38,7 @@ static char	*read_file(int fd, char *str)
 	return (str);
 }
 
-static char	*get_line(char *str)
+static char	*get_line(const char *str)
 {
 	size_t	i;
 	char	*buf;
