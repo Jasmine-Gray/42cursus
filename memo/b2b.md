@@ -23,7 +23,8 @@
     各プログラムにセキュリティプロファイルを結びつけて、できることに制限をかける。
 
 ### 選択したオペレーティングシステム
-    uname -a
+- uname -a
+- cat /etc/os-release
 
 ### サービス起動確認
     UFW  sudo ufw status
@@ -91,7 +92,7 @@
     sudo --version
 
 ### sudoに割当て　確認
-    sudo usermod -aG [new]
+    sudo usermod -aG sudo [new]
     id [new] -Gn
 
 ### sudoの目的
@@ -152,7 +153,7 @@
 * ”\n”　のように書くとnおきに実行する
 
 ### cronの変更
-    crontaab -u root -e
+    sudo crontaab -u root -e
 
 ### cronの停止
     sudo systemctl stop cron
