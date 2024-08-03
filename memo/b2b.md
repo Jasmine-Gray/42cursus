@@ -149,6 +149,7 @@
 ### sshとは何か
     secure shellの略称
     リモートコンピューターと通信するための仕組み
+    通信データを暗号化しているため、より安全にアクセスできる
 
 ### ssh設定確認
     sudo nano /etc/ssh/sshd_config
