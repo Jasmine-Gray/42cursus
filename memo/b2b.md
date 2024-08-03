@@ -16,11 +16,13 @@
 ### aptitudeとaptの違い
     apt  apt-getを修正したもの
     aptitude 外部プロジェクトとして誕生
+    apt-getが最もシンプルで、その次にaptがシンプル
 
 ### APParmorとはなにか
     セキュリティ機能の一つ
     アプリ本来の力を抑え込む
     各プログラムにセキュリティプロファイルを結びつけて、できることに制限をかける。
+    プロファイルは、ネットワークアクセス、ファイルへの読み書き機能を制限できる
 
 ### 選択したオペレーティングシステム
 - uname -a
@@ -86,6 +88,7 @@
     複数のハードディスクやパーティションにまたがった記憶領域をひとつのLV(論理ボリューム)にまとめて扱うことができる。
     柔軟なストレージ管理
     動的なボリュームサイズ変更
+    システムを停止せずに論理ボリュームの拡大・縮小を行える
     複数の物理ディスクを一つの論理ボリュームとして扱える
 
 ### sudoインストール確認
@@ -118,6 +121,12 @@
 ### sudo ログ確認
     less /var/log/sudo/sodu.log
 
+### ttyとは
+    接続端末のデバイスファイル名
+    tty モード有効（requiretty）
+    有効にすることでcron等からの実行を許可させない
+
+
 ### ufw インストール確認
     sudo ufw status
 
@@ -144,6 +153,23 @@
 ### ホスト側でユーザーIDでアクセス
     ssh [user]@localhost -p 4242
 
+
+    sudo vim /usr/local/bin/monitoring.sh
+
+    wallコマンド　すべての端末に表示
+- OSの構成及びカーネルのバージョン　uname -a
+- 物理プロセッサの数 /proc/cpuinfo
+- 仮想プロセッサの数 /proc/cpuinfo
+- サーバー上で現在使用可能なディスクとその使用率 free
+- 現在のプロセッサの使用率 rop -bn1
+- 前回再起動の日時 who -b
+- LVMがアクティブかどうか lsblk
+- アクティブな接続の数 netstat
+- サーバーを使用しているユーザーの数 who
+- サーバーの　IPv4アドレスとそのMACアドレス hostname -l      ip a
+- sudoプログラムで実行されたコマンドの数　/var/log/sudo/sudo.log
+
+
 ### cronとは
     プログラムを定期的に自動実行させるための仕組み
 
@@ -154,7 +180,7 @@
 * ”\n”　のように書くとnおきに実行する
 
 ### cronの変更
-    sudo crontaab -u root -e
+    sudo crontab -u root -e
 
 ### cronの停止
     sudo systemctl stop cron
