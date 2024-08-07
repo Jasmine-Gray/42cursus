@@ -6,10 +6,13 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/05 18:21:02 by mishimod          #+#    #+#             */
-/*   Updated: 2024/08/05 18:23:44 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/08/07 13:15:57 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 
+push_swap(a)
+{
 
+}
