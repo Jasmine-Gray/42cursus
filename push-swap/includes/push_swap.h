@@ -6,24 +6,24 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/09/22 19:05:57 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/07 22:37:07 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PUSH_SWAP_H
 # define PUSH_SWAP_H
 
-typedef struct s_node
+typedef struct s_stack
 {
 		int value;
-		struct s_node *prev;
-		struct s_node *next;
+		struct s_stack *prev;
+		struct s_stack *next;
 
-} t_node
+} t_stack
 
 typedef struct s_linked_list
 {
-		t_node *top;
+		t_stack *top;
 
 } t_linked_list
 
