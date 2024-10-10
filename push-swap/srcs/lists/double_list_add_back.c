@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/07 16:54:42 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/08 20:00:10 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/11 00:09:02 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,15 +72,16 @@ int	main(void)
 	node_2 = node_new(24);
 	node_3 = node_new(42);
 	node_4 = node_new(26);
-    double_list_add_back(&stack, node_1);
-    double_list_add_back(&stack, node_2);
-    double_list_add_back(&stack, node_3);
-    double_list_add_back(&stack, node_4);
-
-	printf("stack=%d->%d->%d->%d\n", stack.top->value, stack.top->next->value, stack.top->next->next->value, stack.top->next->next->next->value); // . ha kouzoutai no senngen ga hennsuu ->ha pointer 
+	double_list_add_back(&stack, node_1);
+	double_list_add_back(&stack, node_2);
+	double_list_add_back(&stack, node_3);
+	double_list_add_back(&stack, node_4);
+	printf("stack=%d->%d->%d->%d\n", stack.top->value, stack.top->next->value,
+		stack.top->next->next->value, stack.top->next->next->next->value);
+		// . ha kouzoutai no senngen ga hennsuu ->ha pointer
 	free(node_1);
 	free(node_2);
 	free(node_3);
 	free(node_4);
-    return (0);
+	return (0);
 }
