@@ -3,32 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   double_list_add_back.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/10/07 16:54:42 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/11 16:20:48 by mishimod         ###   ########.fr       */
+/*   Created: 2024/10/11 18:40:12 by mishimod          #+#    #+#             */
+/*   Updated: 2024/10/11 18:40:15 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
-
-t_node	*find_last_node(t_linked_list *stack)
-{
-	t_node	*current;
-
-	if (!stack)
-		return (NULL);
-	if (!stack->top)
-		return (NULL);
-	if (stack->top->next == NULL)
-		return (stack->top);
-	current = stack->top;
-	while (!(current->next == stack->top))
-	{
-		current = current->next;
-	}
-	return (current);
-}
 
 t_linked_list	*double_list_add_back(t_linked_list *stack, t_node *new_node)
 {
@@ -49,6 +31,7 @@ t_linked_list	*double_list_add_back(t_linked_list *stack, t_node *new_node)
 		stack->top->prev = new_node;
 		new_node->next = stack->top;
 		new_node->prev = stack->top;
+		return (stack);
 	}
 	last = find_last_node(stack);
 	last->next = new_node;
