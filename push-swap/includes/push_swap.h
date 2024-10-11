@@ -6,13 +6,14 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/11 18:34:09 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/11 20:19:39 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PUSH_SWAP_H
 # define PUSH_SWAP_H
 
+# include "../libft/libft.h"
 # include <stdio.h>
 # include <stdlib.h>
 
