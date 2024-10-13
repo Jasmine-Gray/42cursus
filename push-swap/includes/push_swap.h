@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/11 20:19:39 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/13 18:31:50 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,5 +37,7 @@ t_linked_list		*double_list_add_back(t_linked_list *stack,
 t_node				*find_last_node(t_linked_list *stack);
 t_linked_list		*double_list_add_front(t_linked_list *stack,
 						t_node *new_node);
+void				detach_node(t_linked_list *stack, t_node *node_to_detach);
+int					count_node(t_linked_list *stack);
 
 #endif
