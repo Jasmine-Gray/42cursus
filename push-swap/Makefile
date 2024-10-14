@@ -1,7 +1,7 @@
 NAME = push_swap
 
 CC = cc
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror 
 
 SRCS_DIR = srcs
 INCLUDES_DIR = includes
@@ -9,13 +9,19 @@ LIBFT_DIR = libft
 
 LIBFT = libft/libft.a
 
-SRCS = 		srcs/lists/double_list_add_back.c\
-			srcs/lists/double_list_add_front.c\
-			srcs/lists/find_last_node.c\
-			srcs/lists/node_new.c\
-			srcs/lists/detach_node.c\
-			srcs/lists/count_node.c\
-			srcs/main.c\
+LISTS_SRCS = 		srcs/lists/double_list_add_back.c\
+					srcs/lists/double_list_add_front.c\
+					srcs/lists/find_last_node.c\
+					srcs/lists/node_new.c\
+					srcs/lists/detach_node.c\
+					srcs/lists/count_node.c\
+					srcs/main.c\
+
+COMMANDS_SRCS = 	srcs/commands/push.c\
+					srcs/commands/rotate.c\
+					srcs/commands/reverse_rotate.c\
+
+SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS)
 
 INCLUDES = -I $(INCLUDES_DIR)
 

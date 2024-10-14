@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/13 17:19:53 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/13 20:58:17 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/14 21:08:31 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,11 @@ void	detach_node(t_linked_list *stack, t_node *node_to_detach)
 	count = count_node(stack);
 	if (count == 1)
 	{
+		stack->top = NULL;
 		return ;
 	}
 	if (node_to_detach == stack->top)
-	{
 		stack->top = stack->top->next;
-	}
 	next_node = node_to_detach->next;
 	prev_node = node_to_detach->prev;
 	node_to_detach->next = NULL;
