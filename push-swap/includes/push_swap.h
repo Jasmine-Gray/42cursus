@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/14 20:48:11 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/15 01:53:22 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,5 +50,8 @@ void				*reverse_rotate_a(t_linked_list *stack_a);
 void				*reverse_rotate_b(t_linked_list *stack_b);
 void				*reverse_rotate_both(t_linked_list *stack_a,
 						t_linked_list *stack_b);
+void				*swap_a(t_linked_list *stack_a);
+void				*swap_b(t_linked_list *stack_b);
+void				*swap_both(t_linked_list *stack_a, t_linked_list *stack_b);
 
 #endif

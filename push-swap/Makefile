@@ -1,7 +1,7 @@
 NAME = push_swap
 
 CC = cc
-FLAGS = -Wall -Wextra -Werror 
+FLAGS = -Wall -Wextra -Werror -g -fsanitize=address
 
 SRCS_DIR = srcs
 INCLUDES_DIR = includes
@@ -20,6 +20,7 @@ LISTS_SRCS = 		srcs/lists/double_list_add_back.c\
 COMMANDS_SRCS = 	srcs/commands/push.c\
 					srcs/commands/rotate.c\
 					srcs/commands/reverse_rotate.c\
+					srcs/commands/swap.c\
 
 SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS)
 

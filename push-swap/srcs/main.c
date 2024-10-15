@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/19 13:00:18 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/14 21:12:25 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/15 12:07:39 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,13 +110,13 @@ int	main(void)
 	print_stack(&stack_a);
 	print_stack(&stack_b);
 
-	push_a(&stack_a, &stack_b);
-	print_stack(&stack_a);
-	print_stack(&stack_b);
+	// push_a(&stack_a, &stack_b);
+	// print_stack(&stack_a);
+	// print_stack(&stack_b);
 
-	push_a(&stack_a, &stack_b);
-	print_stack(&stack_a);
-	print_stack(&stack_b);
+	// push_a(&stack_a, &stack_b);
+	// print_stack(&stack_a);
+	// print_stack(&stack_b);
 
 	printf("===================================\n");
 	printf("rotate_a\n");
@@ -216,6 +216,57 @@ int	main(void)
 	reverse_rotate_both(&stack_a, &stack_b);
 	print_stack(&stack_a);
 	print_stack(&stack_b);
+
+
+	printf("===================================\n");
+	printf("swap_a\n");
+
+	swap_a(&stack_a);
+	print_stack(&stack_a);
+
+	swap_a(&stack_a);
+	print_stack(&stack_a);
+
+	// swap_a(&stack_a);
+	// print_stack(&stack_a);
+
+	// swap_a(&stack_a);
+	// print_stack(&stack_a);
+
+	printf("===================================\n");
+	printf("swap_b\n");
+
+	swap_b(&stack_b);
+	print_stack(&stack_b);
+
+	swap_b(&stack_b);
+	print_stack(&stack_b);
+
+	// swap_b(&stack_b);
+	// print_stack(&stack_b);
+
+	// swap_b(&stack_b);
+	// print_stack(&stack_b);
+
+	printf("===================================\n");
+	printf("swap_both\n");
+
+	swap_both(&stack_a, &stack_b);
+	print_stack(&stack_a);
+	print_stack(&stack_b);
+
+	swap_both(&stack_a, &stack_b);
+	print_stack(&stack_a);
+	print_stack(&stack_b);
+
+	// swap_both(&stack_a, &stack_b);
+	// print_stack(&stack_a);
+	// print_stack(&stack_b);
+
+	// swap_both(&stack_a, &stack_b);
+	// print_stack(&stack_a);
+	// print_stack(&stack_b);
+
 
 	printf("===================================\n");
 	printf("count_node\n");
