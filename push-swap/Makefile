@@ -22,7 +22,11 @@ COMMANDS_SRCS = 	srcs/commands/push.c\
 					srcs/commands/reverse_rotate.c\
 					srcs/commands/swap.c\
 
-SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS)
+UTILS_SRCS  =	 	srcs/utils/build_stack.c\
+					srcs/utils/check_args.c\
+					srcs/utils/push_swap_main.c\
+
+SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS) $(UTILS_SRCS)
 
 INCLUDES = -I $(INCLUDES_DIR)
 

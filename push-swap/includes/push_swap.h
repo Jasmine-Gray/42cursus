@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/15 01:53:22 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/15 23:17:10 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ typedef struct s_linked_list
 
 }					t_linked_list;
 
+// lists
 t_node				*node_new(int value);
 t_node				*find_last_node(t_linked_list *stack);
 t_linked_list		*double_list_add_back(t_linked_list *stack,
@@ -40,6 +41,7 @@ t_linked_list		*double_list_add_front(t_linked_list *stack,
 						t_node *new_node);
 int					count_node(t_linked_list *stack);
 void				detach_node(t_linked_list *stack, t_node *node_to_detach);
+// commands
 void				*push_a(t_linked_list *stack_a, t_linked_list *stack_b);
 void				*push_b(t_linked_list *stack_a, t_linked_list *stack_b);
 void				*rotate_a(t_linked_list *stack_a);
@@ -53,5 +55,9 @@ void				*reverse_rotate_both(t_linked_list *stack_a,
 void				*swap_a(t_linked_list *stack_a);
 void				*swap_b(t_linked_list *stack_b);
 void				*swap_both(t_linked_list *stack_a, t_linked_list *stack_b);
+// utils
+const char			**check_args(int argc, const char **argv);
+void				build_stack(int argc, const char **argv_str,
+						t_linked_list *stack);
 
 #endif
