@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/17 21:06:49 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/21 16:38:50 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,11 @@ sort(t_linked_list *stack, )
 		while (left->value < pivot->value)
 		{
 				left = left->next;
-				if (left->next == left->next)
-				{
-						//swap left and pivot;
-						break ;
-				}
+		}
+		if (left->next == right->next)
+		{
+				//swap left and pivot;
+				break ;
 		}
 		if (left->value > pivot->value) 
 		{
@@ -42,6 +42,10 @@ sort(t_linked_list *stack, )
 				if (right->value < pivot->value)
 				{
 						//swap left & right;
+				}
+				if (left->prev == right->next)
+				{
+						//insert pivot to between L and R
 				}
 		}
 	}
