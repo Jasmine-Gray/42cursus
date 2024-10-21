@@ -6,13 +6,13 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/21 16:38:50 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/21 16:55:08 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.c"
 
-sort(t_linked_list *stack, )
+void sort(t_linked_list *stack)
 {
 	t_node	*pivot;
 	t_node	*left;
