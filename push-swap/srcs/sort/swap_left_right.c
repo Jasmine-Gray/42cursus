@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 16:56:10 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/21 22:43:40 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/22 17:15:45 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,3 +60,4 @@ void swap_left_right(t_linked_list *stack, t_node *left, t_node *right)
 				}
 		}
 }
+
