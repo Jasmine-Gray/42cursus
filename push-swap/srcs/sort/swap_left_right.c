@@ -6,24 +6,45 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 16:56:10 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/24 16:40:11 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/24 17:53:25 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
 
-int	measure_distance(void)
+static void	retain_value(t_node *left, t_node *right);
 {
+	t_node *tmp;
+
+	tmp = left;
+	left = right;
+	right = tmp;
 }
 
-void	close_to_top(t_linked_list *stack, t_node *left, t_node *right)
+static int	measure_distance(t_linked_list *stack)
 {
 	t_linked_list	*stack_a;
-	t_linked_list	*stack_b;
-	int				count;
+	int				distance;
+	t_node			*last;
 
 	stack_a = stack;
-	stack_b = NULL;
+	distance = 0;
+	last = find_last_node(stack_a);
+	if (!stack_a)
+		return ;
+	while (!last)
+	{
+		distance++;
+		stack_a->top->next;
+	}
+	return (distance);
+}
+
+static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
+		t_node *left, t_node *right)
+{
+	int	count;
+
 	while (!(left->next == stack_a->top))
 	{
 		push_b(stack_a, stack_b);
@@ -36,20 +57,20 @@ void	close_to_top(t_linked_list *stack, t_node *left, t_node *right)
 	}
 	push_b(stack_a, stack_b);
 	swap_b(stack_b);
+	retain_value(left, right);
 	push_a(stack_a, stack_b);
-	while (count)
+	while (count != 0)
 	{
 		rotate_a(stack_a);
+		count--;
 	}
 }
 
-void	close_to_bottom(t_linked_list *stack, t_node *left, t_node *right)
+static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b,
+		t_node *left, t_node *right)
 {
-	t_linked_list	*stack_a;
-	t_linked_list	*stack_b;
+	int	count;
 
-	stack_a = stack;
-	stack_b = NULL;
 	while (right == stack_b->top)
 	{
 		reverse_rotate_a(stack_a);
@@ -63,10 +84,12 @@ void	close_to_bottom(t_linked_list *stack, t_node *left, t_node *right)
 	}
 	push_b(stack_a, stack_b);
 	swap_b(stack_b);
+	retain_value(left, right);
 	push_a(stack_a, stack_b);
-	while (count)
+	while (count != 0)
 	{
 		rotate_a(stack_a);
+		count--;
 	}
 	while (stack_b)
 		push_a(stack_a, stack_b);
@@ -83,10 +106,10 @@ void	swap_left_right(t_linked_list *stack, t_node *left, t_node *right)
 	distance = measure_distance();
 	if (distance == close from top)
 	{
-		close_to_top(stack, left, right);
+		close_to_top(stack_a, stack_b, left, right);
 	}
 	if (distance == close from bottom)
 	{
-		close_to_bottom(stack, left, right);
+		close_to_bottom(stack_a, stack_b, left, right);
 	}
 }
