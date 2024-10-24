@@ -26,7 +26,13 @@ UTILS_SRCS  =	 	srcs/utils/build_stack.c\
 					srcs/utils/check_args.c\
 					srcs/utils/push_swap_main.c\
 
-SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS) $(UTILS_SRCS)
+SORT_SRCS  = 		srcs/sort/insert_pivot.c\
+					srcs/sort/sort.c\
+					srcs/sort/sort_utils.c\
+					srcs/sort/swap_left_pivot.c\
+					srcs/sort/swap_left_right.c\
+
+SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS) $(UTILS_SRCS) $(SORT_SRCS)
 
 INCLUDES = -I $(INCLUDES_DIR)
 

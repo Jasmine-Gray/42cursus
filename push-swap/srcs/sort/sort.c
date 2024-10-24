@@ -6,11 +6,11 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/21 16:55:08 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/24 21:32:45 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "push_swap.c"
+#include "push_swap.h"
 
 void sort(t_linked_list *stack)
 {
@@ -25,24 +25,18 @@ void sort(t_linked_list *stack)
 	while (!(left->next == right->next))
 	{
 		while (left->value < pivot->value)
-		{
 				left = left->next;
-		}
 		if (left->next == right->next)
 		{
-				//swap left and pivot;
+				swap_left_pivot(stack, left, pivot);
 				break ;
 		}
 		if (left->value > pivot->value) 
 		{
 				while (right->value > pivot->value)
-				{
 						right = right->prev;
-				}
 				if (right->value < pivot->value)
-				{
-						//swap left & right;
-				}
+						swap_left_right(stack, left, right);
 				if (left->prev == right->next)
 				{
 						//insert pivot to between L and R
