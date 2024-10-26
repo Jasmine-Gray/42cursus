@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 20:53:37 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/26 00:12:26 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/26 16:01:48 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,17 +36,19 @@ int	measure_distance(t_linked_list *stack, t_node *left)
 	int				count;
 	int				distance;
 	int				result;
+	t_node *current;
 
 	stack_a = stack;
 	if (!stack_a)
-		return ;
+		return 0;
 	count = count_node(stack_a);
 	distance = 0;
+	current = stack_a->top;
 	while (!left)
 	{
 		distance++;
-		stack_a->top->next;
+		current = current->next;
 	}
-	result = count / left;
+	result = (distance / count) * 100;
 	return (result);
 }
