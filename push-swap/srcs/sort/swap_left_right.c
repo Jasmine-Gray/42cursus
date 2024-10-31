@@ -6,12 +6,11 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 16:56:10 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/31 14:39:55 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/31 16:08:44 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
-
 
 static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
 		t_node *left, t_node *right)
@@ -22,7 +21,7 @@ static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
 	{
 		push_b(stack_a, stack_b);
 	}
-    push_b(stack_a, stack_b);
+	push_b(stack_a, stack_b);
 	count = 0;
 	printf("right=%d\n", right->value);
 	while (!(right == stack_a->top))
@@ -39,6 +38,10 @@ static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
 		rotate_a(stack_a);
 		count--;
 	}
+	while (stack_b != NULL)
+		push_a(stack_a, stack_b);
+	printf("sortright=%d\n", right->value);
+	printf("sortleft=%d\n", left->value);
 }
 
 static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b,
@@ -88,4 +91,3 @@ void	swap_left_right(t_linked_list *stack, t_node *left, t_node *right)
 		close_to_bottom(stack_a, stack_b, left, right);
 	}
 }
-
