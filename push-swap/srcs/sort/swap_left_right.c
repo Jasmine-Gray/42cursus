@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 16:56:10 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/26 15:55:36 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/31 14:39:55 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,14 @@ static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
 {
 	int	count;
 
-	while (!(left->next == stack_a->top))
+	while (!(left == stack_a->top))
 	{
 		push_b(stack_a, stack_b);
 	}
+    push_b(stack_a, stack_b);
 	count = 0;
-	while (!(right = stack_a->top))
+	printf("right=%d\n", right->value);
+	while (!(right == stack_a->top))
 	{
 		reverse_rotate_a(stack_a);
 		count++;

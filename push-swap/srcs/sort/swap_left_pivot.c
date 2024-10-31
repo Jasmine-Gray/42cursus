@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 18:11:01 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/26 16:54:05 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/31 13:44:35 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,12 @@ static void	close_to_top(t_linked_list *stack, t_node *left, t_node *pivot)
 	stack_a = stack;
 	stack_b = NULL;
 	printf("left=%d\n", left->value);
-	while (!(left->next == stack_a->top))
+	while (!(left == stack_a->top))
 	{
 		push_b(stack_a, stack_b);
-		left = left->prev;
+		//left = left->prev;
 	}
+    push_b(stack_a, stack_b);
 	reverse_rotate_a(stack_a);
 	push_b(stack_a, stack_b);
 	swap_b(stack_b);

@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 17:15:18 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/17 15:19:37 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/31 12:48:18 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	build_stack(int argc, const char **argv_str, t_linked_list *stack)
 	while (argv_str[i])
 	{
 		tmp = node_new(ft_atoi(argv_str[i]));
-		if (!(argc == 2))
+		if (!(argc >= 2))
 			return ;
 		if (!tmp)
 			return ;

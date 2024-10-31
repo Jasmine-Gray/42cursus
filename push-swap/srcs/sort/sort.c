@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/26 16:56:05 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/31 14:43:13 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,10 @@ void sort(t_linked_list *stack)
 				while (right->value > pivot->value)
 						right = right->prev;
 				if (right->value < pivot->value)
+				{
 						swap_left_right(stack, left, right);
+						break ;
+				}
 				if (left->prev == right)
 				{
 						insert_pivot(stack, left);

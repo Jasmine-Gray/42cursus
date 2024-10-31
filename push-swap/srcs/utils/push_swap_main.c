@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:55 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/24 21:37:36 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/31 12:46:11 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,10 @@ int	main(int argc, char const *argv[])
 {
 	t_linked_list	stack_a;
 	const char		**argv_str;
+	t_linked_list	*stack_b;
 
-	// t_linked_list	*stack_b;
 	stack_a.top = NULL;
-	// stack_b = NULL;
+	stack_b = NULL;
 	argv_str = check_args(argc, argv);
 	build_stack(argc, argv_str, &stack_a);
 	print_stack(&stack_a);
