@@ -1,7 +1,7 @@
 NAME = push_swap
 
 CC = cc
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror -g -fsanitize=address
 
 SRCS_DIR = srcs
 INCLUDES_DIR = includes
@@ -25,7 +25,7 @@ COMMANDS_SRCS = 	srcs/commands/push.c\
 UTILS_SRCS  =	 	srcs/utils/build_stack.c\
 					srcs/utils/check_args.c\
 					srcs/utils/push_swap_main.c\
-
+					
 SORT_SRCS  = 		srcs/sort/insert_pivot.c\
 					srcs/sort/sort.c\
 					srcs/sort/sort_utils.c\

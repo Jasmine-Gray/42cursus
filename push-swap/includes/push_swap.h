@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/26 16:44:28 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/31 20:08:25 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,13 +59,14 @@ void				*swap_both(t_linked_list *stack_a, t_linked_list *stack_b);
 const char			**check_args(int argc, const char **argv);
 void				build_stack(int argc, const char **argv_str,
 						t_linked_list *stack);
+void				print_stack(t_linked_list *stack);
 // sort
 
-void				sort(t_linked_list *stack);
-void				swap_left_right(t_linked_list *stack, t_node *left,
-						t_node *right);
-void				swap_left_pivot(t_linked_list *stack, t_node *left,
-						t_node *pivot);
+void				sort(t_linked_list *stack_a, t_linked_list *stack_b);
+void				swap_left_pivot(t_linked_list *stack_a,
+						t_linked_list *stack_b, t_node *left, t_node *pivot);
+void				swap_left_right(t_linked_list *stack_a,
+						t_linked_list *stack_b, t_node *left, t_node *right);
 void				retain_value(t_node *left, t_node *right);
 void				retain_pivot(t_node *left, t_node *pivot);
 int					measure_distance(t_linked_list *stack, t_node *left);

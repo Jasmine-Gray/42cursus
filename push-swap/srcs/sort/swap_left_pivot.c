@@ -6,19 +6,14 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 18:11:01 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/31 16:08:56 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/31 20:08:53 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
 
-static void	close_to_top(t_linked_list *stack, t_node *left, t_node *pivot)
+static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left, t_node *pivot)
 {
-	t_linked_list	*stack_a;
-	t_linked_list	*stack_b;
-
-	stack_a = stack;
-	stack_b = NULL;
 	printf("left=%d\n", left->value);
 	while (!(left == stack_a->top))
 	{
@@ -35,14 +30,10 @@ static void	close_to_top(t_linked_list *stack, t_node *left, t_node *pivot)
 		push_a(stack_a, stack_b);
 }
 
-static void	close_to_bottom(t_linked_list *stack, t_node *left, t_node *pivot)
+static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left, t_node *pivot)
 {
-	t_linked_list	*stack_a;
-	t_linked_list	*stack_b;
 	int				count;
 
-	stack_a = stack;
-	stack_b = NULL;
 	reverse_rotate_a(stack_a);
 	push_b(stack_a, stack_b);
 	count = 0;
@@ -64,21 +55,19 @@ static void	close_to_bottom(t_linked_list *stack, t_node *left, t_node *pivot)
 	rotate_a(stack_a);
 }
 
-void	swap_left_pivot(t_linked_list *stack, t_node *left, t_node *pivot)
+void	swap_left_pivot(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left, t_node *pivot)
 {
 	int				distance;
-	t_linked_list	*stack_a;
 
-	stack_a = stack;
 	distance = measure_distance(stack_a, left);
-	if (!stack)
+	if (!stack_a)
 		return ;
 	if (distance <= 75)
 	{
-		close_to_top(stack, left, pivot);
+		close_to_top(stack_a, stack_b, left, pivot);
 	}
 	if (distance > 75)
 	{
-		close_to_bottom(stack, left, pivot);
+		close_to_bottom(stack_a, stack_b, left, pivot);
 	}
 }

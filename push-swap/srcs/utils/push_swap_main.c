@@ -6,13 +6,13 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:55 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/31 16:09:02 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/10/31 20:18:09 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
 
-static void	print_stack(t_linked_list *stack)
+void	print_stack(t_linked_list *stack)
 {
 	t_node	*current;
 	int		num;
@@ -41,13 +41,13 @@ int	main(int argc, char const *argv[])
 {
 	t_linked_list	stack_a;
 	const char		**argv_str;
-	t_linked_list	*stack_b;
+	t_linked_list	stack_b;
 
 	stack_a.top = NULL;
-	stack_b = NULL;
+	stack_b.top = NULL;
 	argv_str = check_args(argc, argv);
 	build_stack(argc, argv_str, &stack_a);
 	print_stack(&stack_a);
-	sort(&stack_a);
+	sort(&stack_a, &stack_b);
 	return (0);
 }
