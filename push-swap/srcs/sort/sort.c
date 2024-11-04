@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/31 21:39:41 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/03 19:05:00 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left, t_n
 	t_node	*partition;
 	t_node	*right;
 
-	partition = NULL;
+	partition = pivot;
 	right = pivot->prev;
 	if (!stack_a || !left || !right || !pivot)
 		return ;
@@ -31,7 +31,7 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left, t_n
 		if (left->next == right->next)
 		{
 			swap_left_pivot(stack_a, stack_b, left, pivot);
-			//partition = left;
+			partition = left;
 			break ;
 		}
 		if (left->value > pivot->value)
@@ -41,7 +41,7 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left, t_n
 			if (right->value < pivot->value)
 			{
 				swap_left_right(stack_a, stack_b, left, right);
-				partition->value = pivot->value;
+				partition = pivot;
 				//break ;
 			}
 			if (left->prev == right)
@@ -52,7 +52,7 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left, t_n
 		    //partition = pivot;
 		}
 	}
-    partition->value = left->value;
+    partition = left;
 	printf("partition=%d\n", partition->value);
 	if (partition != pivot)
 		main_sort(stack_a, stack_b, partition->next, pivot);
@@ -107,7 +107,7 @@ void	sort(t_linked_list *stack_a, t_linked_list *stack_b)
 // 	}
 //
 // 	if (left != partition)
-// 			quick_sort_recursive(stack, left, partition->prev);
+// 			quick_sort_recursive(stack, left, partition.prev);
 // 	if (partition != pivot)
-// 			quick_sort_recursive(stack, partition->next, pivot);
+// 			quick_sort_recursive(stack, partition.next, pivot);
 // }

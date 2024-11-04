@@ -54,3 +54,10 @@ swap_left_right();
 swap_left_pivot();
 insert_pivot();
 ```
+
+### 違い
+partition.value
+partition->valueの違い
+
+.は構造体が実体で、member変数にアクセスしたい場合
+->は構造体がアドレスで、member変数にアクセスしたい場合
