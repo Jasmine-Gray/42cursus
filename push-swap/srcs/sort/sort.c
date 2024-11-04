@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/03 19:05:00 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/04 15:33:27 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 
 void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left, t_node *pivot)
 {
-	t_node	*partition;
+	t_node	partition;
 	t_node	*right;
 
-	partition = pivot;
+	partition = *pivot;
 	right = pivot->prev;
 	if (!stack_a || !left || !right || !pivot)
 		return ;
@@ -31,7 +31,7 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left, t_n
 		if (left->next == right->next)
 		{
 			swap_left_pivot(stack_a, stack_b, left, pivot);
-			partition = left;
+			partition = *left;
 			break ;
 		}
 		if (left->value > pivot->value)
@@ -41,23 +41,20 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left, t_n
 			if (right->value < pivot->value)
 			{
 				swap_left_right(stack_a, stack_b, left, right);
-				partition = pivot;
-				//break ;
+				break ;
 			}
 			if (left->prev == right)
 			{
 				insert_pivot(stack_a, left);
 				break ;
 			}
-		    //partition = pivot;
 		}
 	}
-    partition = left;
-	printf("partition=%d\n", partition->value);
-	if (partition != pivot)
-		main_sort(stack_a, stack_b, partition->next, pivot);
-	if (partition != left)
-		main_sort(stack_a, stack_b, left, partition->prev);
+	printf("partition=%d\n", partition.value);
+	if (partition.value != pivot->value)
+		main_sort(stack_a, stack_b, partition.next, pivot);
+	if (partition.value != left->value)
+		main_sort(stack_a, stack_b, left, partition.prev);
 }
 
 void	sort(t_linked_list *stack_a, t_linked_list *stack_b)
