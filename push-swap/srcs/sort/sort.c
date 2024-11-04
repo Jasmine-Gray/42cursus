@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/04 15:33:27 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/04 17:46:40 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,56 +19,60 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left, t_n
 
 	partition = *pivot;
 	right = pivot->prev;
+
 	if (!stack_a || !left || !right || !pivot)
 		return ;
-	while (!(left->next == right->next))
+	printf("1left=%d\n", left->value);
+	printf("1right=%d\n", right->value);
+	printf("1pivot=%d\n", pivot->value);
+	if (!(left->next == right->next))
 	{
-		while (left->value < pivot->value)
-			left = left->next;
-		printf("left=%d\n", left->value);
-		printf("right=%d\n", right->value);
-		printf("pivot=%d\n", pivot->value);
-		if (left->next == right->next)
-		{
-			swap_left_pivot(stack_a, stack_b, left, pivot);
-			partition = *left;
-			break ;
-		}
-		if (left->value > pivot->value)
-		{
-			while (right->value > pivot->value)
-				right = right->prev;
-			if (right->value < pivot->value)
+			while (left->value < pivot->value)
+					left = left->next;
+			printf("2left=%d\n", left->value);
+			printf("2right=%d\n", right->value);
+			printf("2pivot=%d\n", pivot->value);
+			if (left->next == right->next)
 			{
-				swap_left_right(stack_a, stack_b, left, right);
-				break ;
+					swap_left_pivot(stack_a, stack_b, left, pivot);
+					partition = *left;
+					//break ;
 			}
-			if (left->prev == right)
+			if (left->value > pivot->value)
 			{
-				insert_pivot(stack_a, left);
-				break ;
+					while (right->value > pivot->value)
+							right = right->prev;
+					if (right->value < pivot->value)
+					{
+							swap_left_right(stack_a, stack_b, left, right);
+							//break ;
+					}
+					if (left->prev == right)
+					{
+							insert_pivot(stack_a, left);
+							//break ;
+					}
 			}
-		}
 	}
 	printf("partition=%d\n", partition.value);
 	if (partition.value != pivot->value)
-		main_sort(stack_a, stack_b, partition.next, pivot);
+			main_sort(stack_a, stack_b, left, pivot);
 	if (partition.value != left->value)
-		main_sort(stack_a, stack_b, left, partition.prev);
+			main_sort(stack_a, stack_b, partition.prev, left);
 }
 
 void	sort(t_linked_list *stack_a, t_linked_list *stack_b)
 {
-	t_node	*pivot;
-	t_node	*left;
+		t_node	*pivot;
+		t_node	*left;
 
-	if (!stack_a)
-		return ;
-	if (!stack_a->top)
-		return ;
-	pivot = find_last_node(stack_a);
-	left = stack_a->top;
-	main_sort(stack_a, stack_b, left, pivot);
+		if (!stack_a)
+				return ;
+		if (!stack_a->top)
+				return ;
+		pivot = find_last_node(stack_a);
+		left = stack_a->top;
+		main_sort(stack_a, stack_b, left, pivot);
 }
 
 // void	quick_sort_recursive(t_linked_list *stack, t_node *left, t_node *pivot)
