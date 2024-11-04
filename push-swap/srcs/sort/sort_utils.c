@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 20:53:37 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/04 19:16:04 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/04 21:41:57 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,23 +14,23 @@
 
 void	retain_value(t_node **left, t_node **right)
 {
-	t_node **tmp;
+	t_node *tmp;
 
-	tmp = left;
-	left = right;
-	right = tmp;
+	tmp = *left;
+	*left = *right;
+	*right = tmp;
 }
 
-void	retain_pivot(t_node *left, t_node *pivot)
+void	retain_pivot(t_node **left, t_node **pivot)
 {
-	int	tmp;
+	t_node	*tmp;
 
-	tmp = left->value;
-	left->value = pivot->value;
-	pivot->value = tmp;
+	tmp = *left;
+	*left = *pivot;
+	*pivot = tmp;
 }
 
-int	measure_distance(t_linked_list *stack, t_node *left)
+int	measure_distance(t_linked_list *stack, t_node **left)
 {
 	t_linked_list	*stack_a;
 	int				count;

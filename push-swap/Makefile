@@ -1,6 +1,7 @@
 NAME = push_swap
 
 CC = cc
+#FLAGS = -Wall -Wextra -Werror -g -fsanitize=address
 FLAGS = -Wall -Wextra -Werror -g -fsanitize=address
 
 SRCS_DIR = srcs
