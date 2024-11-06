@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/04 21:43:49 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/05 20:47:38 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,10 +48,10 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 			}
 		}
 	}
-	// if (partition.value != pivot->value)
-	// 		main_sort(stack_a, stack_b, left, pivot);
-	// if (partition.value != left->value)
-	// 		main_sort(stack_a, stack_b, partition.prev, left);
+	if (partition.value != pivot->value)
+			main_sort(stack_a, stack_b, left, pivot);
+	if (partition.value != left->value)
+			main_sort(stack_a, stack_b, partition.prev, left);
 	print_stack(stack_a);
 }
 
