@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/06 18:04:43 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/07 15:16:32 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 	right = pivot->prev;
 	if (!stack_a || !left || !right || !pivot)
 		return ;
-	if (left->next != right->next)
+	while (left->next != right->next)
 	{
 		while (left->value < pivot->value)
 			left = left->next;
@@ -54,7 +54,7 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 			main_sort(stack_a, stack_b, left, pivot);
 	if (partition.value == left->value)
 			main_sort(stack_a, stack_b, stack_a->top, left);
-	print_stack(stack_a);
+	//print_stack(stack_a);
 }
 
 void	sort(t_linked_list *stack_a, t_linked_list *stack_b)
