@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/04 21:42:23 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/07 19:53:24 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,6 @@ void				retain_value(t_node **left, t_node **right);
 void				retain_pivot(t_node **left, t_node **pivot);
 int					measure_distance(t_linked_list *stack, t_node **left);
 void				insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b,
-						t_node **left);
+						t_node **left, t_node **pivot);
 
 #endif

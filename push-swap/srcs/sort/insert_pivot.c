@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 20:58:19 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/04 21:41:21 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/07 19:53:40 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,9 @@ static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b, t_node 
 		push_b(stack_a, stack_b);
 	}
 	reverse_rotate_a(stack_a);
-	push_a(stack_a, stack_b);
+	while (stack_b->top != NULL)
+			push_a(stack_a, stack_b);
+
 }
 
 static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b, t_node **left)
@@ -46,9 +48,10 @@ static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b, t_no
 		return ;
 }
 
-void	insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b, t_node **left)
+void	insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b, t_node **left, t_node **pivot)
 {
 	int				distance;
+	t_node *last;
 
 	distance = measure_distance(stack_a, left);
 	if (!stack_a)
@@ -61,4 +64,6 @@ void	insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b, t_node **left)
 	{
 			close_to_bottom(stack_a, stack_b, left);
 	}
+	last = find_last_node(stack_a); 
+	*pivot = last;
 }

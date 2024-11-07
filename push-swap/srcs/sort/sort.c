@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/07 19:16:07 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/07 19:56:44 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,15 +29,10 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 		if (left->next == right->next)
 		{
 			swap_left_pivot(stack_a, stack_b, &left, &pivot);
+		    partition = *left->prev;
 			if (left->next != pivot)
 				main_sort(stack_a, stack_b, left, pivot);
-
-			//printf("left=%d\n", (*left).value);
-			//printf("right=%d\n", (*right).value);
-			//printf("pivot=%d\n", (*pivot).value);
 			print_stack(stack_a);
-		    partition = *left;
-			// break ;
 		}
 		if (left->value > pivot->value)
 		{
@@ -47,26 +42,23 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 			{
 				swap_left_right(stack_a, stack_b, &left, &right);
 				partition = *left;
-				// break ;
 			}
 			if (left->prev == right)
 			{
-				insert_pivot(stack_a, stack_b, &left);
+				insert_pivot(stack_a, stack_b, &left, &pivot);
 				if (left->next != pivot)
 				{
 						main_sort(stack_a, stack_b, left, pivot);
 						partition = *left;
-						// break ;
 				}
 			}
 		}
 	}
-	//  printf("partition=%d\n", partition.value);
 	//  if (partition.value == pivot->value)
 	//  		main_sort(stack_a, stack_b, left, pivot);
 	//  if (partition.value == left->value)
 	//  		main_sort(stack_a, stack_b, left, pivot);
-	//print_stack(stack_a);
+	print_stack(stack_a);
 }
 
 void	sort(t_linked_list *stack_a, t_linked_list *stack_b)
