@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/07 20:05:55 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/08 12:41:34 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,10 @@
 void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 		t_node *pivot)
 {
-	t_node	partition;
+	t_node	*partition;
 	t_node	*right;
 
-    partition = *left;
+    partition = NULL;
 	right = pivot->prev;
 	if (!stack_a || !left || !right || !pivot)
 		return ;
@@ -29,7 +29,8 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 		if (left->next == right->next)
 		{
 			swap_left_pivot(stack_a, stack_b, &left, &pivot);
-		    partition = *left->prev;
+			if (partition == NULL)
+		    	partition = left->prev;
 			if (left->next != pivot)
 				main_sort(stack_a, stack_b, left, pivot);
 			print_stack(stack_a);
@@ -41,7 +42,7 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 			if (right->value < pivot->value)
 			{
 				swap_left_right(stack_a, stack_b, &left, &right);
-				partition = *left;
+				//partition = *left;
 			}
 			if (left->prev == right)
 			{
@@ -49,7 +50,7 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 				if (left->next != pivot)
 				{
 						main_sort(stack_a, stack_b, left, pivot);
-						partition = *left;
+						//partition = *left;
 				}
 			}
 		}
