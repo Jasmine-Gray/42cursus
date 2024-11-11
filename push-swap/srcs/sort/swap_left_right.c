@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 16:56:10 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/04 21:36:25 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/11 16:42:10 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,15 @@ static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
 		t_node **left, t_node **right)
 {
 	int	count;
+	int	num;
 
 	// if (stack_b != NULL)
 	// 		return ;
+	num = 0;
 	while (*left != stack_a->top)
 	{
 		push_b(stack_a, stack_b);
+		num++;
 	}
 	push_b(stack_a, stack_b);
 	count = 0;
@@ -39,8 +42,11 @@ static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
 		rotate_a(stack_a);
 		count--;
 	}
-	while (stack_b->top != NULL)
+	while (num != 0)
+	{
 		push_a(stack_a, stack_b);
+		num--;
+	}
 }
 
 static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b,

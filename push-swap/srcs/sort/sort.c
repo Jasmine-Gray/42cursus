@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/08 12:41:34 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/11 17:00:07 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,12 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 		return ;
 	while (left->next != right->next)
 	{
+		print_stack(stack_a);
 		while (left->value < pivot->value)
 			left = left->next;
 		if (left->next == right->next)
 		{
+		    print_stack(stack_a);
 			swap_left_pivot(stack_a, stack_b, &left, &pivot);
 			if (partition == NULL)
 		    	partition = left->prev;
@@ -42,21 +44,21 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 			if (right->value < pivot->value)
 			{
 				swap_left_right(stack_a, stack_b, &left, &right);
-				//partition = *left;
 			}
 			if (left->prev == right)
 			{
 				insert_pivot(stack_a, stack_b, &left, &pivot);
 				if (left->next != pivot)
 				{
+						if (partition == NULL)
+								partition = left->prev;
 						main_sort(stack_a, stack_b, left, pivot);
-						//partition = *left;
 				}
 			}
 		}
 	}
-	//  if (partition.value == pivot->value)
-	//  		main_sort(stack_a, stack_b, left, pivot);
+	if (partition != NULL)
+	  		main_sort(stack_a, stack_b, left, partition);
 	//  if (partition.value == left->value)
 	//  		main_sort(stack_a, stack_b, left, pivot);
 	print_stack(stack_a);
