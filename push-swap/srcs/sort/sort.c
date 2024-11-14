@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/13 18:01:55 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/14 19:54:20 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,6 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 			swap_left_pivot(stack_a, stack_b, &left, &pivot);
 			if (partition == NULL)
 		    	partition = left->prev;
-			// if (left->next != pivot)
-			// 	main_sort(stack_a, stack_b, left, pivot);
-			print_stack(stack_a);
 		}
 		if (left->value > pivot->value)
 		{
@@ -48,19 +45,17 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 			{
 				swap_left_right(stack_a, stack_b, &left, &right);
 			}
-			if (left->prev == right)
+			if (left->prev == right || left->next->next == pivot)
 			{
 				insert_pivot(stack_a, stack_b, &left, &pivot);
 				if (left->next != pivot)
 				{
 						if (partition == NULL)
 								partition = left->prev;
-						main_sort(stack_a, stack_b, left, pivot);
+						main_sort(stack_a, stack_b, stack_a->top, partition);
 				}
 			}
 		}
-		// else (right->next == left->prev);
-		// 		main_sort(stack_a, stack_b, stack_a->top, partition);
 	}
     printf("right->next%d\n", right->next->value);
     printf("left->next%d\n", left->next->value);
