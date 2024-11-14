@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/11 17:00:07 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/13 18:01:55 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,9 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 	while (left->next != right->next)
 	{
 		print_stack(stack_a);
+		printf("right->next%d\n", right->next->value);
+		printf("left->next%d\n", left->next->value);
+		printf("pivot%d\n", pivot->value);
 		while (left->value < pivot->value)
 			left = left->next;
 		if (left->next == right->next)
@@ -33,8 +36,8 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 			swap_left_pivot(stack_a, stack_b, &left, &pivot);
 			if (partition == NULL)
 		    	partition = left->prev;
-			if (left->next != pivot)
-				main_sort(stack_a, stack_b, left, pivot);
+			// if (left->next != pivot)
+			// 	main_sort(stack_a, stack_b, left, pivot);
 			print_stack(stack_a);
 		}
 		if (left->value > pivot->value)
@@ -56,9 +59,14 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b, t_node *left,
 				}
 			}
 		}
+		// else (right->next == left->prev);
+		// 		main_sort(stack_a, stack_b, stack_a->top, partition);
 	}
-	if (partition != NULL)
-	  		main_sort(stack_a, stack_b, left, partition);
+    printf("right->next%d\n", right->next->value);
+    printf("left->next%d\n", left->next->value);
+    printf("pivot%d\n", pivot->value);
+	// if (partition != NULL)
+	//   		main_sort(stack_a, stack_b, left, partition);
 	//  if (partition.value == left->value)
 	//  		main_sort(stack_a, stack_b, left, pivot);
 	print_stack(stack_a);
