@@ -32,6 +32,7 @@ SORT_SRCS  = 		srcs/sort/insert_pivot.c\
 					srcs/sort/sort_utils.c\
 					srcs/sort/swap_left_pivot.c\
 					srcs/sort/swap_left_right.c\
+					srcs/sort/is_sort.c\
 					
 SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS) $(UTILS_SRCS) $(SORT_SRCS)
 
