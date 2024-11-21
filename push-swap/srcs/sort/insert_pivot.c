@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 20:58:19 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/11 16:40:38 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/21 18:12:27 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,14 +44,12 @@ static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b, t_no
 		reverse_rotate_a(stack_a);
 		count++;
 	}
-	push_b(stack_a, stack_b);
+	push_a(stack_a, stack_b);
 	while (count)
 	{
 		rotate_a(stack_a);
 		count--;
 	}
-	if (stack_b != NULL)
-		return ;
 }
 
 void	insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b, t_node **left, t_node **pivot)
