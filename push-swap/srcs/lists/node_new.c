@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 13:04:29 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/17 15:26:31 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/23 01:50:16 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ t_node	*node_new(int value)
 	new->value = value;
 	new->prev = NULL;
 	new->next = NULL;
+	new->index = 0;
 	return (new);
 	// free(new);
 }
