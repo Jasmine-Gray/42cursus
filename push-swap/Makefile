@@ -27,13 +27,14 @@ UTILS_SRCS  =	 	srcs/utils/build_stack.c\
 					srcs/utils/check_args.c\
 					srcs/utils/push_swap_main.c\
 					
-SORT_SRCS  = 		srcs/sort/insert_pivot.c\
-					srcs/sort/sort.c\
+SORT_SRCS  = 		srcs/sort/copy_sort.c\
+					srcs/sort/index_stack.c\
+					srcs/sort/insert_pivot.c\
+					srcs/sort/is_sort.c\
+					srcs/sort/position_pivot.c\
 					srcs/sort/sort_utils.c\
 					srcs/sort/swap_left_pivot.c\
 					srcs/sort/swap_left_right.c\
-					srcs/sort/is_sort.c\
-					srcs/sort/index_stack.c\
 					
 SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS) $(UTILS_SRCS) $(SORT_SRCS)
 

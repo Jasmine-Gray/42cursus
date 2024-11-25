@@ -6,14 +6,20 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 14:54:28 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/25 19:12:48 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/25 21:07:53 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "push_swap.c"
+#include "push_swap.h"
 
-t_node position_pivot(t_linked_list *stack_a, t_node *left, t_node *pivot)
+void	position_pivot(t_node **right, t_node **pivot)
 {
-
-		index_stack(stack_a);
+	if ((*pivot)->index > (*pivot)->prev->index)
+	{
+		while ((*pivot)->index > (*pivot)->prev->index)
+		{
+			(*pivot) = (*pivot)->prev;
+			*right = (*pivot)->prev;
+		}
+	}
 }

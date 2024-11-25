@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/23 11:54:27 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/25 21:05:45 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ t_linked_list		*double_list_add_front(t_linked_list *stack,
 						t_node *new_node);
 int					count_node(t_linked_list *stack);
 void				detach_node(t_linked_list *stack, t_node *node_to_detach);
+
 // commands
 void				*push_a(t_linked_list *stack_a, t_linked_list *stack_b);
 void				*push_b(t_linked_list *stack_a, t_linked_list *stack_b);
@@ -56,13 +57,14 @@ void				*reverse_rotate_both(t_linked_list *stack_a,
 void				*swap_a(t_linked_list *stack_a);
 void				*swap_b(t_linked_list *stack_b);
 void				*swap_both(t_linked_list *stack_a, t_linked_list *stack_b);
+
 // utils
 const char			**check_args(int argc, const char **argv);
 void				build_stack(int argc, const char **argv_str,
 						t_linked_list *stack);
 void				print_stack(t_linked_list *stack);
-// sort
 
+// sort
 void				sort(t_linked_list *stack_a, t_linked_list *stack_b);
 void				swap_left_pivot(t_linked_list *stack_a,
 						t_linked_list *stack_b, t_node **left, t_node **pivot);
@@ -75,5 +77,6 @@ void				insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b,
 						t_node **left, t_node **pivot);
 int					is_sort(t_linked_list *stack_a);
 void				index_stack(t_linked_list *stack_a);
+void				position_pivot(t_node **right, t_node **pivot);
 
 #endif
