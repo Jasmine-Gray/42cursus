@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 13:31:42 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/24 15:28:36 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/25 19:04:23 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static int	find_index_zero(t_linked_list *stack_a)
 	{
 		if (current->index == 0)
 		{
-			return (1); // when exist zero
+			return (1); 
 		}
 		if (current == last)
 		{
@@ -31,7 +31,7 @@ static int	find_index_zero(t_linked_list *stack_a)
 		}
 		current = current->next;
 	}
-	return (0); // after touch index all
+	return (0);
 }
 
 void	index_stack(t_linked_list *stack_a)
