@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/25 21:05:45 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/26 15:30:10 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,6 @@ void				insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b,
 						t_node **left, t_node **pivot);
 int					is_sort(t_linked_list *stack_a);
 void				index_stack(t_linked_list *stack_a);
-void				position_pivot(t_node **right, t_node **pivot);
+void				position_pivot(t_linked_list *stack_a, t_node **pivot);
 
 #endif
