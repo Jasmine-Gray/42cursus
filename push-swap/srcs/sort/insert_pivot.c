@@ -6,71 +6,98 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 20:58:19 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/26 17:43:55 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/26 22:14:04 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
 
 static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
-		t_node **left)
+		t_node **left, t_node **pivot)
 {
-	int	count;
+	int	num;
+	t_node *last;
+	last = find_last_node(stack_a);
 
 	if (!stack_a)
 		return ;
-	count = 0;
 	while (*left != stack_a->top)
 	{
 		push_b(stack_a, stack_b);
-		count++;
+	}
+	num = 0;
+	while (*pivot != last)
+	{
+			reverse_rotate_a(stack_a);
+		    push_b(stack_a, stack_b);
+			num++;
 	}
 	reverse_rotate_a(stack_a);
-	while (count != 0)
+	while (num != 0)
 	{
 		push_a(stack_a, stack_b);
-		count--;
+		rotate_a(stack_a);
+		num--;
 	}
+			
+	while (stack_b != NULL)
+	{
+		push_a(stack_a, stack_b);
+	}
+	print_stack(stack_a);
+	print_stack(stack_b);
 }
 
 static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b,
-		t_node **left)
+		t_node **left, t_node **pivot)
 {
 	int	count;
+	int	num;
+	t_node *last;
+	last = find_last_node(stack_a);
 
+	count = 0;
+	while(pivot != last)
+	{
+			reverse_rotate_a(stack_a);
+			count++;
+	}
+	while (count != 0)
+	{
+			push_b(stack_a, stack_b);
+			count--;
+	}
+	// work in progress
 	reverse_rotate_a(stack_a);
 	push_b(stack_a, stack_b);
 	count = 1;
 	while (*left != stack_a->top)
 	{
-		reverse_rotate_a(stack_a);
-		count++;
+			reverse_rotate_a(stack_a);
+			count++;
 	}
 	push_a(stack_a, stack_b);
 	while (count)
 	{
-		rotate_a(stack_a);
-		count--;
+			rotate_a(stack_a);
+			count--;
 	}
 }
 
 void	insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b,
-		t_node **left, t_node **pivot)
+				t_node **left, t_node **pivot)
 {
-	int		distance;
-	t_node	*last;
+		int		distance;
 
-	distance = measure_distance(stack_a, left);
-	if (!stack_a)
-		return ;
-	if (distance <= 75)
-	{
-		close_to_top(stack_a, stack_b, left);
-	}
-	if (distance > 75)
-	{
-		close_to_bottom(stack_a, stack_b, left);
-	}
-	last = find_last_node(stack_a);
-	*pivot = last;
+		distance = measure_distance(stack_a, left);
+		if (!stack_a)
+				return ;
+		if (distance <= 75)
+		{
+				close_to_top(stack_a, stack_b, left, pivot);
+		}
+		if (distance > 75)
+		{
+				close_to_bottom(stack_a, stack_b, left);
+		}
 }

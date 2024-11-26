@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/26 20:19:34 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/26 20:38:20 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b)
 			if (left > pivot && right < pivot)
 				swap_left_right(stack_a, stack_b, &left, &right);
 		}
-		insert_pivot(stack_a, stack_b, &left, &pivot);
+		if ((left == right) || (left->prev == right))
+			insert_pivot(stack_a, stack_b, &left, &pivot);
 	}
 }
 
