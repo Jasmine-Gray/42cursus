@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 13:31:42 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/25 19:04:23 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/26 17:00:09 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void	index_stack(t_linked_list *stack_a)
 						{
 								min_node = current;
 						}
-						if (current == last)
+						if (current->value == last->value)
 						{
 								break ;
 						}
