@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 17:15:18 by mishimod          #+#    #+#             */
-/*   Updated: 2024/10/31 12:48:18 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/26 17:45:58 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 void	build_stack(int argc, const char **argv_str, t_linked_list *stack)
 {
 	t_node	*tmp;
-	size_t			i;
+	size_t	i;
 
 	i = 0;
 	while (argv_str[i])
@@ -26,7 +26,7 @@ void	build_stack(int argc, const char **argv_str, t_linked_list *stack)
 		if (!tmp)
 			return ;
 		double_list_add_back(stack, tmp);
- 		i++;
+		i++;
 	}
 	return ;
 }

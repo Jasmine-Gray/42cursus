@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 20:53:37 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/04 21:41:57 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/26 17:44:51 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	retain_value(t_node **left, t_node **right)
 {
-	t_node *tmp;
+	t_node	*tmp;
 
 	tmp = *left;
 	*left = *right;

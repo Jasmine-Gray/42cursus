@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/22 13:31:42 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/26 17:00:09 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/26 17:45:18 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,11 @@ static int	find_index_zero(t_linked_list *stack_a)
 	{
 		if (current->index == 0)
 		{
-			return (1); 
+			return (1);
 		}
 		if (current == last)
 		{
-				break ;
+			break ;
 		}
 		current = current->next;
 	}
@@ -36,30 +36,26 @@ static int	find_index_zero(t_linked_list *stack_a)
 
 void	index_stack(t_linked_list *stack_a)
 {
-		t_node	*current;
-		t_node	*last;
-		t_node	*min_node;
-		int		index;
+	t_node	*current;
+	t_node	*last;
+	t_node	*min_node;
+	int		index;
 
-		last = find_last_node(stack_a);
-		index = 1;
-		while (find_index_zero(stack_a) == 1)
+	last = find_last_node(stack_a);
+	index = 1;
+	while (find_index_zero(stack_a) == 1)
+	{
+		current = stack_a->top;
+		min_node = current;
+		while (1)
 		{
-				current = stack_a->top;
+			if ((min_node->value > current->value) && (current->index == 0))
 				min_node = current;
-				while (1)
-				{
-						if ((min_node->value > current->value) && (current->index == 0))
-						{
-								min_node = current;
-						}
-						if (current->value == last->value)
-						{
-								break ;
-						}
-						current = current->next;
-				}
-				min_node->index = index;
-				index++;
+			if (current == last)
+				break ;
+			current = current->next;
 		}
+		min_node->index = index;
+		index++;
+	}
 }

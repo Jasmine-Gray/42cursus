@@ -6,15 +6,17 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 18:11:01 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/21 18:13:09 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/26 17:42:35 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
 
-static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b, t_node **left, t_node **pivot)
+static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
+		t_node **left, t_node **pivot)
 {
-    int count;
+	int	count;
+
 	print_stack(stack_a);
 	count = 0;
 	while (!(*left == stack_a->top))
@@ -37,9 +39,10 @@ static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b, t_node 
 	}
 }
 
-static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b, t_node **left, t_node **pivot)
+static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b,
+		t_node **left, t_node **pivot)
 {
-	int				count;
+	int	count;
 
 	reverse_rotate_a(stack_a);
 	push_b(stack_a, stack_b);
@@ -62,9 +65,10 @@ static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b, t_no
 	rotate_a(stack_a);
 }
 
-void	swap_left_pivot(t_linked_list *stack_a, t_linked_list *stack_b, t_node **left, t_node **pivot)
+void	swap_left_pivot(t_linked_list *stack_a, t_linked_list *stack_b,
+		t_node **left, t_node **pivot)
 {
-	int				distance;
+	int	distance;
 
 	distance = measure_distance(stack_a, left);
 	if (!stack_a)
@@ -77,5 +81,4 @@ void	swap_left_pivot(t_linked_list *stack_a, t_linked_list *stack_b, t_node **le
 	{
 		close_to_bottom(stack_a, stack_b, left, pivot);
 	}
-
 }
