@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:55 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/24 15:32:17 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/26 20:11:06 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ static void	print_stack_index(t_linked_list *stack)
 		return ;
 	}
 	current = stack->top;
-	num = -1;
+	num = 0;
 	while (current != stack->top || num == 0)
 	{
 		printf("%d", current->index);

@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/26 18:07:25 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/26 20:19:34 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b)
 	while (is_sort(stack_a) == 0)
 	{
 		position_pivot(stack_a, &pivot);
+		left = stack_a->top;
+		right = pivot->prev;
 		while (left->prev != right)
 		{
 			if (left < pivot)
@@ -34,26 +36,15 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b)
 			if (left > pivot && right < pivot)
 				swap_left_right(stack_a, stack_b, &left, &right);
 		}
-		if (left == pivot)//is this necessary? use position_pivot insted of this.
-		{
-			left = stack_a->top;
-			pivot = pivot->prev;
-			right = pivot->prev;
-		}
 		insert_pivot(stack_a, stack_b, &left, &pivot);
 	}
 }
 
 void	sort(t_linked_list *stack_a, t_linked_list *stack_b)
 {
-	t_node	*pivot;
-	t_node	*left;
-
 	if (!stack_a)
 		return ;
 	if (!stack_a->top)
 		return ;
-	pivot = find_last_node(stack_a);
-	left = stack_a->top;
 	main_sort(stack_a, stack_b);
 }

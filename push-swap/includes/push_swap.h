@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/26 16:50:34 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/11/26 20:19:13 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ void				print_stack(t_linked_list *stack);
 
 // sort
 void				sort(t_linked_list *stack_a, t_linked_list *stack_b);
+void				main_sort(t_linked_list *stack_a, t_linked_list *stack_b);
 void				swap_left_pivot(t_linked_list *stack_a,
 						t_linked_list *stack_b, t_node **left, t_node **pivot);
 void				swap_left_right(t_linked_list *stack_a,
