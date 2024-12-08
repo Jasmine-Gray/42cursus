@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 20:58:19 by mishimod          #+#    #+#             */
-/*   Updated: 2024/12/06 15:08:15 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/12/08 19:18:41 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
 		t_node **left, t_node **pivot)
 {
-	int		num;
-	int		count;
+	int	num;
+	int	count;
 
 	if (!stack_a)
 		return ;
@@ -25,7 +25,7 @@ static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
 		push_b(stack_a, stack_b);
 	}
 	num = 0;
-	while (*pivot != find_last_node(stack_a)) // infinite loop
+	while (*pivot != find_last_node(stack_a))
 	{
 		reverse_rotate_a(stack_a);
 		print_stack(stack_a);
@@ -46,10 +46,10 @@ static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
 		rotate_a(stack_a);
 		count--;
 	}
-	//  while (stack_b != NULL)
-	//  {
-	//  	push_a(stack_a, stack_b);
-	//  }
+	while (stack_b->top != NULL)
+	{
+		push_a(stack_a, stack_b);
+	}
 }
 
 static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b,
