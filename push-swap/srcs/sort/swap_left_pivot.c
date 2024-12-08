@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 18:11:01 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/26 17:42:35 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/12/08 19:52:04 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
 {
 	int	count;
 
-	print_stack(stack_a);
+	//print_stack(stack_a);
 	count = 0;
 	while (!(*left == stack_a->top))
 	{
