@@ -16,7 +16,6 @@ LISTS_SRCS = 		srcs/lists/double_list_add_back.c\
 					srcs/lists/node_new.c\
 					srcs/lists/detach_node.c\
 					srcs/lists/count_node.c\
-					srcs/main.c\
 
 COMMANDS_SRCS = 	srcs/commands/push.c\
 					srcs/commands/rotate.c\
@@ -33,7 +32,6 @@ SORT_SRCS  = 		srcs/sort/copy_sort.c\
 					srcs/sort/is_sort.c\
 					srcs/sort/position_pivot.c\
 					srcs/sort/sort_utils.c\
-					srcs/sort/swap_left_pivot.c\
 					srcs/sort/swap_left_right.c\
 					
 SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS) $(UTILS_SRCS) $(SORT_SRCS)

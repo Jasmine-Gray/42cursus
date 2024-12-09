@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/12/09 18:18:09 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/12/09 18:46:54 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,6 @@ void				build_stack(int argc, const char **argv_str,
 // sort
 void				sort(t_linked_list *stack_a, t_linked_list *stack_b);
 void				main_sort(t_linked_list *stack_a, t_linked_list *stack_b);
-void				swap_left_pivot(t_linked_list *stack_a,
-						t_linked_list *stack_b, t_node **left, t_node **pivot);
 void				swap_left_right(t_linked_list *stack_a,
 						t_linked_list *stack_b, t_node **left, t_node **right);
 void				retain_value(t_node **left, t_node **right);
@@ -79,5 +77,7 @@ void				insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b,
 int					is_sort(t_linked_list *stack_a);
 void				index_stack(t_linked_list *stack_a);
 void				position_pivot(t_linked_list *stack_a, t_node **pivot);
+
+// error
 
 #endif
