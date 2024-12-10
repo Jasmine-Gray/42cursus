@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   copy_sort.c                                        :+:      :+:    :+:   */
+/*   sort.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/12/09 18:17:14 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/12/10 16:51:19 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b)
 
 	left = NULL;
 	pivot = NULL;
-	if (!stack_a)
-		return ;
 	while (is_sort(stack_a) == 0)
 	{
 		position_pivot(stack_a, &pivot);

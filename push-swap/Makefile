@@ -26,7 +26,7 @@ UTILS_SRCS  =	 	srcs/utils/build_stack.c\
 					srcs/utils/check_args.c\
 					srcs/utils/push_swap_main.c\
 					
-SORT_SRCS  = 		srcs/sort/copy_sort.c\
+SORT_SRCS  = 		srcs/sort/sort.c\
 					srcs/sort/index_stack.c\
 					srcs/sort/insert_pivot.c\
 					srcs/sort/is_sort.c\
