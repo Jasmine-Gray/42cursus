@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 20:58:19 by mishimod          #+#    #+#             */
-/*   Updated: 2024/12/10 16:52:55 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/12/10 17:31:12 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,45 +52,45 @@ static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
 		push_a(stack_a, stack_b);
 }
 
-// static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b,
-// 		t_node **left, t_node **pivot)
-// {
-// 	int		count;
-// 	int		num;
-// 	t_node	*last;
-// 
-// 	last = find_last_node(stack_a);
-// 	count = 0;
-// 	while ((*pivot) != last)
-// 	{
-// 		reverse_rotate_a(stack_a);
-// 		count++;
-// 	}
-// 	while (count != 0)
-// 	{
-// 		push_b(stack_a, stack_b);
-// 		count--;
-// 	}
-// 	reverse_rotate_a(stack_a);
-// 	push_b(stack_a, stack_b);
-// 	num = 1;
-// 	while (*left != stack_a->top)
-// 	{
-// 		reverse_rotate_a(stack_a);
-// 		num++;
-// 	}
-// 	push_a(stack_a, stack_b);
-// 	while (num)
-// 	{
-// 		rotate_a(stack_a);
-// 		num--;
-// 	}
-// 	while (stack_b != NULL)
-// 	{
-// 		push_a(stack_a, stack_b);
-// 		rotate_a(stack_a);
-// 	}
-// }
+static void	close_to_bottom(t_linked_list *stack_a, t_linked_list *stack_b,
+		t_node **left, t_node **pivot)
+{
+	int		count;
+	int		num;
+	t_node	*last;
+
+	last = find_last_node(stack_a);
+	count = 0;
+	while ((*pivot) != last)
+	{
+		reverse_rotate_a(stack_a);
+		count++;
+	}
+	while (count != 0)
+	{
+		push_b(stack_a, stack_b);
+		count--;
+	}
+	reverse_rotate_a(stack_a);
+	push_b(stack_a, stack_b);
+	num = 1;
+	while (*left != stack_a->top)
+	{
+		reverse_rotate_a(stack_a);
+		num++;
+	}
+	push_a(stack_a, stack_b);
+	while (num)
+	{
+		rotate_a(stack_a);
+		num--;
+	}
+	while (stack_b != NULL)
+	{
+		push_a(stack_a, stack_b);
+		rotate_a(stack_a);
+	}
+}
 
 void	insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b,
 		t_node **left, t_node **pivot)
@@ -106,7 +106,6 @@ void	insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b,
 	}
 	if (distance > 75)
 	{
-		close_to_top(stack_a, stack_b, left, pivot);
-		//close_to_bottom(stack_a, stack_b, left, pivot);
+		close_to_bottom(stack_a, stack_b, left, pivot);
 	}
 }
