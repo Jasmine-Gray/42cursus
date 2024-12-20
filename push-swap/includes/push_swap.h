@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/12/09 18:46:54 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/12/21 02:40:32 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,11 +72,13 @@ void				swap_left_right(t_linked_list *stack_a,
 void				retain_value(t_node **left, t_node **right);
 void				retain_pivot(t_node **left, t_node **pivot);
 int					measure_distance(t_linked_list *stack, t_node **left);
+void				set_flag(t_linked_list *stack_b, t_node **flag);
 void				insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b,
 						t_node **left, t_node **pivot);
 int					is_sort(t_linked_list *stack_a);
 void				index_stack(t_linked_list *stack_a);
-void				position_pivot(t_linked_list *stack_a, t_node **pivot);
+void				position_pivot(t_linked_list *stack_a,
+						t_linked_list *stack_b, t_node **pivot);
 
 // error
 

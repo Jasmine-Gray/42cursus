@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 20:58:19 by mishimod          #+#    #+#             */
-/*   Updated: 2024/12/10 17:31:12 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/12/20 23:33:41 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,8 @@ void	insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b,
 	distance = measure_distance(stack_a, left);
 	if (!stack_a)
 		return ;
+	while ((stack_a->top != (*left)->prev) && (stack_a->top != (*left)))
+		push_b(stack_a, stack_b);
 	if (distance <= 75)
 	{
 		close_to_top(stack_a, stack_b, left, pivot);

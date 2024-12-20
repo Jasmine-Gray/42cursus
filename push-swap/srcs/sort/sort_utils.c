@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 20:53:37 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/26 17:44:51 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/12/21 02:39:04 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,4 +51,19 @@ int	measure_distance(t_linked_list *stack, t_node **left)
 	}
 	result = (distance / count) * 100;
 	return (result);
+}
+
+void set_flag(t_linked_list *stack_b, t_node **flag)
+{
+	if (!stack_b)
+	{
+			*flag = NULL;
+			return ;
+    }
+	if (!stack_b->top)
+	{
+			*flag = NULL;
+			return ;
+	}
+	*flag = stack_b->top;
 }

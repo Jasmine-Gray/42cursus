@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/21 16:56:10 by mishimod          #+#    #+#             */
-/*   Updated: 2024/12/16 17:30:45 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/12/21 04:27:01 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,16 @@ static void	close_to_top(t_linked_list *stack_a, t_linked_list *stack_b,
 
 	push_b(stack_a, stack_b);
 	count = 0;
-	while (*right != stack_a->top) // infinite_loop right_pushed_to_stack_b
+	if (*right != stack_b->top)//add_this_line_but_still_infinite_loop
 	{
-		reverse_rotate_a(stack_a);
-		count++;
+			while (*right != stack_a->top) // infinite_loop right_pushed_to_stack_b
+			{
+					reverse_rotate_a(stack_a);
+					count++;
+			}
+    // if_positions_are_switched_between_left_and_right
+	// right_pushed_to_stack_b
+	// it_means_right_become_stack_b->top
 	}
 	push_b(stack_a, stack_b);
 	swap_b(stack_b);
