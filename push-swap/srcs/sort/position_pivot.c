@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/24 14:54:28 by mishimod          #+#    #+#             */
-/*   Updated: 2024/12/21 02:32:07 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/12/25 18:30:56 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ void	position_pivot(t_linked_list *stack_a, t_linked_list *stack_b, t_node **piv
 		{
 			break ;
 		}
+		(*pivot) = (*pivot)->prev;
 		reverse_rotate_a(stack_a);
 		push_b(stack_a, stack_b);
-		(*pivot) = (*pivot)->prev;
 		stack_size--;
 	}
 }
