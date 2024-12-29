@@ -6,11 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/12/25 21:50:01 by mishimod         ###   ########.fr       */
-=======
-/*   Updated: 2024/12/29 03:50:00 by mishimod         ###   ########.fr       */
->>>>>>> origin/push-swap
+/*   Updated: 2024/12/29 19:17:51 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +36,12 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b)
 				push_b(stack_a, stack_b);
 			}
 			if (right->value > pivot->value)
-				right = right->prev;
+			{
+					if (stack_a->top == right)
+							right = stack_b->top;
+					else
+							right = right->prev;
+			}
 			if ((left->value > pivot->value) && (right->value < pivot->value)
 				&& (left->prev != right) && (stack_b->top != right))
 				swap_left_right(stack_a, stack_b, &left, &right);
