@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/12/30 04:44:37 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/12/30 05:48:06 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,13 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b)
 		insert_pivot(stack_a, stack_b, &left, &pivot);
 		while ((stack_b->top != NULL) && (stack_b->top != flag))
 			push_a(stack_a, stack_b);
-		if ((is_sort(stack_a) == 1) && (is_sort(stack_b) == 1))
-		{
-			while (stack_b->top != NULL)
-				push_a(stack_a, stack_b);
-		}
+		// if ((is_sort(stack_a) == 1) && (is_sort(stack_b) == 1))
+		// {
+		// 	while (stack_b->top != NULL)
+		// 		push_a(stack_a, stack_b);
+		// }
+
+		// fix_these_lines
 	}
 }
 
