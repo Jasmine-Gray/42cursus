@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/17 16:29:04 by mishimod          #+#    #+#             */
-/*   Updated: 2024/12/29 19:17:51 by mishimod         ###   ########.fr       */
+/*   Updated: 2024/12/30 04:44:37 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void	main_sort(t_linked_list *stack_a, t_linked_list *stack_b)
 		left = stack_a->top;
 		right = pivot->prev;
 		set_flag(stack_b, &flag);
-		while ((left->prev != right) || (stack_b->top->value != right->value))
+		while ((left->prev != right) && (stack_b->top != right))
 		{
 			if (left->value < pivot->value)
 			{
