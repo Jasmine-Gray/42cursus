@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2024/12/21 02:40:32 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/04 08:15:07 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,20 +65,10 @@ void				build_stack(int argc, const char **argv_str,
 // void				print_stack(t_linked_list *stack);
 
 // sort
-void				sort(t_linked_list *stack_a, t_linked_list *stack_b);
-void				main_sort(t_linked_list *stack_a, t_linked_list *stack_b);
-void				swap_left_right(t_linked_list *stack_a,
-						t_linked_list *stack_b, t_node **left, t_node **right);
-void				retain_value(t_node **left, t_node **right);
-void				retain_pivot(t_node **left, t_node **pivot);
-int					measure_distance(t_linked_list *stack, t_node **left);
-void				set_flag(t_linked_list *stack_b, t_node **flag);
-void				insert_pivot(t_linked_list *stack_a, t_linked_list *stack_b,
-						t_node **left, t_node **pivot);
+
+void				radix_sort(t_linked_list *stack_a, t_linked_list *stack_b);
 int					is_sort(t_linked_list *stack_a);
 void				index_stack(t_linked_list *stack_a);
-void				position_pivot(t_linked_list *stack_a,
-						t_linked_list *stack_b, t_node **pivot);
 
 // error
 

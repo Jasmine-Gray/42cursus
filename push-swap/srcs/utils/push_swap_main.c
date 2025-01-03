@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:55 by mishimod          #+#    #+#             */
-/*   Updated: 2024/12/09 16:29:14 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/04 07:11:58 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,9 +72,10 @@ int	main(int argc, char const *argv[])
 	stack_b.top = NULL;
 	argv_str = check_args(argc, argv);
 	build_stack(argc, argv_str, &stack_a);
-	print_stack(&stack_a);
+	// print_stack(&stack_a);
 	index_stack(&stack_a);
-	print_stack_index(&stack_a);
-	sort(&stack_a, &stack_b);
+	// print_stack_index(&stack_a);
+	// sort(&stack_a, &stack_b);
+    radix_sort(&stack_a, &stack_b);
 	return (0);
 }
