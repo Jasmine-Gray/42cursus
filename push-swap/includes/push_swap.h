@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/04 08:15:07 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/04 08:49:57 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,9 +66,13 @@ void				build_stack(int argc, const char **argv_str,
 
 // sort
 
+void				sort(t_linked_list *stack_a, t_linked_list *stack_b);
 void				radix_sort(t_linked_list *stack_a, t_linked_list *stack_b);
 int					is_sort(t_linked_list *stack_a);
 void				index_stack(t_linked_list *stack_a);
+void				sort_three(t_linked_list *stack_a);
+void				sort_four(t_linked_list *stack_a);
+void				sort_five(t_linked_list *stack_a);
 
 // error
 

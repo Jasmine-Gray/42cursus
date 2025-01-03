@@ -6,19 +6,13 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 19:06:14 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/04 07:49:42 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/04 08:48:00 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
 
-void	sort_two(t_stack *stack_a)
-{
-	if (stack_a->top->index > stack_a->top->next->index)
-		sa(stack);
-}
-
-void	sort_three(t_stack *stack_a)
+void	sort_three(t_linked_list *stack_a)
 {
 	int	a;
 	int	b;
@@ -45,7 +39,7 @@ void	sort_three(t_stack *stack_a)
 		rra(stack_a);
 }
 
-void	sort_four(t_stack *stack_a)
+void	sort_four(t_linked_list *stack_a)
 {
 	int	min_pos;
 
@@ -58,4 +52,9 @@ void	sort_four(t_stack *stack_a)
 	pb(stack_a, stack_b);
 	sort_three(stack);
 	pa(stack);
+}
+
+void	sort_five(t_linked_list *stack_a)
+{
+		// work_in_progress
 }
