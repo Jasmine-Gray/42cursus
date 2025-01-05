@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 19:06:14 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/05 19:02:39 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/05 21:36:37 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void	sort_three(t_linked_list *stack_a)
 	else if (a > b && b > c)
 	{
 		swap_a(stack_a);
-		rotate_a(stack_a);
+		reverse_rotate_a(stack_a);
 	}
 	else if (a > b && b < c && a > c)
 		rotate_a(stack_a);
