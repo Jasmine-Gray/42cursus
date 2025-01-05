@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/09 19:06:14 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/04 08:48:00 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/05 19:02:39 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,39 +22,39 @@ void	sort_three(t_linked_list *stack_a)
 	b = stack_a->top->next->index;
 	c = stack_a->top->next->next->index;
 	if (a > b && b < c && a < c)
-		sa(stack_a);
+		swap_a(stack_a);
 	else if (a > b && b > c)
 	{
-		sa(stack_a);
-		ra(stack_a);
+		swap_a(stack_a);
+		rotate_a(stack_a);
 	}
 	else if (a > b && b < c && a > c)
-		ra(stack_a);
+		rotate_a(stack_a);
 	else if (a < b && b > c && a < c)
 	{
-		sa(stack_a);
-		ra(stack_a);
+		swap_a(stack_a);
+		rotate_a(stack_a);
 	}
 	else if (a < b && b > c && a > c)
-		rra(stack_a);
+		reverse_rotate_a(stack_a);
 }
 
-void	sort_four(t_linked_list *stack_a)
+void	sort_four(t_linked_list *stack_a, t_linked_list *stack_b)
 {
 	int	min_pos;
 
-	min_pos = find_min_position(stack_a);
-	while (min_pos > 0)
+	min_pos = stack_a->top->index;
+	while (min_pos != 1)
 	{
-		ra(stack_a);
-		min_pos--;
+		rotate_a(stack_a);
+		min_pos = stack_a->top->index;
 	}
-	pb(stack_a, stack_b);
-	sort_three(stack);
-	pa(stack);
+	push_b(stack_a, stack_b);
+	sort_three(stack_a);
+	push_a(stack_a, stack_b);
 }
 
-void	sort_five(t_linked_list *stack_a)
-{
-		// work_in_progress
-}
+// void	sort_five(t_linked_list *stack_a, t_linked_list *stack_b)
+// {
+// 	// work_in_progress
+// }

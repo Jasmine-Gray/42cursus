@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:55 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/04 08:28:06 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/05 19:05:52 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ int	main(int argc, char const *argv[])
 	// print_stack(&stack_a);
 	index_stack(&stack_a);
 	// print_stack_index(&stack_a);
-	// sort(&stack_a, &stack_b);
-    radix_sort(&stack_a, &stack_b);
+	sort(&stack_a, &stack_b);
+    // radix_sort(&stack_a, &stack_b);
 	return (0);
 }
