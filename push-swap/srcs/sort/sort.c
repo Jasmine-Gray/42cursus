@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/31 19:40:27 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/08 18:26:39 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/08 22:12:26 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,9 @@ static void	radix_sort(t_linked_list *stack_a, t_linked_list *stack_b)
 	size_t	stack_size;
 	size_t	len;
 	size_t	bit;
-	//size_t	index;
 
 	stack_size = count_node(stack_a);
 	bit = 0;
-	// index = stack_a->top->index;
 	while (is_sort(stack_a) == 0)
 	{
 		len = 0;
