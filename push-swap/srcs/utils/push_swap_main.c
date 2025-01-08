@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:55 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/05 19:05:52 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/08 20:55:06 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 // void	print_stack(t_linked_list *stack)
 // {
-// 
+//
 // 	printf("list:");
 // 	if (!(stack->top))
 // 	{
@@ -34,12 +34,12 @@
 // 	}
 // 	printf("\n");
 // }
-// 
+//
 // static void	print_stack_index(t_linked_list *stack)
 // {
 // 	t_node	*current;
 // 	int		num;
-// 
+//
 // 	printf("list:");
 // 	if (!(stack->top))
 // 	{
@@ -73,7 +73,8 @@ int	main(int argc, char const *argv[])
 	// print_stack(&stack_a);
 	index_stack(&stack_a);
 	// print_stack_index(&stack_a);
+	if (is_sort(&stack_a) == 1)
+		return (0);
 	sort(&stack_a, &stack_b);
-    // radix_sort(&stack_a, &stack_b);
 	return (0);
 }

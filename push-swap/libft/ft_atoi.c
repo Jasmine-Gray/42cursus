@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/08 16:20:51 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 18:45:22 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/08 20:49:00 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ static char	ft_isspace(unsigned char s)
 {
 	if ((s >= 9 && s <= 13) || s == 32)
 		return (1);
-	return (0);
+	return (NULL);
 }
 
 static void	check_sign(const char *str, size_t *i, int *sign)
