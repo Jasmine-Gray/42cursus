@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 18:00:50 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/16 17:16:58 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/16 18:18:52 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,5 @@ const char	**check_args(int argc, const char **argv)
 	{
 		argv_str = argv;
 	}
-	//free(argv_str);
 	return (argv_str);
 }
