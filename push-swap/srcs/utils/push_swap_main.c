@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:55 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/16 16:08:38 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/16 17:38:33 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,5 +28,5 @@ int	main(int argc, char const *argv[])
 	if (is_sort(&stack_a) == 1)
 		return (0);
 	sort(&stack_a, &stack_b);
-	return (0);
+	return (free_node(&stack_a), 0);
 }

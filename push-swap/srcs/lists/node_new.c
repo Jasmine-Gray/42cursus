@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/28 13:04:29 by mishimod          #+#    #+#             */
-/*   Updated: 2024/11/26 17:40:26 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/16 17:03:24 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ t_node	*node_new(int value)
 	new = malloc(sizeof(t_node));
 	if (!new)
 	{
+		free(new);
 		return (NULL);
 	}
 	new->value = value;
