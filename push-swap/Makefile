@@ -31,7 +31,9 @@ SORT_SRCS  = 		srcs/sort/index_stack.c\
 					srcs/sort/sort.c\
 					srcs/sort/sort_less_five.c\
 
-SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS) $(UTILS_SRCS) $(SORT_SRCS)
+ERROR_SRCS = 		srcs/error/free.c\
+
+SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS) $(UTILS_SRCS) $(SORT_SRCS) $(ERROR_SRCS)
 
 INCLUDES = -I $(INCLUDES_DIR)
 

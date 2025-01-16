@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/16 11:45:47 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/16 13:32:42 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,5 +74,6 @@ void				sort_five(t_linked_list *stack_a, t_linked_list *stack_b);
 
 // error
 void				ft_error(t_linked_list *stack);
+void				free_stack(t_linked_list *stack);
 
 #endif

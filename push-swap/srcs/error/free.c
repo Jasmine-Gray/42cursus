@@ -6,13 +6,15 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 20:56:16 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/08 20:57:19 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/16 13:35:49 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
 
-void free()
+void	free_stack(t_linked_list *stack)
 {
-		ft_putstr_fd("Error\n", 2);
+	free(stack);
+	ft_putstr_fd("Error\n", 2);
+	return ;
 }
