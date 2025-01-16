@@ -6,59 +6,11 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:55 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/08 20:55:06 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/16 14:15:16 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
-
-// void	print_stack(t_linked_list *stack)
-// {
-//
-// 	printf("list:");
-// 	if (!(stack->top))
-// 	{
-// 		printf("(null)\n");
-// 		return ;
-// 	}
-// 	current = stack->top;
-// 	num = 0;
-// 	while (current != stack->top || num == 0)
-// 	{
-// 		printf("%d", current->value);
-// 		num++;
-// 		current = current->next;
-// 		if (current == stack->top || !current)
-// 			break ;
-// 		printf("->");
-// 	}
-// 	printf("\n");
-// }
-//
-// static void	print_stack_index(t_linked_list *stack)
-// {
-// 	t_node	*current;
-// 	int		num;
-//
-// 	printf("list:");
-// 	if (!(stack->top))
-// 	{
-// 		printf("(null)\n");
-// 		return ;
-// 	}
-// 	current = stack->top;
-// 	num = 0;
-// 	while (current != stack->top || num == 0)
-// 	{
-// 		printf("%d", current->index);
-// 		num++;
-// 		current = current->next;
-// 		if (current == stack->top || !current)
-// 			break ;
-// 		printf("->");
-// 	}
-// 	printf("\n");
-// }
 
 int	main(int argc, char const *argv[])
 {
@@ -66,6 +18,8 @@ int	main(int argc, char const *argv[])
 	const char		**argv_str;
 	t_linked_list	stack_b;
 
+	if (argc < 2) 
+			return (0);
 	stack_a.top = NULL;
 	stack_b.top = NULL;
 	argv_str = check_args(argc, argv);
