@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/08 16:20:51 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/08 22:25:02 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/16 12:12:00 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 static char	ft_isspace(unsigned char s)
 {
-	if ((s >= 9 && s <= 13) || s == 32)
-		return (1);
-	return (0);
+	return ((s >= 9 && s <= 13) || s == 32);
+	// 	return (1);
+	// return (NULL);
 }
 
 static void	check_sign(const char *str, size_t *i, int *sign)
@@ -31,7 +31,7 @@ static void	check_sign(const char *str, size_t *i, int *sign)
 	}
 }
 
-int	ft_atoi(const char *str)
+int	*ft_atoi(const char *str)
 {
 	unsigned long	result;
 	int				sign;
@@ -40,19 +40,23 @@ int	ft_atoi(const char *str)
 	result = 0;
 	sign = 1;
 	i = 0;
+	if (!str)
+		return (NULL);
 	check_sign(str, &i, &sign);
 	while (str[i] >= '0' && str[i] <= '9' && str[i] != '\0')
 	{
 		if (sign == -1 && result > ((unsigned long)LONG_MAX + 1 - (str[i]
 					- '0')) / 10)
-			return ((int)LONG_MIN);
+			return (NULL);
 		if (sign != -1 && result > ((unsigned long)LONG_MAX - (str[i] - '0'))
 			/ 10)
-			return ((int)LONG_MAX);
+			return (NULL);
 		result = result * 10 + (str[i] - '0');
 		i++;
 	}
-	return (result * sign);
+	if (str[i] != '\0')
+		return (NULL);
+	return ((int *)(result * sign));
 }
 
 // bool check_atoi(void)
