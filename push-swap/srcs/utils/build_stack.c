@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 17:15:18 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/18 12:07:48 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/18 15:13:34 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	build_stack(int argc, const char **argv_str, t_linked_list *stack)
 	char	*endptr;
 
 	if ((argc < 2) || (!argv_str) || (!stack))
-		return(0) ;
+		return (0);
 	if (argc == 2)
 		i = 0;
 	if (argc > 2)
@@ -30,6 +30,8 @@ int	build_stack(int argc, const char **argv_str, t_linked_list *stack)
 		if (*endptr != '\0')
 		{
 			ft_putstr_fd("Error\n", 2);
+			if (argc == 2)
+				free_ft_split((char **)argv_str);
 			return (0);
 		}
 		endptr = NULL;
@@ -42,8 +44,6 @@ int	build_stack(int argc, const char **argv_str, t_linked_list *stack)
 		double_list_add_back(stack, tmp);
 		i++;
 	}
-
-
 	if (argc == 2)
 		free_ft_split((char **)argv_str);
 	return (1);

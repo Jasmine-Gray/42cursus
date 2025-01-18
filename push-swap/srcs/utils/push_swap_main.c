@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:55 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/18 12:13:18 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/18 16:30:52 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 // {
 // 	t_node	*current;
 // 	int		num;
-// 
+//
 // 	printf("list:");
 // 	if (!(stack->top))
 // 	{
@@ -50,12 +50,12 @@ int	main(int argc, char const *argv[])
 	stack_b.top = NULL;
 	argv_str = check_args(argc, argv);
 	flag = build_stack(argc, argv_str, &stack_a);
-	if (flag == 0)
+	if (flag == 0 || check_duplicate(&stack_a, count_node(&stack_a)))
 		return (free_node(&stack_a), 1);
 	index_stack(&stack_a);
 	if (is_sort(&stack_a) == 1 || count_node(&stack_a) == 1)
 		return (free_node(&stack_a), 0);
 	sort(&stack_a, &stack_b);
-	//print_stack(&stack_a);
+	// print_stack(&stack_a);
 	return (free_node(&stack_a), 0);
 }

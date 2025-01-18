@@ -26,7 +26,8 @@ UTILS_SRCS  =	 	srcs/utils/build_stack.c\
 					srcs/utils/check_args.c\
 					srcs/utils/push_swap_main.c\
 					srcs/utils/ft_strtol.c\
-					
+					srcs/utils/check_duplicate.c\
+
 SORT_SRCS  = 		srcs/sort/index_stack.c\
 					srcs/sort/is_sort.c\
 					srcs/sort/sort.c\
