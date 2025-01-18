@@ -25,6 +25,7 @@ COMMANDS_SRCS = 	srcs/commands/push.c\
 UTILS_SRCS  =	 	srcs/utils/build_stack.c\
 					srcs/utils/check_args.c\
 					srcs/utils/push_swap_main.c\
+					srcs/utils/atoi_util.c\
 					
 SORT_SRCS  = 		srcs/sort/index_stack.c\
 					srcs/sort/is_sort.c\
