@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/18 12:02:09 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/18 12:13:27 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void				*swap_both(t_linked_list *stack_a, t_linked_list *stack_b);
 const char			**check_args(int argc, const char **argv);
 int					build_stack(int argc, const char **argv_str,
 						t_linked_list *stack);
-void				print_stack(t_linked_list *stack);
+// void				print_stack(t_linked_list *stack);
 long				ft_strtol(const char *nptr, char **endptr);
 
 // sort
