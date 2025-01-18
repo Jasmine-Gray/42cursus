@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 10:18:01 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/18 15:13:18 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/18 22:38:55 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@ long	ft_strtol(const char *nptr, char **endptr)
 	while (*s >= '0' && *s <= '9')
 	{
 		result = result * 10 + (*s - '0');
-		if ((result > INT_MAX && sign == 1) || (-result < INT_MIN && sign ==
-				-1))
+		if ((result > INT_MAX && sign == 1)
+			|| (-result < INT_MIN && sign == -1))
 			break ;
 		s++;
 	}

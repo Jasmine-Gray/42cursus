@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 20:56:16 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/18 12:06:00 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/18 22:31:57 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,15 +29,15 @@ void	free_node(t_linked_list *stack)
 	}
 }
 
-void    free_ft_split(char **words)
+void	free_ft_split(char **words)
 {
-    int    n;
+	int	n;
 
-    n = 0;
-    while (words[n] != NULL)
-    {
-        free(words[n]);
-        n++;
-    }
-    free(words);
+	n = 0;
+	while (words[n] != NULL)
+	{
+		free(words[n]);
+		n++;
+	}
+	free(words);
 }

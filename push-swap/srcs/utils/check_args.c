@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 18:00:50 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/18 15:13:22 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/18 22:34:47 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,11 @@ const char	**check_args(int argc, const char **argv)
 
 	if (argc < 2)
 		return (NULL);
+	if (ft_strncmp(argv[1], "", 1) == 0)
+	{
+		ft_putstr_fd("Error\n", 2);
+		return (NULL);
+	}
 	else if (argc == 2)
 	{
 		argv_str = (const char **)ft_split(argv[1], ' ');
