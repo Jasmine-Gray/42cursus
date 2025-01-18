@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/15 16:54:55 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/18 11:32:58 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/18 12:00:49 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,8 @@ int	main(int argc, char const *argv[])
 	if (flag == 0)
 		return (free_node(&stack_a), 1);
 	index_stack(&stack_a);
-	if (is_sort(&stack_a) == 1)
-		return (0);
+	if (is_sort(&stack_a) == 1 || count_node(&stack_a) == 1)
+		return (free_node(&stack_a), 0);
 	sort(&stack_a, &stack_b);
 	print_stack(&stack_a);
 	return (free_node(&stack_a), 0);
