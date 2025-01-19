@@ -23,7 +23,7 @@ COMMANDS_SRCS = 	srcs/commands/push.c\
 
 UTILS_SRCS  =	 	srcs/utils/build_stack.c\
 					srcs/utils/check_args.c\
-					srcs/utils/push_swap_main.c\
+					srcs/utils/main.c\
 					srcs/utils/ft_strtol.c\
 					srcs/utils/check_duplicate.c\
 					srcs/utils/free.c\

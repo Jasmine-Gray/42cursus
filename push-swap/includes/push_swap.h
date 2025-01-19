@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 13:16:21 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/18 16:27:04 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/19 15:18:43 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,9 +62,10 @@ void				*swap_both(t_linked_list *stack_a, t_linked_list *stack_b);
 const char			**check_args(int argc, const char **argv);
 int					build_stack(int argc, const char **argv_str,
 						t_linked_list *stack);
-// void				print_stack(t_linked_list *stack);
 long				ft_strtol(const char *nptr, char **endptr);
 bool				check_duplicate(t_linked_list *stack_a, int size);
+void				free_node(t_linked_list *stack);
+void				free_ft_split(char **words);
 
 // sort
 void				sort(t_linked_list *stack_a, t_linked_list *stack_b);
@@ -73,10 +74,5 @@ void				index_stack(t_linked_list *stack_a);
 void				sort_three(t_linked_list *stack_a);
 void				sort_four(t_linked_list *stack_a, t_linked_list *stack_b);
 void				sort_five(t_linked_list *stack_a, t_linked_list *stack_b);
-
-// error
-void				ft_error(t_linked_list *stack);
-void				free_node(t_linked_list *stack);
-void				free_ft_split(char **words);
 
 #endif
