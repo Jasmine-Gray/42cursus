@@ -2,7 +2,6 @@ NAME = push_swap
 
 CC = cc
 FLAGS = -Wall -Wextra -Werror 
-#FLAGS = -Wall -Wextra -Werror -g -fsanitize=address
 
 SRCS_DIR = srcs
 INCLUDES_DIR = includes
@@ -27,15 +26,14 @@ UTILS_SRCS  =	 	srcs/utils/build_stack.c\
 					srcs/utils/push_swap_main.c\
 					srcs/utils/ft_strtol.c\
 					srcs/utils/check_duplicate.c\
+					srcs/utils/free.c\
 
 SORT_SRCS  = 		srcs/sort/index_stack.c\
 					srcs/sort/is_sort.c\
 					srcs/sort/sort.c\
 					srcs/sort/sort_less_five.c\
 
-ERROR_SRCS = 		srcs/error/free.c\
-
-SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS) $(UTILS_SRCS) $(SORT_SRCS) $(ERROR_SRCS)
+SRCS = $(LISTS_SRCS) $(COMMANDS_SRCS) $(UTILS_SRCS) $(SORT_SRCS) 
 
 INCLUDES = -I $(INCLUDES_DIR)
 
