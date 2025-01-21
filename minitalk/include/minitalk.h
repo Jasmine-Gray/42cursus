@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 17:26:59 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/21 17:33:06 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/21 18:42:46 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define MINITALK_H
 
 #include <unistd.h>
+#include <signal.h>
 
 // client
 void	ft_signal(const pid_t pid, char *str);
