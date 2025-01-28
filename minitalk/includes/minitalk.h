@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 17:26:59 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/23 14:19:35 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/01/28 16:39:14 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 #include <signal.h>
 
 // client
-//void	ft_signal(const pid_t pid, char *str);
 
 // server
 
