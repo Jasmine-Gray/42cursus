@@ -9,10 +9,11 @@ INCLUDE_DIR = includes
 PRINTF_DIR = printf
 PRINTF = printf/libftprintf.a
 
-SRC_SERVER = 	srcs/server.c\
-SRC_CLIENT = 	srcs/client.c\
+SRCS_DIR = srcs
+SRC_SERVER = 	$(SRCS_DIR)/server.c\
+SRC_CLIENT = 	$(SRCS_DIR)/client.c\
 
-INCLUDES = -I $(INCLUDE_DIR)
+INCLUDES = -I$(INCLUDE_DIR)
 
 OBJ_SERVER = $(SRC_SERVER:.c=.o)
 OBJ_CLIENT = $(SRC_CLIENT:.c=.o)
@@ -26,12 +27,13 @@ $(PRINTF):
 $(NAME): $(NAME_SERVER) $(NAME_CLIENT)
 
 $(NAME_SERVER): $(OBJ_SERVER)
-	@echo "$(OBJ_SERVER)"
-	$(CC) $(FLAGS) $(OBJ_SERVER) -o $@ $(PRINTF)
+	$(CC) $(FLAGS)  $(OBJ_SERVER) -o $@
 	
 $(NAME_CLIENT): $(OBJ_CLIENT)
-	@echo "$(OBJ_CLIENT)"
-	$(CC) $(FLAGS) $(OBJ_CLIENT) -o $@ $(PRINTF)
+	$(CC) $(FLAGS) $(INCLUDES) $(OBJ_CLIENT) -o $@
+
+$(SRCS_DIR)/%.o:$(SRCS_DIR)/%.c
+	$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
 	$(RM) $(OBJ_SERVER) $(OBJ_CLIENT)
@@ -42,7 +44,7 @@ fclean: clean
 	$(RM) $(NAME_SERVER) $(NAME_CLIENT)
 	@$(MAKE) -C $(PRINTF_DIR) clean
 
-re: fclean clean
+re: fclean all
 
 .PHONY: all re clean fclean 
 

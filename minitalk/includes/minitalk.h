@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 17:26:59 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/28 16:39:14 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/02/02 14:38:30 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,5 @@
 #include "../printf/printf.h"
 #include <unistd.h>
 #include <signal.h>
-
-// client
-
-// server
 
 #endif
