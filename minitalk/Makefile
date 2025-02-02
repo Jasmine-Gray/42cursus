@@ -1,18 +1,21 @@
 NAME = minitalk
+NAME_SERVER = server
+NAME_CLIENT = client
 
 cc = CC
 FLAGS = -Wall -Wextra -Werror
 
-SRC_DIR = srcs
 INCLUDE_DIR = includes
 PRINTF_DIR = printf
 PRINTF = printf/libftprintf.a
 
-SRCS = 	srcs/server.c\
+SRC_SERVER = 	srcs/server.c\
+SRC_CLIENT = 	srcs/client.c\
 
 INCLUDES = -I $(INCLUDE_DIR)
 
-OBJS = $(SRCS:.c=.o)
+OBJ_SERVER = $(SRC_SERVER:.c=.o)
+OBJ_CLIENT = $(SRC_CLIENT:.c=.o)
 
 
 all: $(PRINTF) $(NAME)
@@ -20,21 +23,23 @@ all: $(PRINTF) $(NAME)
 $(PRINTF):
 	@$(MAKE) -C $(PRINTF_DIR)
 
-$(NAME): $(OBJS)
-	@echo "$(OBJS)"
-	$(CC) $(FLAGS) $(OBJS) -o $@ $(PRINTF)
+$(NAME): $(NAME_SERVER) $(NAME_CLIENT)
 
-$(SRC_DIR)/%.o:$(SRC_DIR)/%.c
-	$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
-
+$(NAME_SERVER): $(OBJ_SERVER)
+	@echo "$(OBJ_SERVER)"
+	$(CC) $(FLAGS) $(OBJ_SERVER) -o $@ $(PRINTF)
+	
+$(NAME_CLIENT): $(OBJ_CLIENT)
+	@echo "$(OBJ_CLIENT)"
+	$(CC) $(FLAGS) $(OBJ_CLIENT) -o $@ $(PRINTF)
 
 clean:
-	$(RM) $(OBJS)
+	$(RM) $(OBJ_SERVER) $(OBJ_CLIENT)
 	$(RM) $(PRINTF)
 	@$(MAKE) -C $(PRINTF_DIR) clean
 
 fclean: clean
-	$(RM) $(NAME)
+	$(RM) $(NAME_SERVER) $(NAME_CLIENT)
 	@$(MAKE) -C $(PRINTF_DIR) clean
 
 re: fclean clean
