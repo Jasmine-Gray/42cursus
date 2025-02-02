@@ -6,18 +6,41 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 09:21:32 by mishimod          #+#    #+#             */
-/*   Updated: 2025/02/02 15:13:38 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/02/02 16:19:04 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-int main(void)
+static void handle_signal(int signum)
 {
-		ft_printf("PID:%d\n", getpid());
-		signal(SIGUSR1, sigaction);
-		signal(SIGUSR2, sigaction);
-		while(1)
-				pause();	
-		return (0);
+		static int i;
+		static int c;
+
+		i++;
+		if (signum == SIGUSR1)
+				c = (c << 1) + 1;
+		else
+				c = (c << 1) + 0;
+		if (i == 8)
+		{
+				write(1, &c, 1);
+				i = 0;
+				c = 0;
+		}
+}
+
+int	main(void)
+{
+	struct sigaction	sa;
+
+	sa.sa_handler = handle_signal;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	ft_printf("PID:%d\n", getpid());
+	sigaction(SIGUSR1, &sa, NULL);
+	sigaction(SIGUSR2, &sa, NULL);
+	while (1)
+		pause();
+	return (0);
 }

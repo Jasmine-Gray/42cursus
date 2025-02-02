@@ -10,8 +10,8 @@ PRINTF_DIR = printf
 PRINTF = printf/libftprintf.a
 
 SRCS_DIR = srcs
-SRC_SERVER = 	$(SRCS_DIR)/server.c\
-SRC_CLIENT = 	$(SRCS_DIR)/client.c\
+SRC_SERVER = 	$(SRCS_DIR)/server.c
+SRC_CLIENT = 	$(SRCS_DIR)/client.c
 
 INCLUDES = -I$(INCLUDE_DIR)
 
@@ -27,10 +27,10 @@ $(PRINTF):
 $(NAME): $(NAME_SERVER) $(NAME_CLIENT)
 
 $(NAME_SERVER): $(OBJ_SERVER)
-	$(CC) $(FLAGS)  $(OBJ_SERVER) -o $@
+	$(CC) $(FLAGS)  $(OBJ_SERVER) -o $@ $(PRINTF)
 	
 $(NAME_CLIENT): $(OBJ_CLIENT)
-	$(CC) $(FLAGS) $(INCLUDES) $(OBJ_CLIENT) -o $@
+	$(CC) $(FLAGS) $(INCLUDES) $(OBJ_CLIENT) -o $@ $(PRINTF)
 
 $(SRCS_DIR)/%.o:$(SRCS_DIR)/%.c
 	$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
