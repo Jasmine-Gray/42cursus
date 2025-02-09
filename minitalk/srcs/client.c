@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 09:21:14 by mishimod          #+#    #+#             */
-/*   Updated: 2025/02/03 21:55:08 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/02/07 17:32:16 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static int	send_null(pid_t pid)
 			ft_printf("Error\n");
 			return (1);
 		}
-		usleep(500);
+		usleep(800);
 		bit++;
 	}
 	return (0);
@@ -53,7 +53,7 @@ static int	send_char(const char **argv, pid_t pid)
 				ft_printf("Error\n");
 				return (1);
 			}
-			usleep(1000);
+			usleep(500);
 			bit++;
 		}
 		i++;
