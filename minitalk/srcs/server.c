@@ -6,38 +6,38 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 09:21:32 by mishimod          #+#    #+#             */
-/*   Updated: 2025/02/03 21:51:50 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/02/10 20:34:50 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
+static int	rxBuffer;
+
 static void	handle_signal(int signum, siginfo_t *info, void *context)
 {
-	static int	i;
-	static int	c;
+	int	result;
 
 	(void)context;
-	i++;
-	if (signum == SIGUSR1)
-		c = (c << 1) + 1;
-	else
-		c = (c << 1) + 0;
-	if (i == 8)
+	rxBuffer = (rxBuffer << 1) | (signum - SIGUSR1);
+	if (rxBuffer & (1 << 8))
 	{
-		if (c == 0)
-			kill(info->si_pid, SIGUSR1);
-		else
-			write(1, &c, 1);
-		i = 0;
-		c = 0;
+		result = write(1, &rxBuffer, 1);
+		rxBuffer = 1;
+		if (result == -1)
+		{
+			kill(info->si_pid, SIGUSR2);
+			return ;
+		}
 	}
+	kill(info->si_pid, SIGUSR1);
 }
 
 int	main(void)
 {
 	struct sigaction	sa;
 
+	rxBuffer = 0;
 	sa.sa_sigaction = handle_signal;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_SIGINFO;
