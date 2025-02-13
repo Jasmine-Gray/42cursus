@@ -1,76 +1,71 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   client_bonus.c                                     :+:      :+:    :+:   */
+/*   client.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/08 16:54:58 by mishimod          #+#    #+#             */
-/*   Updated: 2025/02/08 16:55:07 by mishimod         ###   ########.fr       */
+/*   Created: 2025/01/04 09:21:14 by mishimod          #+#    #+#             */
+/*   Updated: 2025/02/13 19:20:43 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-static int	send_null(pid_t pid)
+volatile sig_atomic_t	g_ack_received;
+
+static void	send_null(pid_t pid)
 {
 	int	bit;
-	int	char_num;
 
-	bit = 0;
-	while (bit < 8)
+	bit = 7;
+	while (bit >= 0)
 	{
-		char_num = kill(pid, SIGUSR2);
-		if (char_num == -1)
-		{
-			ft_printf("Error\n");
-			return (1);
-		}
-		usleep(500);
-		bit++;
+		kill(pid, SIGUSR2);
+		while (!g_ack_received)
+			;
+		if ((bit == 0) && (g_ack_received))
+			ft_printf("acknowledgement received from server\n");
+		g_ack_received = 0;
+		usleep(100);
+		bit--;
 	}
-	return (0);
 }
 
-static int	send_char(const char **argv, pid_t pid)
+static void	send_char(const char **argv, pid_t pid)
 {
 	int	i;
 	int	bit;
-	int	char_num;
 
 	i = 0;
 	while (argv[2][i])
 	{
-		bit = 0;
-		while (bit < 8)
+		bit = 7;
+		while (bit >= 0)
 		{
-			if ((argv[2][i] >> (7 - bit)) & 1)
-				char_num = kill(pid, SIGUSR1);
+			if (argv[2][i] & (1 << bit))
+				kill(pid, SIGUSR1);
 			else
-				char_num = kill(pid, SIGUSR2);
-			if (char_num == -1)
-			{
-				ft_printf("Error\n");
-				return (1);
-			}
-			usleep(1000);
-			bit++;
+				kill(pid, SIGUSR2);
+			while (!g_ack_received)
+				;
+			g_ack_received = 0;
+			usleep(100);
+			bit--;
 		}
 		i++;
 	}
-	return (send_null(pid));
+	send_null(pid);
 }
 
 void	handle_ack(int signum)
 {
-	if (signum == SIGUSR1)
-		ft_printf("acknowledgement received from server\n");
+	g_ack_received = signum;
 }
 
 int	main(int argc, const char **argv)
 {
-	pid_t				pid;
-	struct sigaction	sa;
+	pid_t	pid;
 
 	if (argc != 3)
 	{
@@ -85,10 +80,14 @@ int	main(int argc, const char **argv)
 		ft_printf("Error\n");
 		return (1);
 	}
-	sa.sa_handler = handle_ack;
-	sa.sa_flags = 0;
-	sigemptyset(&sa.sa_mask);
-	sigaction(SIGUSR1, &sa, NULL);
+	if (kill(pid, 0) == -1)
+	{
+		ft_printf("Error\n");
+		return (1);
+	}
+	signal(SIGUSR1, handle_ack);
+	signal(SIGUSR2, handle_ack);
+	g_ack_received = 0;
 	send_char(argv, pid);
 	return (0);
 }
