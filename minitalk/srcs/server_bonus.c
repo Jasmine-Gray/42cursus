@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   server.c                                           :+:      :+:    :+:   */
+/*   server_bonus.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 09:21:32 by mishimod          #+#    #+#             */
-/*   Updated: 2025/02/13 17:55:45 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/02/23 20:32:20 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,16 @@ static void	handle_signal(int signum, siginfo_t *info, void *context)
 	kill(info->si_pid, SIGUSR1);
 }
 
-int	main(void)
+int	main(int argc, char **argv)
 {
 	struct sigaction	sa;
 
+	(void)argv;
+	if (argc != 1)
+	{
+		ft_printf("Error\n");
+		return (1);
+	}
 	g_rxbuffer = 0;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_SIGINFO;
