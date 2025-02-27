@@ -6,14 +6,14 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/13 17:16:13 by mishimod          #+#    #+#             */
-/*   Updated: 2025/01/23 13:21:05 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/02/27 16:53:29 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PRINTF_H
 # define PRINTF_H
 
-# include "Libft/libft.h"
+# include "../Libft/libft.h"
 # include <stdarg.h>
 # include <stdio.h>
 

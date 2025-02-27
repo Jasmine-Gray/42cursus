@@ -6,15 +6,16 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/08 16:27:18 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:27:22 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/02/27 16:55:33 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	ft_putchar_fd(char c, int fd)
+int	ft_putchar_fd(char c, int fd)
 {
 	write(fd, &c, 1);
+	return (1);
 }
 
 // int main(void)

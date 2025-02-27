@@ -1,25 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstnew.c                                        :+:      :+:    :+:   */
+/*   minitalk_bonus.h                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/17 19:13:31 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:25:08 by mishimod         ###   ########.fr       */
+/*   Created: 2025/02/27 17:26:50 by mishimod          #+#    #+#             */
+/*   Updated: 2025/02/27 17:28:37 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#ifndef MINITALK_BONUS_H
+# define MINITALK_BONUS_H
 
-t_list	*ft_lstnew(void *content)
-{
-	t_list	*new;
+# include "minitalk.h"
 
-	new = (t_list *)malloc(sizeof(t_list));
-	if (!new)
-		return (NULL);
-	new->content = content;
-	new->next = NULL;
-	return (new);
-}
+#endif

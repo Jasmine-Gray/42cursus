@@ -3,7 +3,7 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror
 
 NAME = libftprintf.a
-LIBFT_DIR = Libft
+LIBFT_DIR = ../Libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
 SRCS = ft_printf.c\
