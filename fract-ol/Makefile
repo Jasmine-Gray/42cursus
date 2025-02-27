@@ -6,7 +6,7 @@
 #    By: mishimod <marvin@42.fr>                        +#+       +#+  +:+     #
 #                                                    +#+        +#+#+#+#+#+    #
 #    Created: 2025/02/24 21:34:09 by mishimod      #+#               #+#       #
-#    Updated: 2025/02/24 21:49:27 by mishimod         ###   ########.fr        #
+#    Updated: 2025/02/25 17:59:31 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,6 +20,7 @@ PRINTF = printf/libftprintf.a
 MLX_URL = https://cdn.intra.42.fr/document/document/28352/minilibx-linux.tgz
 MLX = minilibx-linux/libmlx.a minilibx-linux/libmlx_Linux.a
 MLX_TAR = minilibx-linux.tgz
+curl xzf $(MLX_TAR)
 
 SRCS_DIR = srcs
 SRC_SERVER = 	$(SRCS_DIR)/server.c
