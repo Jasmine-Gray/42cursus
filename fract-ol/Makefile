@@ -6,7 +6,7 @@
 #    By: mishimod <marvin@42.fr>                        +#+       +#+  +:+     #
 #                                                    +#+        +#+#+#+#+#+    #
 #    Created: 2025/02/24 21:34:09 by mishimod      #+#               #+#       #
-#    Updated: 2025/03/08 20:42:39 by mishimod         ###   ########.fr        #
+#    Updated: 2025/03/08 21:15:01 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,14 +45,14 @@ mlx:
 	$(MAKE) -C $(MLX_DIR)
 
 $(NAME): $(OBJS)
-	$(CC) $(FLAGS) $(MLX_FLAGS) $(OBJS) $(LIBFT) $(FT_PRINTF) -o $@ 
+	$(CC) $(FLAGS) $(OBJS) $(MLX_FLAGS) $(FT_PRINTF) $(LIBFT) -o $@ 
 	
 %.o:%.c
 	$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
 	$(RM) $(OBJS) 
-	$(RM) $(MLX_TAR) $(LIBFT) $(FT_PRINTF)
+	$(RM) -r $(MLX_TAR) $(MLX_DIR) $(LIBFT) $(FT_PRINTF)
 	$(MAKE) -C $(LIBFT_DIR) clean
 	$(MAKE) -C $(FT_PRINTF_DIR) clean
 
