@@ -6,60 +6,58 @@
 #    By: mishimod <marvin@42.fr>                        +#+       +#+  +:+     #
 #                                                    +#+        +#+#+#+#+#+    #
 #    Created: 2025/02/24 21:34:09 by mishimod      #+#               #+#       #
-#    Updated: 2025/02/27 19:00:08 by mishimod         ###   ########.fr        #
+#    Updated: 2025/03/08 20:42:39 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = fract_ol
+NAME = fractol
 cc = CC
 FLAGS = -Wall -Wextra -Werror
 
 INCLUDE_DIR = includes
-PRINTF_DIR = printf
-PRINTF = printf/libftprintf.a
+INCLUDES = -I$(INCLUDE_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -I$(MLX_DIR)
 
+LIBFT_DIR = libft
+LIBFT = $(LIBFT_DIR)/libft.a
+FT_PRINTF_DIR = $(LIBFT_DIR)/ft_printf
+FT_PRINTF = $(FT_PRINTF_DIR)/libftprintf.a
+
+MLX_DIR = minilibx-linux
 MLX_URL = https://cdn.intra.42.fr/document/document/31138/minilibx-linux.tgz
-MLX_A = minilibx-linux/libmlx.a minilibx-linux/libmlx_Linux.a
+MLX_LIB = minilibx-linux/libmlx.a minilibx-linux/libmlx_Linux.a
 MLX_TAR = minilibx-linux.tgz
+#MLX_FLAGS = -lX11 -lXext -L$(MLX_DIR) -lmlx -lm 
+MLX_FLAGS = -lX11 -lXext -L$(MLX_DIR) -lmlx -lm 
 
-SRCS_DIR = srcs
-SRC_SERVER = 	$(SRCS_DIR)/server.c
-SRC_CLIENT = 	$(SRCS_DIR)/client.c
+SRCS= 	srcs/main.c
+OBJS= 	$(SRCS:.c=.o)
 
-INCLUDES = -I$(INCLUDE_DIR)
+all: $(LIBFT) $(FT_PRINTF) mlx $(NAME)
 
-OBJ_SERVER = $(SRC_SERVER:.c=.o)
-OBJ_CLIENT = $(SRC_CLIENT:.c=.o)
+$(LIBFT):
+	$(MAKE) -C $(LIBFT_DIR)
+$(FT_PRINTF):
+	$(MAKE) -C $(FT_PRINTF_DIR)
 
-all: $(PRINTF) $(MLX) $(NAME)
-
-$(PRINTF):
-	@$(MAKE) -C $(PRINTF_DIR)
-
-$(MLX):
+mlx:
 	curl -O $(MLX_URL)
 	tar -xzvf $(MLX_TAR)
+	$(MAKE) -C $(MLX_DIR)
 
-$(NAME): $(NAME_SERVER) $(NAME_CLIENT)
-
-$(NAME_SERVER): $(OBJ_SERVER)
-	$(CC) $(FLAGS) $(INCLUDES) $(OBJ_SERVER) -o $@ $(PRINTF)
+$(NAME): $(OBJS)
+	$(CC) $(FLAGS) $(MLX_FLAGS) $(OBJS) $(LIBFT) $(FT_PRINTF) -o $@ 
 	
-$(NAME_CLIENT): $(OBJ_CLIENT)
-	$(CC) $(FLAGS) $(INCLUDES) $(OBJ_CLIENT) -o $@ $(PRINTF)
-
-$(SRCS_DIR)/%.o:$(SRCS_DIR)/%.c
+%.o:%.c
 	$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	$(RM) $(OBJ_SERVER) $(OBJ_CLIENT) 
-	$(RM) $(PRINTF)
-	@$(MAKE) -C $(PRINTF_DIR) clean
+	$(RM) $(OBJS) 
+	$(RM) $(MLX_TAR) $(LIBFT) $(FT_PRINTF)
+	$(MAKE) -C $(LIBFT_DIR) clean
+	$(MAKE) -C $(FT_PRINTF_DIR) clean
 
 fclean: clean
-	$(RM) $(NAME_SERVER) $(NAME_CLIENT) 
-	@$(MAKE) -C $(PRINTF_DIR) clean
-
+	$(RM) $(NAME)
 
 re: fclean all
 

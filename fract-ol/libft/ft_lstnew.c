@@ -1,18 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fract_ol.h                                         :+:      :+:    :+:   */
+/*   ft_lstnew.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/13 20:58:26 by mishimod          #+#    #+#             */
-/*   Updated: 2025/02/16 20:52:30 by mishimod         ###   ########.fr       */
+/*   Created: 2024/04/17 19:13:31 by mishimod          #+#    #+#             */
+/*   Updated: 2024/05/08 16:25:08 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef "FRACT_OL"
-# define "FRACT_OL"
+#include "libft.h"
 
-#include <mlx.h>
+t_list	*ft_lstnew(void *content)
+{
+	t_list	*new;
 
-#endif 
+	new = (t_list *)malloc(sizeof(t_list));
+	if (!new)
+		return (NULL);
+	new->content = content;
+	new->next = NULL;
+	return (new);
+}
