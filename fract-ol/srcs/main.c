@@ -6,12 +6,12 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 18:53:51 by mishimod          #+#    #+#             */
-/*   Updated: 2025/03/08 21:11:34 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/03/23 18:32:47 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
-
+ 
 int	main(void)
 {
 	void	*mlx;
