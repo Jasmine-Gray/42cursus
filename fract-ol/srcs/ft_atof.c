@@ -6,13 +6,11 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/25 16:19:33 by mishimod          #+#    #+#             */
-/*   Updated: 2025/03/25 18:24:50 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/03/26 17:07:15 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//#include "../fractol.h"
-
-#include "../libft/libft.h"
+#include "fractol.h"
 
 static char	ft_isspace(unsigned char s)
 {
@@ -21,7 +19,7 @@ static char	ft_isspace(unsigned char s)
 	return (0);
 }
 
-static void	check_sign(const char *str, size_t *i, int *sign)
+static void	check_sign(const char *str, size_t *i, double *sign)
 {
 	while (ft_isspace(str[*i]))
 		(*i)++;
@@ -33,57 +31,40 @@ static void	check_sign(const char *str, size_t *i, int *sign)
 	}
 }
 
-int ft_atof(const char *str)
+double	ft_atof(const char *str)
 {
-	double result;
-	int i;
-	int sign;
-	double decimal;
+	double	result;
+	size_t	i;
+	double		sign;
+	double	decimal;
 
-	result = 0;
-	sign = 1;
-	decimal = 1;
-
+	result = 0.0;
+	i = 0;
+	sign = 1.0;
+	decimal = 1.0;
 	check_sign(str, &i, &sign);
-	i = 0;	
-	while(str[i] != '\0' && ft_isdigit(str[i]))
+	while (str[i] != '\0' && ft_isdigit(str[i]))
 	{
 		result = result * 10 + str[i] - '0';
 		i++;
-
-	}	
+	}
 	if (str[i] == '.')
 		i++;
-	while(str[i] != '\0' && ft_isdigit(str[i]))
+	while (str[i] != '\0' && ft_isdigit(str[i]))
 	{
 		result = result * 10 + str[i] - '0';
 		decimal *= 0.1;
 		i++;
 	}
-	return ((result * sign) * decimal);
+	return (result * sign * decimal);
 }
 
-
-int main(int argc, char **argv)
+int	main(int argc, char **argv)
 {
+	double	result;
+
 	(void)argc;
-	ft_atof(*argv);
-	
+	result = ft_atof(argv[1]);
+	printf("result=%f\n", result);
+	return (0);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

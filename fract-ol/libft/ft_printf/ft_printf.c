@@ -6,11 +6,11 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/13 16:37:32 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/23 22:10:33 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/03/26 17:11:12 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "printf.h"
+#include "ft_printf.h"
 
 int	ft_printf(const char *format, ...)
 {

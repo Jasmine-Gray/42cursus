@@ -6,7 +6,7 @@
 #    By: mishimod <marvin@42.fr>                        +#+       +#+  +:+     #
 #                                                    +#+        +#+#+#+#+#+    #
 #    Created: 2025/02/24 21:34:09 by mishimod      #+#               #+#       #
-#    Updated: 2025/03/23 18:32:17 by mishimod         ###   ########.fr        #
+#    Updated: 2025/03/26 17:00:12 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,9 @@ MLX_TAR = minilibx-linux.tgz
 #MLX_FLAGS = -lX11 -lXext -L$(MLX_DIR) -lmlx -lm 
 MLX_FLAGS = -lX11 -lXext -L$(MLX_DIR) -lmlx -lm 
 
-SRCS= 	srcs/main.c
+SRCS= 	srcs/main.c\
+	 	srcs/ft_atof.c\
+
 OBJS= 	$(SRCS:.c=.o)
 
 all: $(LIBFT) $(FT_PRINTF) mlx $(NAME)

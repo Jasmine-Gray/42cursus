@@ -6,11 +6,11 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 19:00:14 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/20 16:42:30 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/03/26 17:10:14 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "printf.h"
+#include "ft_printf.h"
 
 int	ft_digit(long long i)
 {

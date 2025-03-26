@@ -6,11 +6,11 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 13:13:16 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/23 21:13:01 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/03/26 17:10:01 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "printf.h"
+#include "ft_printf.h"
 
 int	ft_identify_output(const char *str, va_list *ap)
 {

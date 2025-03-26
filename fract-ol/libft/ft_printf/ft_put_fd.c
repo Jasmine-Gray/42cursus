@@ -6,11 +6,11 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/21 21:26:10 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/23 22:06:22 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/03/26 17:11:26 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "printf.h"
+#include "ft_printf.h"
 
 void	ft_puthex_fd(unsigned int i, int fd)
 {

@@ -6,11 +6,11 @@
 /*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 18:38:43 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/23 21:19:16 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/03/26 17:10:49 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "printf.h"
+#include "ft_printf.h"
 
 int	ft_print_int(va_list *ap)
 {
