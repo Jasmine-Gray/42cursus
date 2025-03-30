@@ -116,19 +116,19 @@ int	loop_hook(t_vars *vars)
 	return (0);
 }
 
-int	main(void)
-{
-	t_vars	vars;
-
-	vars.mlx = mlx_init();
-	vars.win = mlx_new_window(vars.mlx, WIDTH, HEIGHT, "sample");
-	vars.img.img = mlx_new_image(vars.mlx, WIDTH, HEIGHT);
-	mlx_hook(vars.win, ON_MOUSEMOVE, 0, mouse_move, &vars);
-	mlx_hook(vars.win, ON_MOUSEDOWN, 0, mouse_down, &vars);
-	mlx_hook(vars.win, ON_MOUSEUP, 0, mouse_up, &vars);
-	mlx_key_hook(vars.win, key_hook, &vars);
-	mlx_hook(vars.win, ON_DESTROY, 0, window_close, &vars);
-	mlx_loop_hook(vars.mlx, loop_hook, &vars);
-	mlx_loop(vars.mlx);
-	return (0);
-}
+// int	main(void)
+// {
+// 	t_vars	vars;
+// 
+// 	vars.mlx = mlx_init();
+// 	vars.win = mlx_new_window(vars.mlx, WIDTH, HEIGHT, "sample");
+// 	vars.img.img = mlx_new_image(vars.mlx, WIDTH, HEIGHT);
+// 	mlx_hook(vars.win, ON_MOUSEMOVE, 0, mouse_move, &vars);
+// 	mlx_hook(vars.win, ON_MOUSEDOWN, 0, mouse_down, &vars);
+// 	mlx_hook(vars.win, ON_MOUSEUP, 0, mouse_up, &vars);
+// 	mlx_key_hook(vars.win, key_hook, &vars);
+// 	mlx_hook(vars.win, ON_DESTROY, 0, window_close, &vars);
+// 	mlx_loop_hook(vars.mlx, loop_hook, &vars);
+// 	mlx_loop(vars.mlx);
+// 	return (0);
+// }
