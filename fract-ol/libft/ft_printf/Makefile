@@ -14,8 +14,10 @@ SRCS = ft_printf.c\
 
 OBJS=$(SRCS:.c=.o)
 
-$(NAME):$(OBJS) 
-	ar rcs $(NAME) $(OBJS) $(LIBFT)
+$(NAME):$(OBJS)
+	ar rcs $(NAME) $(OBJS)
+#$(NAME):$(OBJS) 
+#	ar rcs $(NAME) $(OBJS) $(LIBFT)
 
 LIBFT= ../libft.a
 
