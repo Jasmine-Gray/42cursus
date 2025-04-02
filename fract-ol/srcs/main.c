@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 18:53:51 by mishimod          #+#    #+#             */
-/*   Updated: 2025/04/02 22:14:35 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/04/02 23:04:38 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 	char	*dst;
 
 	dst = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
-	*(unsigned int*)dst = color;
+	*(unsigned int *)dst = color;
 }
 
 int	main(void)
@@ -25,26 +25,9 @@ int	main(void)
 	void	*mlx;
 	void	*mlx_win;
 	t_data	img;
-	int i;
-	int j;
 
 	mlx = mlx_init();
 	mlx_win = mlx_new_window(mlx, WIDTH, HEIGHT, "Hello world!");
-	img.img = mlx_new_image(mlx, WIDTH, HEIGHT);
-	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length,
-								&img.endian);
-	i = 0;
-	while(i <= WIDTH)
-	{
-			j = 0;
-			while(j <= HEIGHT)
-			{
-				my_mlx_pixel_put(&img, i, j, 0x0FFFF000);
-				j++;
-			}
-			i++;
-	}
-	mlx_put_image_to_window(mlx, mlx_win, img.img, 0, 0);
+	render_fractol(mlx, &img, mlx_win);
 	mlx_loop(mlx);
 }
-
