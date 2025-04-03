@@ -6,7 +6,7 @@
 #    By: mishimod <marvin@42.fr>                        +#+       +#+  +:+     #
 #                                                    +#+        +#+#+#+#+#+    #
 #    Created: 2025/02/24 21:34:09 by mishimod      #+#               #+#       #
-#    Updated: 2025/04/02 23:05:27 by mishimod         ###   ########.fr        #
+#    Updated: 2025/04/03 16:14:15 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -70,82 +70,3 @@ re: fclean all
 
 .PHONY: all re clean fclean 
 
-
-
-
-
-
-# NAME		= fractol
-# 
-# CC		= cc
-# CFLAGS		= -Wall -Wextra -Werror
-# CFLAGS_DEBUG = -Wall -Wextra -Werror -g -fsanitize=address
-# 
-# LIBFT_DIR 	:= libft
-# FT_PRINTF_DIR 	:= libft/ft_printf
-# SRCS_DIR	 = ./srcs
-# INCS_DIR	:= ./includes
-# OBJ_DIR		 = obj
-# 
-# SRCS		= $(addprefix $(SRCS_DIR)/, main.c)
-# # search path
-# vpath %.c $(SRCS_DIR) $(SRCS_DIR)/fractol $(SRCS_DIR)/utils
-# 
-# OBJS		= $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS:.c=.o)))
-# 
-# #minilibx
-# MLX_URL		:= https://cdn.intra.42.fr/document/document/32190/minilibx-linux.tgz
-# MLX_TAR_GZ	:= minilibx-linux.tgz
-# MLX_DIR		:= ./minilibx-linux
-# 
-# # library
-# MLX		:= $(MLX_DIR)/libmlx_Linux.a $(MLX_DIR)/libmlx.a
-# LIBFT		 = $(LIBFT_DIR)/libft.a
-# 
-# # compile option (Linker two mlx library file and X11 library)
-# #MLX_FLAGS 	 = -lX11 -lXext -L$(MLX_DIR) -lm -lmlx 
-# MLX_FLAGS = -L/opt/X11/lib -lX11 -lXext -L$(MLX_DIR) -lm -lmlx
-# 
-# INC		 = -I$(MLX_DIR) -I$(INCS_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR)
-# 
-# all: $(OBJ_DIR) $(MLX) $(LIBFT) $(NAME)
-# 
-# $(NAME): $(OBJS) 
-# 	@echo "\n$(NAME) code is Compiling ..."
-# 	$(CC) $(CFLAGS) $(OBJS) $(MLX_FLAGS) -o $(NAME) $(LIBFT)
-# 	@echo "\n$(NAME) is ready!"
-# 
-# $(OBJ_DIR):
-# 	@mkdir -p $(OBJ_DIR)
-# 
-# $(LIBFT):
-# 	$(MAKE) -C $(LIBFT_DIR)
-# 	@echo "\n"
-# 
-# $(MLX_TAR_GZ):
-# 	curl -O $(MLX_URL)
-# 
-# $(MLX): $(MLX_TAR_GZ)
-# 	tar xzf $(MLX_TAR_GZ)
-# 	$(MAKE) -j4 -C $(MLX_DIR)
-# 
-# $(OBJ_DIR)/%.o: %.c
-# 	@$(CC) $(CFLAGS) $(INC) -c $< -o $@
-# 	@echo "$(CC) $(CFLAGS) $(INC) -c $< -o $@"
-# 
-# clean:
-# 	@echo "Cleaning object files..."
-# 	@$(MAKE) -C $(LIBFT_DIR) clean
-# 	$(RM) $(LIBFT)
-# 	@echo "Cleaning dir..."
-# 	@rm -rf $(OBJ_DIR)
-# 	@rm -rf $(MLX_DIR)
-# 
-# fclean: clean
-# 	@echo "Cleaning executables"
-# 	@rm -f $(MLX_TAR_GZ)
-# 	$(RM) $(NAME)
-# 
-# re: fclean all
-# 
-# .PHONY: all clean fclean re

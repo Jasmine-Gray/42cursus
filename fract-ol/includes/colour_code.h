@@ -1,29 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mlx.c                                              :+:      :+:    :+:   */
+/*   colour_code.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/16 20:53:35 by mishimod          #+#    #+#             */
-/*   Updated: 2025/02/16 20:57:06 by mishimod         ###   ########.fr       */
+/*   Created: 2025/04/03 16:10:58 by mishimod          #+#    #+#             */
+/*   Updated: 2025/04/03 16:17:37 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fract-ol.h"
+#ifndef "COLOUR_CODE_H"
+# define "COLOUR_CODE_H"
 
-void	imlx_init(void)
-{
-}
+# define BLACK 0x000000
+# define BLUE 0x0000FF
+# define GREEN 0x00FF00
+# define PINK 0x000000
+# define RED 0xFF0000
+# define WHITE 0xFFFFFF
+# define YELLOW 0xFFFF00
 
-void	*mlx_new_window(void *mlx_ptr, int size_x, int size_y, char *title);
-{
-}
-
-int		mlx_clear_window(void *mlx_ptr, void *win_ptr);
-{
-}
-
-int		mlx_destroy_window(void *mlx_ptr, void *win_ptr);
-{
-}
+#endif
