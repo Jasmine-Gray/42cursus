@@ -6,7 +6,7 @@
 #    By: mishimod <marvin@42.fr>                        +#+       +#+  +:+     #
 #                                                    +#+        +#+#+#+#+#+    #
 #    Created: 2025/02/24 21:34:09 by mishimod      #+#               #+#       #
-#    Updated: 2025/04/03 16:14:15 by mishimod         ###   ########.fr        #
+#    Updated: 2025/04/03 16:24:17 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME = fractol
 cc = CC
 FLAGS = -Wall -Wextra -Werror
 
-INCLUDE_DIR = includes
+INCLUDE_DIR = ./includes
 INCLUDES = -I$(INCLUDE_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -I$(MLX_DIR)
 
 LIBFT_DIR = libft
