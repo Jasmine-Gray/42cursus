@@ -316,3 +316,13 @@ Z_n+1 = (a + bi)^2_n + C
 https://www.lab-nemoto.jp/www/leaflet_edu/else/ColorMaker.html
 
 カラーコード
+
+### 標準入出力　標準ライブラリ
+
+- EXIT_FAILURE
+
+    https://programming-place.net/ppp/contents/c/appendix/reference/EXIT_FAILURE.html
+
+- STDERR_FILENO
+
+    https://qiita.com/subaruf/items/45c971cdc98850cd39e3
