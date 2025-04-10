@@ -6,18 +6,17 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 18:57:10 by mishimod          #+#    #+#             */
-/*   Updated: 2025/04/03 18:36:10 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/04/10 16:00:42 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FRACTOL_H
 # define FRACTOL_H
 
+# include "colour_code.h"
 # include "ft_printf.h"
 # include "libft.h"
 # include "mlx.h"
-
-# include "colour_code.h"
 
 typedef struct s_data
 {
@@ -35,5 +34,6 @@ typedef struct s_data
 double		ft_atof(const char *str);
 void		my_mlx_pixel_put(t_data *data, int x, int y, int color);
 void		render_fractol(void *mlx, t_data *img, void *mlx_win);
+int			calc_color_gradient(int iterations);
 
 #endif

@@ -6,7 +6,7 @@
 #    By: mishimod <marvin@42.fr>                        +#+       +#+  +:+     #
 #                                                    +#+        +#+#+#+#+#+    #
 #    Created: 2025/02/24 21:34:09 by mishimod      #+#               #+#       #
-#    Updated: 2025/04/03 16:24:17 by mishimod         ###   ########.fr        #
+#    Updated: 2025/04/10 16:00:24 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,6 +33,7 @@ MLX_FLAGS = -lX11 -lXext -L$(MLX_DIR) -lm -lmlx
 SRCS= 	srcs/main.c\
 	 	srcs/ft_atof.c\
 		srcs/render_fractol.c\
+		srcs/calc_colour.c\
 
 OBJS= 	$(SRCS:.c=.o)
 

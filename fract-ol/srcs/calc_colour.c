@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/10 15:39:01 by mishimod          #+#    #+#             */
-/*   Updated: 2025/04/10 16:00:52 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/04/10 15:54:48 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,3 +45,4 @@ static int	interpolate_color(int start, int end, double factor)
 	b = (start & 0xFF) + factor * ((end & 0xFF) - (start & 0xFF));
 	return (r << 16 | g << 8 | b);
 }
+
