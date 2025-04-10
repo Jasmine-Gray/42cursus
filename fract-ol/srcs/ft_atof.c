@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/25 16:19:33 by mishimod          #+#    #+#             */
-/*   Updated: 2025/03/30 01:51:00 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/04/10 19:24:15 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ double	ft_atof(const char *str)
 {
 	double	result;
 	size_t	i;
-	double		sign;
+	double	sign;
 	double	decimal;
 
 	result = 0.0;
@@ -62,7 +62,7 @@ double	ft_atof(const char *str)
 // int	main(int argc, char **argv)
 // {
 // 	double	result;
-// 
+//
 // 	(void)argc;
 // 	result = ft_atof(argv[1]);
 // 	printf("result=%f\n", result);
