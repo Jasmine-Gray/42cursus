@@ -1,15 +1,3 @@
-https://zenn.dev/grigri_grin/articles/5d201067dedfdb
-
-https://harm-smits.github.io/42docs/libs/minilibx/getting_started.html
-
-https://medium.com/@leogaudin/fract-ol-creating-graphically-beautiful-fractals-6664b6b045b5
-
-https://qst0.github.io/ft_libgfx/man_mlx.html
-
-https://qst0.github.io/ft_libgfx/man_mlx_new_window.html
-
-https://jun-networks.hatenablog.com/entry/2021/06/12/170030
-
 ### Makefile
 -lは、 /usr/bin or /bin の中のライブラリファイルを参照するコマンド。
 -lX11と記述すると、 /usr/binのX11ライブラリを参照するという意味になる。
@@ -326,3 +314,19 @@ https://www.lab-nemoto.jp/www/leaflet_edu/else/ColorMaker.html
 - STDERR_FILENO
 
     https://qiita.com/subaruf/items/45c971cdc98850cd39e3
+
+### その他 link
+[mlx start guide](https://harm-smits.github.io/42docs/libs/minilibx/getting_started.html)
+
+[フラクタルとはなんぞや](https://jun-networks.hatenablog.com/entry/2021/06/12/170030)
+
+[mlx 関数1](https://qst0.github.io/ft_libgfx/man_mlx.html)
+
+[mlx 関数2](https://qst0.github.io/ft_libgfx/man_mlx_new_window.html)
+
+
+[mandelbrot julia式](https://note.com/108hassium/n/n47ad4d3956af)
+
+[HSV色空間](https://ja.wikipedia.org/wiki/HSV%E8%89%B2%E7%A9%BA%E9%96%93)
+
+[ズームイン・アウト　ウィンドウ操作](https://zenn.dev/grigri_grin/articles/5d201067dedfdb)
