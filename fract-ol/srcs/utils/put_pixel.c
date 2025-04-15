@@ -1,25 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_free.c                                          :+:      :+:    :+:   */
+/*   put_pixel.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/15 15:56:54 by mishimod          #+#    #+#             */
-/*   Updated: 2025/04/15 15:57:31 by mishimod         ###   ########.fr       */
+/*   Created: 2025/04/15 15:35:50 by mishimod          #+#    #+#             */
+/*   Updated: 2025/04/15 17:47:20 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
 
-void	free_mlx(t_data *data)
+void	put_pixel(t_img *img, double x, double y, int color)
 {
-	if (data->mlx == NULL)
+	int	index;
+
+	if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
 		return ;
-	if (data->img.img_ptr)
-		mlx_destroy_image(data->mlx, data->img.img_ptr);
-	if (data->window)
-		mlx_destroy_window(data->mlx, data->window);
-	mlx_destroy_display(data->mlx);
-	free(data->mlx);
+	index = (y * img->size_line) + (x * (img->bpp / 8));
+	*(unsigned int *)(img->img_addr + index) = color;
 }

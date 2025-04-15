@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/02 23:03:40 by mishimod          #+#    #+#             */
-/*   Updated: 2025/04/15 15:51:45 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/04/15 17:46:48 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,25 +103,6 @@ void	render_julia(t_data *data)
 		y++;
 	}
 }
-
-// void	render_fractol(t_data *data)
-// {
-// 	mlx_destroy_image(data->mlx, data->img.img_ptr);
-// 	data->img.img_ptr = mlx_new_image(data->mlx, WIDTH, HEIGHT);
-// 	if (ft_strncmp(data->type, "julia", 5) == 0)
-// 		render_julia(data);
-// 	else
-// 		render_mandelbrot(data);
-// 	mlx_put_image_to_window(data->mlx, data->window, data->img.img_ptr, 0, 0);
-// 	data->img.img_addr = mlx_get_data_addr(data->img.img_ptr, &data->img.bpp,
-// 			&data->img.size_line, &data->img.endian);
-// 	//data->img.img_ptr = mlx_new_image(data->mlx, WIDTH, HEIGHT);
-// 	//data->img.img_addr = mlx_get_data_addr(data->img.img_ptr, &data->img.bpp,
-// 	//		&data->img.size_line, &data->img.endian);
-// 	//img->img = mlx_new_image(mlx, WIDTH, HEIGHT);
-// 	//img->addr = mlx_get_data_addr(img->img, &img->bits_per_pixel,
-// 	//		&img->line_length, &img->endian);
-// }
 
 void	render_fractol(t_data *data)
 {

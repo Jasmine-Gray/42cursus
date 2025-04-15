@@ -330,3 +330,6 @@ https://www.lab-nemoto.jp/www/leaflet_edu/else/ColorMaker.html
 [HSV色空間](https://ja.wikipedia.org/wiki/HSV%E8%89%B2%E7%A9%BA%E9%96%93)
 
 [ズームイン・アウト　ウィンドウ操作](https://zenn.dev/grigri_grin/articles/5d201067dedfdb)
+
+#### key_code
+/usr/include/linux/input-event-codes.h

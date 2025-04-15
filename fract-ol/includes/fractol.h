@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 18:57:10 by mishimod          #+#    #+#             */
-/*   Updated: 2025/04/15 15:57:55 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/04/15 18:48:12 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,10 @@
 # include "colour_code.h"
 # include "ft_printf.h"
 # include "img.h"
+# include "key_code.h"
 # include "libft.h"
 # include "mlx.h"
-# include "stdlib.h"
+# include <stdlib.h>
 
 typedef struct s_data
 {
@@ -54,5 +55,6 @@ void		put_pixel(t_img *img, double x, double y, int color);
 void		*init_fractol(t_data *data);
 void		free_mlx(t_data *data);
 int			calc_color_gradient(int iterations);
+int			allow_key(int key, t_data *data);
 
 #endif

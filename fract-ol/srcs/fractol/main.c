@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 18:53:51 by mishimod          #+#    #+#             */
-/*   Updated: 2025/04/15 16:01:06 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/04/15 18:50:44 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,18 +71,12 @@ int	main(int argc, char **argv)
 			&& ft_strlen(argv[1]) == 10) || (argc == 4 && ft_strncmp(argv[1],
 				"julia", 5) == 0 && ft_strlen(argv[1]) == 5))
 	{
-		// check_julia_arg(&data, argv);
-		// mlx = mlx_init();
-		// //mlx_win = mlx_new_window(mlx, WIDTH, HEIGHT, "Hello world!");
-		// render_fractol(&data);
-		// mlx_loop(mlx);
-
 		check_julia_arg(&data, argv);
 		init_fractol(&data);
 		render_fractol(&data);
-		//mlx_key_hook(data.window, cb_key_hook, &data);
-		//mlx_mouse_hook(data.window, cb_mouse_hook, (void *)(&data));
-		//mlx_hook(data.window, 17, 0L, cb_close_hook, &data);
+		mlx_key_hook(data.window, allow_key, &data);
+		// mlx_mouse_hook(data.window, cb_mouse_hook, (void *)(&data));
+		// mlx_hook(data.window, 17, 0L, cb_close_hook, &data);
 		mlx_loop(data.mlx);
 	}
 	else

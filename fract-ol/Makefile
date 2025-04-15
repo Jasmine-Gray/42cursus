@@ -6,7 +6,7 @@
 #    By: mishimod <marvin@42.fr>                        +#+       +#+  +:+     #
 #                                                    +#+        +#+#+#+#+#+    #
 #    Created: 2025/02/24 21:34:09 by mishimod      #+#               #+#       #
-#    Updated: 2025/04/15 15:58:16 by mishimod         ###   ########.fr        #
+#    Updated: 2025/04/15 18:53:14 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,13 +30,14 @@ MLX_TAR = minilibx-linux.tgz
 #MLX_FLAGS = -lX11 -lXext -L$(MLX_DIR) -lm -lmlx
 MLX_FLAGS = -L/opt/X11/lib -lX11 -lXext -L$(MLX_DIR) -lm -lmlx
 
-SRCS= 	srcs/main.c\
-	 	srcs/ft_atof.c\
-		srcs/render_fractol.c\
-		srcs/calc_colour.c\
-		srcs/put_pixel.c\
-		srcs/reset_fractol.c\
-		srcs/ft_free.c\
+SRCS= 	srcs/fractol/calc_colour.c\
+		srcs/fractol/main.c\
+		srcs/fractol/render_fractol.c\
+		srcs/fractol/reset_fractol.c\
+		srcs/fractol/keys.c\
+		srcs/utils/ft_atof.c\
+		srcs/utils/ft_free.c\
+		srcs/utils/put_pixel.c\
 
 OBJS= 	$(SRCS:.c=.o)
 
