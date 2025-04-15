@@ -6,7 +6,7 @@
 #    By: mishimod <marvin@42.fr>                        +#+       +#+  +:+     #
 #                                                    +#+        +#+#+#+#+#+    #
 #    Created: 2025/02/24 21:34:09 by mishimod      #+#               #+#       #
-#    Updated: 2025/04/10 16:00:24 by mishimod         ###   ########.fr        #
+#    Updated: 2025/04/15 15:58:16 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,13 +27,16 @@ MLX_URL = https://cdn.intra.42.fr/document/document/32190/minilibx-linux.tgz
 MLX_LIB = minilibx-linux/libmlx.a minilibx-linux/libmlx_Linux.a
 MLX_TAR = minilibx-linux.tgz
 #MLX_FLAGS = -lX11 -lXext -L$(MLX_DIR) -lmlx -lm 
-MLX_FLAGS = -lX11 -lXext -L$(MLX_DIR) -lm -lmlx
-#MLX_FLAGS = -L/opt/X11/lib -lX11 -lXext -L$(MLX_DIR) -lm -lmlx
+#MLX_FLAGS = -lX11 -lXext -L$(MLX_DIR) -lm -lmlx
+MLX_FLAGS = -L/opt/X11/lib -lX11 -lXext -L$(MLX_DIR) -lm -lmlx
 
 SRCS= 	srcs/main.c\
 	 	srcs/ft_atof.c\
 		srcs/render_fractol.c\
 		srcs/calc_colour.c\
+		srcs/put_pixel.c\
+		srcs/reset_fractol.c\
+		srcs/ft_free.c\
 
 OBJS= 	$(SRCS:.c=.o)
 

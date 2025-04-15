@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 18:57:10 by mishimod          #+#    #+#             */
-/*   Updated: 2025/04/10 19:21:00 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/04/15 15:57:55 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "colour_code.h"
 # include "ft_printf.h"
+# include "img.h"
 # include "libft.h"
 # include "mlx.h"
 # include "stdlib.h"
@@ -22,13 +23,19 @@
 typedef struct s_data
 {
 	char	*type;
-	void	*img;
 	char	*addr;
+	void	*mlx;
+	void	*window;
 	int		bits_per_pixel;
 	int		line_length;
 	int		endian;
+	int		iter;
+	double	zoom;
+	double	offset_x;
+	double	offset_y;
 	double	first_julia;
 	double	second_julia;
+	t_img	img;
 }			t_data;
 
 # define WIDTH 1000
@@ -40,7 +47,12 @@ typedef struct s_data
 
 double		ft_atof(const char *str);
 void		my_mlx_pixel_put(t_data *data, int x, int y, int color);
-void		render_fractol(void *mlx, t_data *img, void *mlx_win);
+void		render_fractol(t_data *data);
+void		render_mandelbrot(t_data *data);
+void		render_julia(t_data *data);
+void		put_pixel(t_img *img, double x, double y, int color);
+void		*init_fractol(t_data *data);
+void		free_mlx(t_data *data);
 int			calc_color_gradient(int iterations);
 
 #endif
