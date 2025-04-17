@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 18:57:10 by mishimod          #+#    #+#             */
-/*   Updated: 2025/04/17 16:45:56 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/04/17 20:19:21 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,5 +57,6 @@ void		free_mlx(t_data *data);
 int			calc_color_gradient(int iterations);
 int			allow_key(int key, t_data *data);
 int			allow_mouse(int button, int x, int y, void *param);
+int			close_hook(t_data *data);
 
 #endif

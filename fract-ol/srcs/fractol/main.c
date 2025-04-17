@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 18:53:51 by mishimod          #+#    #+#             */
-/*   Updated: 2025/04/17 16:45:35 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/04/17 20:20:28 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,8 @@ int	main(int argc, char **argv)
 		init_fractol(&data);
 		render_fractol(&data);
 		mlx_key_hook(data.window, allow_key, &data);
-		 mlx_mouse_hook(data.window, allow_mouse, (void *)(&data));
-		// mlx_hook(data.window, 17, 0L, cb_close_hook, &data);
+		mlx_mouse_hook(data.window, allow_mouse, (void *)(&data));
+		mlx_hook(data.window, 17, 0L, close_hook, &data);
 		mlx_loop(data.mlx);
 	}
 	else
