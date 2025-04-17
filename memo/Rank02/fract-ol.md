@@ -333,3 +333,59 @@ https://www.lab-nemoto.jp/www/leaflet_edu/else/ColorMaker.html
 
 #### key_code
 /usr/include/linux/input-event-codes.h
+
+xev
+このコマンドを実行後、keyを押す。
+```sh
+ex)
+0xff54, Down
+KeyPress event, serial 37, synthetic NO, window 0x6000001,
+    root 0x6b1, subw 0x0, time 857914348, (33,102), root:(33,187),
+    state 0x10, keycode 116 (keysym 0xff54, Down), same_screen YES,
+    XLookupString gives 0 bytes: 
+    XmbLookupString gives 0 bytes: 
+    XFilterEvent returns: False
+
+
+0xff52, Up
+KeyRelease event, serial 37, synthetic NO, window 0x6000001,
+    root 0x6b1, subw 0x0, time 857896332, (131,130), root:(131,215),
+    state 0x10, keycode 111 (keysym 0xff52, Up), same_screen YES,
+    XLookupString gives 0 bytes: 
+    XFilterEvent returns: False
+
+
+0xff53, Right
+KeyRelease event, serial 37, synthetic NO, window 0x6000001,
+    root 0x6b1, subw 0x6000002, time 857863690, (19,63), root:(19,148),
+    state 0x10, keycode 114 (keysym 0xff53, Right), same_screen YES,
+    XLookupString gives 0 bytes: 
+    XFilterEvent returns: False
+
+
+0xff51, Left
+KeyRelease event, serial 37, synthetic NO, window 0x6000001,
+    root 0x6b1, subw 0x0, time 857841225, (136,93), root:(136,178),
+    state 0x10, keycode 113 (keysym 0xff51, Left), same_screen YES,
+    XLookupString gives 0 bytes: 
+    XFilterEvent returns: False
+
+
+0xff1b, Escape
+KeyPress event, serial 37, synthetic NO, window 0x6000001,
+    root 0x6b1, subw 0x0, time 857930710, (24,105), root:(24,190),
+    state 0x10, keycode 9 (keysym 0xff1b, Escape), same_screen YES,
+    XLookupString gives 1 bytes: (1b) "
+mbLookupString gives 1 bytes: (1b) "
+FilterEvent returns: False
+
+
+ButtonRelease event, serial 37, synthetic NO, window 0x5400001,
+    root 0x6b1, subw 0x0, time 856899548, (58,126), root:(58,211),
+    state 0x810, button 4, same_screen YES
+
+
+ButtonPress event, serial 37, synthetic NO, window 0x5400001,
+    root 0x6b1, subw 0x0, time 856911772, (88,120), root:(88,205),
+    state 0x10, button 5, same_screen YES
+```

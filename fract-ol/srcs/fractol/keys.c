@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/15 18:13:53 by mishimod          #+#    #+#             */
-/*   Updated: 2025/04/15 18:53:32 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/04/17 16:44:55 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,22 +45,22 @@ int	allow_key(int key, t_data *data)
 	return (0);
 }
 
-// int	allow_mouse(int button, int x, int y, void *param)
-// {
-// 		t_data	*data;
-//
-// 		(void)x;
-// 		(void)y;
-// 		data = (t_data *)param;
-// 		if (data == NULL)
-// 		{
-// 			perror("Error: data is NULL in cb_mouse_hook\n");
-// 			return (0);
-// 		}
-// 		if (button == WHEEL_UP)
-// 			data->zoom *= 0.95;
-// 		else if (button == WHEEL_DOWN)
-// 			data->zoom /= 0.95;
-// 		render_fractol(data);
-// 		return (0);
-// }
+int	allow_mouse(int button, int x, int y, void *param)
+{
+		t_data	*data;
+
+		(void)x;
+		(void)y;
+		data = (t_data *)param;
+		if (data == NULL)
+		{
+			perror("Error: data is NULL in cb_mouse_hook\n");
+			return (0);
+		}
+		if (button == MOUSE_UP)
+			data->zoom *= 0.95;
+		else if (button == MOUSE_DOWN)
+			data->zoom /= 0.95;
+		render_fractol(data);
+		return (0);
+}
