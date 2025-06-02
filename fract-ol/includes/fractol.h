@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 18:57:10 by mishimod          #+#    #+#             */
-/*   Updated: 2025/04/17 20:19:21 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/04/24 20:59:44 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ typedef struct s_data
 # define HEIGHT 1000
 # define ITER_MAX 50
 
-# define FT_ERROR "Error:\nUsage:\n./fractol mandelbrot\n./fractol julia <r> <i>\n"
+# define FT_ERROR "Error:\nUsage:\n"
 # define FT_JULIA_ERROR "Error:\nExample:\n./fractol julia -0.2 0.7\n"
 
 double		ft_atof(const char *str);
