@@ -6,13 +6,15 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 17:29:55 by mishimod          #+#    #+#             */
-/*   Updated: 2025/06/02 17:41:04 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/06/02 17:53:04 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "../libft/libft.h"
+#include "../libft/ft_printf/ft_printf.h"
 
 int	get_pwd(void)
 {
@@ -24,7 +26,7 @@ int	get_pwd(void)
 		perror("getcwd");
 		return (1);
 	}
-	printf("Current working directory: %s\n", pwd_path);
+	ft_printf("Current working directory: %s\n", pwd_path);
 	free(pwd_path);
 	return (0);
 }
