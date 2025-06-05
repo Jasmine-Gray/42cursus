@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 22:20:14 by mishimod          #+#    #+#             */
-/*   Updated: 2025/06/04 19:08:51 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/06/05 01:05:59 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ int	get_echo(const char **argv)
 	int	i;
 	int	j;
 
+	if (!argv[1])
+		write(1, "\n", 1);
 	if (argv[1])
 	{
 		i = 1;
@@ -58,12 +60,12 @@ int	get_echo(const char **argv)
 			i++;
 		}
 	}
-	if (!argv[1] || check_option(argv[1]) == false)
+	if (check_option(argv[1]) == false)
 		write(1, "\n", 1);
 	return (0);
 }
 
-// int	main(int argc, const char **argv)
-// {
-// 	return (get_echo(argv));
-// }
+int	main(int argc, const char **argv)
+{
+	return (get_echo(argv));
+}
