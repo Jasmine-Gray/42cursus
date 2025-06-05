@@ -6,15 +6,11 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 17:29:55 by mishimod          #+#    #+#             */
-/*   Updated: 2025/06/02 17:53:04 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/06/04 22:15:48 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include "../libft/libft.h"
-#include "../libft/ft_printf/ft_printf.h"
+#include "minishell.h"
 
 int	get_pwd(void)
 {
@@ -31,7 +27,7 @@ int	get_pwd(void)
 	return (0);
 }
 
-int	main(void)
-{
-	return (get_pwd());
-}
+// int	main(void)
+// {
+// 	return (get_pwd());
+// }

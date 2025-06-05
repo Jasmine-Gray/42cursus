@@ -6,17 +6,13 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 22:20:14 by mishimod          #+#    #+#             */
-/*   Updated: 2025/06/05 01:05:59 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/06/05 15:47:35 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/ft_printf/ft_printf.h"
-#include "../libft/libft.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "minishell.h"
 
-bool	check_option(const char *option)
+static bool	check_option(const char *option)
 {
 	int	i;
 
