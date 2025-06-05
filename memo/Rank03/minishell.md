@@ -9,4 +9,5 @@
 | **解説**       | `getcwd` は、現在の作業ディレクトリの絶対パスを取得し、<br>`buf` に格納します。`length` は格納可能な最大サイズです。 |
 
 > 💡 **ヒント**：`buf` に `NULL` を渡すと、必要な領域が自動で確保されます（POSIX/GNU拡張）。<br>
-> NULL & 0 を渡すと malloc される（GNU拡張）
+> NULL & 0 を渡すと malloc される（GNU拡張）<br>
+>getcwdに入っている値はmallocで割り当てられたものなのでfreeが必要。
