@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 22:20:14 by mishimod          #+#    #+#             */
-/*   Updated: 2025/06/05 15:47:35 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/06/24 20:23:34 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ int	get_echo(const char **argv)
 	return (0);
 }
 
-int	main(int argc, const char **argv)
-{
-	return (get_echo(argv));
-}
+// int	main(int argc, const char **argv)
+// {
+// 	return (get_echo(argv));
+// }
