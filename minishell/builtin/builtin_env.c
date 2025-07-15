@@ -1,28 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   env.c                                              :+:      :+:    :+:   */
+/*   builtin_env.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: mishimod <mishimod@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/04 22:14:23 by mishimod          #+#    #+#             */
-/*   Updated: 2025/06/24 22:59:22 by mishimod         ###   ########.fr       */
+/*   Created: 2025/07/15 16:29:56 by mishimod          #+#    #+#             */
+/*   Updated: 2025/07/15 16:32:08 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+
 //#include "minishell.h"
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-extern char **environ;
+extern char	**environ;
 
-int main(void) {
-    char **env = environ;
-    while (*env) {
-        printf("%s\n", *env); // 1つの環境変数（KEY=VALUE形式）
-        env++;
-    }
-    return 0;
+int	main(void)
+{
+	char	**env;
+
+	env = environ;
+	while (*env)
+	{
+		printf("%s\n", *env); // 1つの環境変数（KEY=VALUE形式）
+		env++;
+	}
+	return (0);
 }
 
 // int main()
@@ -33,7 +38,6 @@ int main(void) {
 // 		return (0);
 // }
 
-
 // int main() {
 //     char *home = getenv("HOME");
 //     if (home != NULL) {
@@ -41,7 +45,7 @@ int main(void) {
 //     } else {
 //         printf("HOME 環境変数は設定されていません\n");
 //     }
-//     return 0;
+//     return (0);
 // }
 
 // getenvにname(環境変数名)を渡してあげる。
