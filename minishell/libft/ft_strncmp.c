@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strncmp.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/08 16:29:51 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:29:55 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:40:09 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:41:32 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,68 +14,39 @@
 
 int	ft_strncmp(const char *s1, const char *s2, size_t n)
 {
-	unsigned char	*str1;
-	unsigned char	*str2;
-	size_t			i;
+	size_t	i;
 
-	str1 = (unsigned char *)s1;
-	str2 = (unsigned char *)s2;
 	i = 0;
 	while (i < n)
 	{
-		if (str1[i] != str2[i])
-			return (str1[i] - str2[i]);
-		else if (str1[i] == '\0' && str2[i] == '\0')
+		if (s1[i] != s2[i])
+			return ((int)((unsigned char)s1[i] - (unsigned char)s2[i]));
+		else if (s1[i] == '\0' || s2[i] == '\0')
 			return (0);
 		i++;
 	}
 	return (0);
 }
 
-// bool	check_strncmp(void)
-// {
-// 	unsigned char	str_1[100];
-// 	unsigned char	str_2[100];
-// 	const char		*s;
-// 	size_t			i;
-// 	size_t			n;
-// 
-// 	s = "Hello";
-// 	i = 0;
-// 	memset(str_1, 0, sizeof(str_1));
-// 	memset(str_2, 0, sizeof(str_2));
-// 	strcpy((char *)str_1, "");
-// 	strcpy((char *)str_2, "");
-// 	strcpy((char *)(str_1 + 1), "Hello World");
-// 	strcpy((char *)(str_2 + 1), "Hello World");
-// 	strcpy((char *)(str_1 + 2), "aaaaaaaaaaaaaaaa");
-// 	strcpy((char *)(str_2 + 2), "aaaaaaaaaaaaaaaa");
-// 	strcpy((char *)(str_1 + 3), "     ");
-// 	strcpy((char *)(str_2 + 3), "     ");
-// 	strcpy((char *)(str_1 + 4), "test");
-// 	strcpy((char *)(str_2 + 4), "test");
-// 	while (n <= strlen(s))
-// 	{
-// 		i = 0;
-// 		while (i < 100)
-// 		{
-// 			if (ft_strncmp((const char *)(str_1 + i), s,
-// 					n) != strncmp((const char *)(str_2 + i), s, n))
-// 			{
-// 				printf("ft_strncmp=%s, strncmp=%s\n", str_1 + i, str_2 + i);
-// 				return (false);
-// 			}
-// 			i++;
-// 		}
-// 		n++;
-// 	}
-// 	return (true);
-// }
-// 
-// int	main(void)
-// {
-// 	if (check_strncmp())
-// 		printf("OK\n");
-// 	else
-// 		printf("ERROR\n");
+// #include <stdio.h>
+// #include <string.h>
+//
+//  int	main(void)
+//{
+//	char	*s1;
+//	char	*s2;
+//	char	*big;
+//	char	*little;
+//	size_t	size;
+//
+//	big = "omg1";
+//	little = "omg3|||||||";
+//	size = 4;
+//	s1 = "\200";
+//	s2 = "\0";
+//	printf("ft_strncmp: %d\n", ft_strncmp(s1, s2, 3));
+//	printf("strncmp: %d\n", strncmp(s1, s2, 3));
+//	printf("ft_strncmp: %d\n", ft_strncmp(big, little, 6));
+//	printf("strncmp: %d\n", strncmp(big, little, 6));
+//	return (0);
 // }

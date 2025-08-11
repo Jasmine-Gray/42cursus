@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_putendl_fd.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/08 16:27:28 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:27:33 by mishimod         ###   ########.fr       */
+/*   Created: 2024/05/09 21:10:07 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/09 02:03:30 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,6 @@ void	ft_putendl_fd(char *s, int fd)
 {
 	if (!s)
 		return ;
-	write(fd, s, ft_strlen(s));
-	write(fd, "\n", 1);
+	ft_putstr_fd(s, fd);
+	write(fd, "\n", STDOUT_FILENO);
 }

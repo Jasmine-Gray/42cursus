@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_memcpy.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/17 17:54:32 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:25:44 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:38:55 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:38:57 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,73 +14,91 @@
 
 void	*ft_memcpy(void *dst, const void *src, size_t n)
 {
-	unsigned char		*i;
-	const unsigned char	*j;
+	size_t	i;
 
-	i = (unsigned char *)dst;
-	j = (const unsigned char *)src;
-	if (!dst && !src)
-		return (NULL);
-	while (n--)
-		*i++ = *j++;
+	i = 0;
+	if (!(dst || src))
+		return (dst);
+	while (i < n)
+	{
+		((unsigned char *)dst)[i] = ((unsigned char *)src)[i];
+		i++;
+	}
 	return (dst);
 }
 
-// bool	check_memcpy(void)
+// #include <stdio.h>
+// #include <string.h>
+
+// void	print_array(const unsigned char *array, size_t size)
 // {
-// 	const int	STR_SIZE = 42;
-// 	char		src[STR_SIZE][STR_SIZE];
-// 	char		dst_1[STR_SIZE][STR_SIZE];
-// 	char		dst_2[STR_SIZE][STR_SIZE];
-// 	int			i;
-// 	int			j;
-//
-// 	i = 0;
-// 	while (i < STR_SIZE)
+// 	printf("Array contents: ");
+// 	for (size_t i = 0; i < size; i++)
 // 	{
-// 		j = 0;
-// 		while (j < STR_SIZE)
-// 		{
-// 			src[i][j] = '\0';
-// 			j++;
-// 		}
-// 		i++;
+// 		printf("%02X ", array[i]);
 // 	}
-// 	printf("src=%s\n", src[i]);
-// 	strcpy(src[0], "");
-// 	strcpy(src[1], "hello world");
-// 	strcpy(src[2], "test");
-// 	strcpy(src[3], "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-// 	i = 0;
-// 	while (i < STR_SIZE)
-// 	{
-// 		ft_memcpy(dst_1[i], src[i], STR_SIZE);
-// 		memcpy(dst_2[i], src[i], STR_SIZE);
-// 		printf("result:%s\n", dst_1[i]);
-// 		j = 0;
-// 		while (j < STR_SIZE)
-// 		{
-// 			if (dst_1[i][j] != dst_2[i][j])
-// 			{
-// 				printf("ft_memcpy=%s, memcpy=%s\n", dst_1[i], dst_2[i]);
-// 				return (false);
-// 			}
-// 			j++;
-// 		}
-// 		i++;
-// 	}
-// 	return (true);
+// 	printf("\n");
 // }
-//
-// int	main(void)
+
+//	int	main(void)
+//{
+// unsigned char	src[50];
+// unsigned char	dst[50];
+// int				pass;
+// memset(src, 0xAB, sizeof(src));
+// ft_memcpy(dst, src, sizeof(src));
+// pass = 1;
+// for (size_t i = 0; i < sizeof(src); i++)
 // {
-// 	if (check_memcpy())
+// 	if (dst[i] != src[i])
 // 	{
-// 		printf("OK\n");
-// 	}
-// 	else
-// 	{
-// 		printf("ERROR\n");
+// 		pass = 0;
+// 		break ;
 // 	}
 // }
-//
+// if (pass)
+// {
+// 	printf("Test 1 Passed\n");
+// }
+// else
+// {
+// 	printf("Test 1 Failed\n");
+// }
+// print_array(dst, sizeof(dst));
+// memset(src, 0xCD, sizeof(src));
+// memset(dst, 0, sizeof(dst));
+// ft_memcpy(dst, src, 10);
+// pass = 1;
+// for (size_t i = 0; i < 10; i++)
+// {
+// 	if (dst[i] != src[i])
+// 	{
+// 		pass = 0;
+// 		break ;
+// 	}
+// }
+// for (size_t i = 10; i < sizeof(dst); i++)
+// {
+// 	if (dst[i] != 0)
+// 	{
+// 		pass = 0;
+// 		break ;
+// 	}
+// }
+// if (pass)
+// {
+// 	printf("Test 2 Passed\n");
+// }
+// else
+// {
+// 	printf("Test 2 Failed\n");
+// }
+// print_array(dst, sizeof(dst));
+// memset(src, 0xAB, sizeof(src));
+// memset(dst, 0xCD, sizeof(dst));
+// ft_memcpy(dst, src, 0);
+// printf("Edge Case 1 (Zero Length Copy):\n");
+// print_array(dst, sizeof(dst));
+// ft_memcpy(NULL, NULL, 0);
+// return (0);
+//}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_bzero.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/17 15:11:41 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:21:31 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:36:22 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:36:24 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,55 +14,80 @@
 
 void	ft_bzero(void *s, size_t n)
 {
-	unsigned char	*str;
+	size_t	i;
 
-	str = (unsigned char *)s;
-	while (n--)
+	i = 0;
+	while (i < n)
 	{
-		*str++ = 0;
+		((unsigned char *)s)[i] = '\0';
+		i++;
 	}
-	return ;
 }
 
-// bool	check_bzero(void)
+// #include <stdio.h>
+// #include <string.h>
+
+// void	print_array(const unsigned char *array, size_t size)
 // {
-// 	const int	STR_SIZE = 42;
-// 	char		str_1[STR_SIZE];
-// 	char		str_2[STR_SIZE];
-// 	int			i;
-// 
-// 	i = 0;
-// 	while (i < STR_SIZE)
+// 	printf("Array contents: ");
+// 	for (size_t i = 0; i < size; i++)
 // 	{
-// 		str_1[i] = '0';
-// 		str_2[i] = '0';
-// 		i++;
+// 		printf("%02X ", array[i]);
 // 	}
-// 	bzero(str_1, STR_SIZE);
-// 	ft_bzero(str_2, STR_SIZE);
-// 	str_1[STR_SIZE - 1] = '\0';
-// 	str_2[STR_SIZE - 1] = '\0';
-// 	printf("str_1 : %s\n", str_1);
-// 	printf("str_2 : %s\n", str_2);
-// 	while (i < STR_SIZE)
-// 	{
-// 		if (str_1[i] != str_2[i])
-// 		{
-// 			printf("bzero=%d, ft_bzero=%d\n", str_1[i], str_2[i]);
-// 			return (false);
-// 		}
-// 	}
-// 	return (true);
+// 	printf("\n");
 // }
-// 
+
 // int	main(void)
 // {
-// 	if (check_bzero())
+// 	int	pass;
+
+// 	unsigned char buffer[50];
+// 	ft_bzero(buffer, sizeof(buffer));
+// 	pass = 1;
+// 	for (size_t i = 0; i < sizeof(buffer); i++)
 // 	{
-// 		printf("OK\n");
+// 		if (buffer[i] != 0)
+// 		{
+// 			pass = 0;
+// 			break ;
+// 		}
+// 	}
+// 	if (pass)
+// 	{
+// 		printf("Test 1 Passed\n");
 // 	}
 // 	else
 // 	{
-// 		printf("ERROR\n");
+// 		printf("Test 1 Failed\n");
 // 	}
+// 	print_array(buffer, sizeof(buffer));
+// 	memset(buffer, 0xFF, sizeof(buffer));
+// 	ft_bzero(buffer, 10);
+// 	pass = 1;
+// 	for (size_t i = 0; i < 10; i++)
+// 	{
+// 		if (buffer[i] != 0)
+// 		{
+// 			pass = 0;
+// 			break ;
+// 		}
+// 	}
+// 	for (size_t i = 10; i < sizeof(buffer); i++)
+// 	{
+// 		if (buffer[i] != 0xFF)
+// 		{
+// 			pass = 0;
+// 			break ;
+// 		}
+// 	}
+// 	if (pass)
+// 	{
+// 		printf("Test 2 Passed\n");
+// 	}
+// 	else
+// 	{
+// 		printf("Test 2 Failed\n");
+// 	}
+// 	print_array(buffer, sizeof(buffer));
+// 	return (0);
 // }

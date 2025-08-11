@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strdup.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/08 16:28:51 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:28:56 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:39:44 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:39:46 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,34 +14,20 @@
 
 char	*ft_strdup(const char *s1)
 {
-	char	*p;
-	size_t	len;
-	size_t	i;
+	char	*str;
+	void	*ptr;
+	int		i;
 
-	len = 0;
-	while (s1[len] != '\0')
-		len++;
-	p = malloc(sizeof(char) * (len + 1));
-	if (p == NULL)
-		return (NULL);
+	ptr = (char *)malloc(sizeof(char) * (ft_strlen(s1) + 1));
 	i = 0;
-	while (i < len)
+	if (ptr == NULL)
+		return (NULL);
+	str = ptr;
+	while (s1[i] != '\0')
 	{
-		p[i] = s1[i];
+		str[i] = s1[i];
 		i++;
 	}
-	p[i] = '\0';
-	return (p);
+	str[i] = '\0';
+	return (str);
 }
-
-// bool check_strdup(void)
-// {
-// }
-//
-// int main(void)
-// {
-//   if (check_strdup())
-//     printf("OK\n");
-//   else
-//     printf("OK\n");
-// }

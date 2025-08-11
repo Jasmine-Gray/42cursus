@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strrchr.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/08 16:30:17 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 18:27:21 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:40:24 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:41:26 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,61 +14,30 @@
 
 char	*ft_strrchr(const char *s, int c)
 {
-	char	*last_c;
+	size_t	i;
 
-	last_c = NULL;
-	while (1)
+	i = ft_strlen(s) + 1;
+	while (i > 0)
 	{
-		if (*s == (char)c)
-			last_c = (char *)s;
-		if (last_c && *s == '\0')
-			return (last_c);
-		if (!last_c && *s == '\0')
-			return (NULL);
-		s++;
+		if (s[i - 1] == (char)c)
+			return ((char *)&s[i - 1]);
+		i--;
 	}
+	return (NULL);
 }
 
-// bool	check_strrchr(void)
+// #include <stdio.h>
+// #include <string.h>
+
+// int main (void)
 // {
-// 	char		str_1[100];
-// 	char		str_2[100];
-// 	const char	a;
-// 	int			i;
-//
-// 	a = 'A';
-// 	i = 0;
-// 	while (i < 100)
-// 	{
-// 		str_1[i] = '\0';
-// 		str_2[i] = '\0';
-// 		i++;
-// 	}
-// 	strcpy(&str_1[0], "");
-// 	strcpy(&str_2[0], "");
-// 	strcpy(&str_1[1], "hello world");
-// 	strcpy(&str_2[1], "hello world");
-// 	strcpy(&str_1[2], "test");
-// 	strcpy(&str_2[2], "test");
-// 	strcpy(&str_1[3], "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-// 	strcpy(&str_2[3], "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-// 	i = 0;
-// 	while (i < 100)
-// 	{
-// 		if (ft_strrchr(str_1, a) != strrchr(str_2, a))
-// 		{
-// 			printf("ft_strrchr=%c, strrchr=%c\n", str_1[i], str_2[i]);
-// 			return (false);
-// 		}
-// 		i++;
-// 	}
-// 	return (true);
-// }
-//
-// int	main(void)
-// {
-// 	if (check_strrchr())
-// 		printf("OK\n");
-// 	else
-// 		printf("ERROR\n");
+// 	char *str = "abcdefg";
+// 	char *result;
+// 	char *result2;
+
+// 	result = ft_strrchr(str, '\0');
+// 	result2 = strrchr(str, '\0');
+// 	printf("%p\n", result);
+// 	printf("%p\n", result2);
+// 	return (0);
 // }

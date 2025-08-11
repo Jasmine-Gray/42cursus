@@ -5,33 +5,43 @@ CFLAGS = -Wall -Wextra -Werror
 NAME = libftprintf.a
 
 SRCS = ft_printf.c\
-			 ft_identify_output.c\
-			 ft_digit.c\
-			 ft_print_csp.c\
-			 ft_print_diu.c\
-			 ft_print_xpercent.c\
-			 ft_put_fd.c
+			ft_dprintf.c\
+			ft_vdprintf.c\
+			ft_itoa_unsigned.c\
+			print_num.c\
+			print_str.c\
+			print_utils.c\
+			print_utils_fd.c\
+			print_str_fd.c\
+			print_num_fd.c\
+			ctx_flush.c\
+			ctx_append_mem.c\
+			ctx_append_char.c\
+			process_format.c\
 
-OBJS=$(SRCS:.c=.o)
+# Create obj directory
+OBJDIR = obj
+OBJS = $(SRCS:.c=.o)
+OBJ_FILES = $(addprefix $(OBJDIR)/, $(OBJS))
 
-$(NAME):$(OBJS)
-	ar rcs $(NAME) $(OBJS)
-#$(NAME):$(OBJS) 
-#	ar rcs $(NAME) $(OBJS) $(LIBFT)
+all: $(NAME)
 
-LIBFT= ../libft.a
+$(OBJDIR)/%.o: %.c
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
-all:$(NAME)
-
-.c.o: $(OBJS)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(NAME): $(OBJ_FILES)
+	@echo "Building ft_printf..."
+	ar rcs $(NAME) $(OBJ_FILES)
 
 clean:
-	$(RM) $(OBJS)
+	@echo "Cleaning ft_printf object files..."
+	$(RM) -r $(OBJDIR)
 
 fclean: clean
+	@echo "Cleaning ft_printf library..."
 	$(RM) $(NAME)
-	
+
 re: fclean all
 
-.PHONY: all re clean fclean
+.PHONY: all clean fclean re

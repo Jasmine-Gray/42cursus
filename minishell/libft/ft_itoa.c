@@ -3,76 +3,56 @@
 /*                                                        :::      ::::::::   */
 /*   ft_itoa.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/08 16:23:01 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:52:57 by mishimod         ###   ########.fr       */
+/*   Created: 2024/05/07 19:48:54 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/08 15:10:01 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static int	count_digit(int n)
+static int	len_number(long long num)
 {
-	int	digit;
+	int	len;
 
-	if (n == 0)
+	len = 1;
+	if (num < 0)
 	{
-		return (1);
+		num *= -1;
+		len++;
 	}
-	digit = 0;
-	while (n != 0)
+	while (num >= 10)
 	{
-		n /= 10;
-		digit++;
+		num /= 10;
+		len++;
 	}
-	return (digit);
+	return (len);
 }
 
 char	*ft_itoa(int n)
 {
-	char	*result;
-	int		digit;
+	char		*str;
+	int			len;
+	long long	num;
 
-	digit = count_digit(n);
-	if (n < 0)
-	{
-		digit += 1;
-	}
+	num = n;
+	len = len_number(n);
 	if (n == 0)
 		return (ft_strdup("0"));
-	result = malloc(sizeof(char) * (digit + 1));
-	if (!result)
+	str = malloc(sizeof(char) * (len + 1));
+	if (!str)
 		return (NULL);
-	if (n < 0)
-		result[0] = '-';
-	result[digit] = '\0';
-	while (n != 0)
+	if (num < 0)
 	{
-		if (n < 0)
-			result[--digit] = (n % 10) * -1 + '0';
-		else
-			result[--digit] = (n % 10) * 1 + '0';
-		n /= 10;
+		str[0] = '-';
+		num = -num;
 	}
-	return (result);
+	str[len] = '\0';
+	while (len-- && num != 0)
+	{
+		str[len] = num % 10 + '0';
+		num /= 10;
+	}
+	return (str);
 }
-
-// __attribute__((destructor))
-// static void destructor() {
-//     system("leaks -q a.out");
-// }
-
-// int	main(void)
-// {
-//	printf("%s\n", ft_itoa(0));
-//	printf("%s\n", ft_itoa(-0));
-//	printf("%s\n", ft_itoa(+0));
-//	printf("%s\n", ft_itoa(1));
-//	printf("%s\n", ft_itoa(-1));
-//	printf("%s\n", ft_itoa(10));
-//	printf("%s\n", ft_itoa(-10));
-//	printf("%s\n", ft_itoa(INT_MAX));
-//	printf("%s\n", ft_itoa(INT_MIN));
-// 	return (0);
-// }

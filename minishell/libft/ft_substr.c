@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_substr.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/08 16:30:39 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:30:48 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:40:33 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:41:29 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,30 +14,40 @@
 
 char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
-	unsigned char	*str;
-	size_t			size;
+	char	*str;
+	size_t	s_len;
+	size_t	size;
 
-	if (!s)
+	size = 0;
+	if (s == NULL)
 		return (NULL);
-	size = ft_strlen(s);
-	if (start >= size || len == 0)
+	s_len = ft_strlen(s);
+	if (s_len <= start || len == 0)
 	{
 		str = malloc(1);
-		if (!str)
+		if (str == NULL)
 			return (NULL);
 		str[0] = '\0';
-		return ((char *)str);
+		return (str);
 	}
-	if (start + len <= size)
+	if (s_len > (start + len))
 		size = len;
+	else
+		size = s_len - start;
 	str = malloc(size + 1);
-	if (!str)
+	if (str == NULL)
 		return (NULL);
-	ft_strlcpy((char *)str, s + start, size + 1);
-	return ((char *)str);
+	ft_strlcpy(str, &(s[start]), size + 1);
+	return (str);
 }
 
-//s[] = "hinako"
-//start = 8;
-//len = 5;
-//str[] == "hinak"
+// #include <stdio.h>
+//
+//  int	main(void)
+//{
+//	char	*s;
+//
+//	s = "hello";
+//	printf("result:%s", ft_substr("hola", 4294967295, 18446744073709551615));
+//	return (0);
+// }

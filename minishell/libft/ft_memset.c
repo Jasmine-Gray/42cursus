@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_memset.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/16 20:12:32 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:27:10 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:39:01 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:39:03 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,65 +14,105 @@
 
 void	*ft_memset(void *b, int c, size_t len)
 {
-	unsigned char	*i;
-	unsigned char	uc;
-	size_t			j;
+	size_t	i;
 
-	i = (unsigned char *)b;
-	uc = (unsigned char)c;
-	j = 0;
-	while (len--)
+	i = 0;
+	while (i < len)
 	{
-		i[j++] = uc;
+		((unsigned char *)b)[i] = (unsigned char)c;
+		i++;
 	}
 	return (b);
 }
 
-// bool	check_memset(void)
+// test case
+// #include <stdio.h>
+// #include <string.h>
+
+// void	print_array(const char *array, size_t size)
 // {
-//  	const int STR_SIZE = 42;
-//  	char str_1[STR_SIZE];
-//  	char str_2[STR_SIZE];
-//  	int i;
-//
-//  	i = 0;
-//  	while (i < STR_SIZE) {
-//  		str_1[i] = '0';
-//  		str_2[i] = '0';
-//  		i++;
-//  	}
-//
-//  	str_1[STR_SIZE - 1] = '\0';
-//  	str_2[STR_SIZE - 1] = '\0';
-//  	printf("Befor str_1: %s\n", str_1);
-//  	printf("Befor str_2: %s\n", str_2);
-//
-//  	memset(str_1, '*', STR_SIZE);
-//  	ft_memset(str_2, '*', STR_SIZE);
-//
-//  	str_1[STR_SIZE - 1] = '\0';
-//  	str_2[STR_SIZE - 1] = '\0';
-//  	printf("After str_1: %s\n", str_1);
-//  	printf("After str_2: %s\n", str_2);
-//
-//  	while (i < STR_SIZE)
-//  	{
-//  		if (str_1[i] != str_2[i])
-//  		{
-//  			printf("ft_memset=%d, memset=%d\n", str_1[i], str_2[2]);
-//  			return (false);
-//  		}
-//  		i++;
-//  	}
-//  	return (true);
+// 	printf("Array contents: ");
+// 	for (size_t i = 0; i < size; i++)
+// 	{
+// 		printf("%02X ", (unsigned char)array[i]);
+// 	}
+// 	printf("\n");
 // }
-//
+
 // int	main(void)
 // {
-// 	if (check_memset())
-// 		printf("OK\n");
+// 	int		pass;
+// 	char	large_buffer[1000];
+
+// 	char buffer[100];
+// 	ft_memset(buffer, 0xAA, sizeof(buffer));
+// 	pass = 1;
+// 	for (size_t i = 0; i < sizeof(buffer); i++)
+// 	{
+// 		if (buffer[i] != (char)0xAA)
+// 		{
+// 			pass = 0;
+// 			break ;
+// 		}
+// 	}
+// 	if (pass)
+// 	{
+// 		printf("Test 1 Passed\n");
+// 		print_array(buffer, sizeof(buffer));
+// 	}
 // 	else
-// 		printf("ERROR\n");
+// 	{
+// 		printf("Test 1 Failed\n");
+// 		print_array(buffer, sizeof(buffer));
+// 	}
+// 	ft_memset(buffer, 0xAA, sizeof(buffer));
+// 	ft_memset(buffer, 0xBB, 5);
+// 	pass = 1;
+// 	for (size_t i = 0; i < 5; i++)
+// 	{
+// 		if (buffer[i] != (char)0xBB)
+// 		{
+// 			pass = 0;
+// 			break ;
+// 		}
+// 	}
+// 	for (size_t i = 5; i < sizeof(buffer); i++)
+// 	{
+// 		if (buffer[i] != (char)0xAA)
+// 		{
+// 			pass = 0;
+// 			break ;
+// 		}
+// 	}
+// 	if (pass)
+// 	{
+// 		printf("Test 2 Passed\n");
+// 		print_array(buffer, sizeof(buffer));
+// 	}
+// 	else
+// 	{
+// 		printf("Test 2 Failed\n");
+// 		print_array(buffer, sizeof(buffer));
+// 	}
+// 	ft_memset(large_buffer, 0x00, sizeof(large_buffer));
+// 	pass = 1;
+// 	for (size_t i = 0; i < sizeof(large_buffer); i++)
+// 	{
+// 		if (large_buffer[i] != 0x00)
+// 		{
+// 			pass = 0;
+// 			break ;
+// 		}
+// 	}
+// 	if (pass)
+// 	{
+// 		printf("Test 3 Passed\n");
+// 		print_array(large_buffer, sizeof(large_buffer));
+// 	}
+// 	else
+// 	{
+// 		printf("Test 3 Failed\n");
+// 		print_array(large_buffer, sizeof(large_buffer));
+// 	}
 // 	return (0);
 // }
-//

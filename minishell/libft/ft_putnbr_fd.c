@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_putnbr_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/08 16:27:41 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:27:48 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:39:17 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:39:23 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,47 +14,20 @@
 
 void	ft_putnbr_fd(int n, int fd)
 {
-	if (n < 0)
-	{
-		write(fd, "-", 1);
-		if (n != INT_MIN)
-		{
-			n *= -1;
-		}
-	}
-	if (n == INT_MIN)
-	{
-		ft_putnbr_fd((n / 10) * -1, fd);
-	}
-	else if (n >= 10)
-		ft_putnbr_fd(n / 10, fd);
-	if (n < 0)
-		ft_putchar_fd((n % 10) * -1 + '0', fd);
-	else
-		ft_putchar_fd((n % 10) + '0', fd);
-}
+	long long	num;
 
-// int main(void) {
-// 	ft_putnbr_fd(0, 1);
-// 	printf("\n");
-// 	ft_putnbr_fd(-0, 1);
-// 	printf("\n");
-// 	ft_putnbr_fd(+0, 1);
-// 	printf("\n");
-// 	ft_putnbr_fd(1, 1);
-// 	printf("\n");
-// 	ft_putnbr_fd(-1, 1);
-// 	printf("\n");
-// 	ft_putnbr_fd(10, 1);
-// 	printf("\n");
-// 	ft_putnbr_fd(-10, 1);
-// 	printf("\n");
-// 	ft_putnbr_fd(100, 1);
-// 	printf("\n");
-// 	ft_putnbr_fd(-100, 1);
-// 	printf("\n");
-// 	ft_putnbr_fd(INT_MAX, 1);
-// 	printf("\n");
-// 	ft_putnbr_fd(INT_MIN, 1);
-// 	printf("\n");
-// }
+	num = n;
+	if (num == 0)
+	{
+		ft_putchar_fd('0', fd);
+		return ;
+	}
+	if (num < 0)
+	{
+		ft_putchar_fd('-', fd);
+		num *= -1;
+	}
+	if (num >= 10)
+		ft_putnbr_fd(num / 10, fd);
+	ft_putchar_fd(num % 10 + '0', fd);
+}

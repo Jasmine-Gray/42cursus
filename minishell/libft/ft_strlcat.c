@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strlcat.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/18 22:21:59 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:29:24 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:39:57 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:41:43 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,65 +14,48 @@
 
 size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 {
-	unsigned int	dst_len;
-	unsigned int	src_len;
-	size_t			n;
+	size_t	dstlen;
+	size_t	srclen;
+	size_t	i;
 
-	src_len = ft_strlen(src);
-	if (!dst && dstsize == 0)
-		return (src_len);
-	dst_len = ft_strlen(dst);
-	if (dstsize <= dst_len)
-		return (dstsize + src_len);
-	else
+	dstlen = 0;
+	srclen = 0;
+	i = 0;
+	srclen = ft_strlen(src);
+	if (dst)
+		dstlen = ft_strlen(dst);
+	if (dstsize <= dstlen)
+		return (dstsize + srclen);
+	while (src[i] != '\0' && dstlen + i < dstsize - 1)
 	{
-		while (*dst != '\0')
-		{
-			dst++;
-		}
-		n = 0;
-		while (*src != '\0' && n < dstsize - dst_len - 1)
-		{
-			*dst++ = *src++;
-			n++;
-		}
-		*dst = '\0';
-		return (dst_len + src_len);
+		dst[dstlen + i] = src[i];
+		i++;
 	}
+	dst[dstlen + i] = '\0';
+	return (dstlen + srclen);
 }
 
-// bool	check_strlcat(void)
-// {
-// 	char	dst_1[100] = "Hello ";
-// 	char	dst_2[100] = "Hello ";
-// 	char	src_1[100] = "World ";
-// 	char	src_2[100] = "World ";
-// 	size_t	len_1;
-// 	size_t	len_2;
+// #include <stdio.h>
+// #include <string.h>
 //
-// 	len_1 = ft_strlcat(dst_1, src_1, sizeof(dst_1));
-// 	len_2 = ft_strlcat(dst_2, src_2, sizeof(dst_2));
-// 	if (len_1 != len_2)
-// 	{
-// 		printf("ft_strlcat=%zu, strlcat=%zu\n", len_1, len_2);
-// 		return (false);
-// 	}
-// 	if (strcmp(dst_1, dst_2) != 0)
-// 	{
-// 		printf("ft_strlcat=%s, strlcat=%s\n", dst_1, dst_2);
-// 		return (false);
-// 	}
-// 	return (true);
+//  void	test_strlcat(void)
+//{
+//	char	*src;
+//	char	buff1[1000] = "the cake is a lie !\0I'm hidden lol\r\n";
+//	size_t	r1;
+//	char	buff2[1000] = "the cake is a lie !\0I'm hidden lol\r\n";
+//	size_t	r2;
+//
+//	// char *src_2;
+//	src = "there is no stars in the sky";
+//	r1 = strlcat(buff1, ((void *)0), 2);
+//	r2 = ft_strlcat(buff2, ((void *)0), 2);
+//	printf("strlcat:%zu, %s\n", r1, buff1);
+//	printf("ft_strlcat:%zu, %s\n", r2, buff2);
 // }
 //
-// int	main(void)
-// {
-// 	if (check_strlcat())
-// 	{
-// 		printf("OK\n");
-// 	}
-// 	else
-// 	{
-// 		printf("ERROR\n");
-// 	}
+//  int	main(void)
+//{
+//	test_strlcat();
+//	return (0);
 // }

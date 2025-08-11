@@ -3,67 +3,77 @@
 /*                                                        :::      ::::::::   */
 /*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/08 16:20:51 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 18:45:22 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:36:07 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:36:15 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static char	ft_isspace(unsigned char s)
+static int	skip_space(const char *str)
 {
-	if ((s >= 9 && s <= 13) || s == 32)
-		return (1);
-	return (0);
+	int	i;
+
+	i = 0;
+	while ((str[i] == ' ' || str[i] == '\t' || str[i] == '\n' || str[i] == '\v'
+			|| str[i] == '\f' || str[i] == '\r'))
+		i++;
+	return (i);
 }
 
-static void	check_sign(const char *str, size_t *i, int *sign)
+static int	flag_check(const char *str, int *index)
 {
-	while (ft_isspace(str[*i]))
-		(*i)++;
-	if (str[*i] == '-' || str[*i] == '+')
+	int	flag;
+
+	flag = 1;
+	if (str[*(index)] == '-' || str[*(index)] == '+')
 	{
-		if (str[*i] == '-')
-			*sign = -1;
-		(*i)++;
+		if (str[*(index)] == '-')
+			flag = -1;
+		(*index)++;
 	}
+	return (flag);
 }
 
 int	ft_atoi(const char *str)
 {
+	int				i;
+	int				size;
+	int				flag;
 	unsigned long	result;
-	int				sign;
-	size_t			i;
 
 	result = 0;
-	sign = 1;
-	i = 0;
-	check_sign(str, &i, &sign);
-	while (str[i] >= '0' && str[i] <= '9' && str[i] != '\0')
+	size = ft_strlen(str);
+	i = skip_space(str);
+	flag = flag_check(str, &i);
+	while (i < size && ft_isdigit(str[i]))
 	{
-		if (sign == -1 && result > ((unsigned long)LONG_MAX + 1 - (str[i]
-					- '0')) / 10)
+		if (flag == -1 && result > ((unsigned long)LONG_MIN - (str[i] - '0'))
+			/ 10)
 			return ((int)LONG_MIN);
-		if (sign != -1 && result > ((unsigned long)LONG_MAX - (str[i] - '0'))
+		if (flag == 1 && result > ((unsigned long)LONG_MAX - (str[i] - '0'))
 			/ 10)
 			return ((int)LONG_MAX);
-		result = result * 10 + (str[i] - '0');
+		result = (result * 10) + (str[i] - '0');
 		i++;
 	}
-	return (result * sign);
+	return (flag * result);
 }
-
-// bool check_atoi(void)
-// {
-// }
 //
-// int main(void)
-// {
-//   if(check_atoi())
-//     printf("OK\n");
-//   else
-//     printf("OK\n");
-// }
+// #include <stdio.h>
+// #include <stdlib.h>
 //
+// int	main(void)
+//{
+//	char	i_str[16] = "\t\v\f\r\n \f-06050";
+//
+//	int i_num;
+//	int myfunc_num;
+//	i_num = atoi(i_str);
+//	printf("result atoi:%d\n", i_num);
+//	myfunc_num = ft_atoi(i_str);
+//	printf("result ft_atoi:%d\n", myfunc_num);
+//	return (0);
+//}

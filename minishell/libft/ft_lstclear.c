@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_lstclear.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/08 16:24:24 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/09 14:21:36 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:37:45 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:37:47 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,18 @@
 
 void	ft_lstclear(t_list **lst, void (*del)(void *))
 {
-	t_list	*ptr;
-	t_list	*next;
+	t_list	*tmp;
+	t_list	*tmp_next;
 
 	if (!lst || !del)
 		return ;
-	ptr = *lst;
-	while (ptr)
+	tmp = *lst;
+	while (tmp)
 	{
-		next = ptr->next;
-		del(ptr->content);
-		free(ptr);
-		ptr = next;
+		tmp_next = tmp->next;
+		del(tmp->content);
+		free(tmp);
+		tmp = tmp_next;
 	}
 	*lst = NULL;
 }

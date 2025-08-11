@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strlen.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/16 12:26:06 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:29:36 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:40:01 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:41:22 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,53 +18,25 @@ size_t	ft_strlen(const char *s)
 
 	i = 0;
 	while (s[i] != '\0')
-	{
 		i++;
-	}
 	return (i);
 }
 
-// bool	check_strlen(void)
-// {
-// 	int		i;
-// 	int		j;
-// 	char	s[100][100];
+// #include <assert.h>
+// #include <stdio.h>
 
-// 	i = 0;
-// 	j = 0;
-// 	while (i < 100)
-// 	{
-// 		while (j < 100)
-// 		{
-// 			s[i][j] = '\0';
-// 			j++;
-// 		}
-// 		i++;
-// 	}
-// 	strcpy(s[0], "Hello World!");
-// 	strcpy(s[1], "test");
-// 	i = 0;
-// 	while (i < 100)
-// 	{
-// 		if (ft_strlen(s[i]) != strlen(s[i]))
-// 		{
-// 			printf("ft_strlen=%lu, strlen=%lu\n", ft_strlen(s[i]),
-// 				strlen(s[i]));
-// 			return (false);
-// 		}
-// 		i++;
-// 	}
-// 	return (true);
+// void	test_ft_strlen(void)
+// {
+// 	printf("result:%d\n", ft_strlen("Hello, world!") == 13);
+// 	printf("result:%d\n", ft_strlen("") == 0
+// 		&& "Length of an empty string should be 0.");
+// 	printf("result:%d\n", ft_strlen("a") == 1 && "Length of 'a' should be 1.");
+// 	printf("result:%d\n",
+// 	ft_strlen("This is a very long string used specifically for ") == 49);
 // }
 
 // int	main(void)
 // {
-// 	if (check_strlen())
-// 	{
-// 		printf("OK\n");
-// 	}
-// 	else
-// 	{
-// 		printf("ERROR\n");
-// 	}
+// 	test_ft_strlen();
+// 	return (0);
 // }

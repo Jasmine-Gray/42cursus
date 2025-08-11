@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  minishell:
+    # Dockerfileからイメージをビルド
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # コンテナ名
+    container_name: minishell-42
+
+    # ホスト名
+    hostname: minishell-42
+
+    # 現在のディレクトリをコンテナ内の/workspaceにマウント
+    volumes:
+      - .:/workspace
+      # readlineの履歴を永続化
+      - minishell-history:/home/student/.bash_history
+
+    # 作業ディレクトリ
+    working_dir: /workspace
+
+    # 環境変数
+    environment:
+      - TERM=xterm-256color
+      - USER=student
+
+    # インタラクティブモードとTTYを有効化
+    stdin_open: true
+    tty: true
+
+    # セキュリティオプション（valgrindなどのデバッグツール用）
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+
+    # ネットワーク設定
+    network_mode: bridge
+
+    # コマンド（bashを起動）
+    command: /bin/bash
+
+# ボリュームの定義
+volumes:
+  minishell-history:

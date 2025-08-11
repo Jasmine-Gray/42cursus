@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strlcpy.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/18 20:45:53 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:29:29 by mishimod         ###   ########.fr       */
+/*   Created: 2024/04/20 21:41:33 by tkusama           #+#    #+#             */
+/*   Updated: 2024/04/24 22:24:12 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,59 +14,45 @@
 
 size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 {
+	size_t	i;
 	size_t	src_len;
 
-	src_len = 0;
-	while (dstsize > 1 && *src != '\0')
+	src_len = ft_strlen(src);
+	i = 0;
+	if (dstsize == 0)
+		return (src_len);
+	while (i < dstsize - 1 && src[i] != '\0')
 	{
-		*dst++ = *src++;
-		src_len++;
-		dstsize--;
+		dst[i] = src[i];
+		i++;
 	}
-	if (dstsize > 0)
-	{
-		*dst = '\0';
-	}
-	while (*src != '\0')
-	{
-		src_len++;
-		src++;
-	}
+	dst[i] = '\0';
 	return (src_len);
 }
 
-//  bool	check_strlcpy(void)
-//  {
-//  	char		dst_1[100];
-//  	char		dst_2[100];
-//  	const char	*src = "Hello World";
-//  	size_t		len_1;
-//  	size_t		len_2;
-//  
-//  	len_1 = ft_strlcpy(dst_1, src, sizeof(dst_1));
-//  	len_2 = strlcpy(dst_2, src, sizeof(dst_2));
-//  	if (len_1 != len_2)
-//  	{
-//  		printf("ft_strlcpy=%zu, strlcpy=%zu\n", len_1, len_2);
-//  		return (false);
-//  	}
-//  	if (strcmp(dst_1, dst_2) != 0)
-//  	{
-//  		printf("ft_strlcpy=%s, strlcpy=%s\n", dst_1, dst_2);
-//  		return (false);
-//  	}
-//  	return (true);
-//  }
-//  
-//  int	main(void)
-//  {
-//  	if (check_strlcpy())
-//  	{
-//  		printf("OK\n");
-//  	}
-//  	else
-//  	{
-//  		printf("ERROR\n");
-//  	}
-//  }
-//  
+// #include <stdio.h>
+// #include <string.h>
+
+// int test_strlcpy(void)
+// {
+// 	char *str = "hello !";
+// 	char buff1[0xF00];
+// 	char buff2[0xF00];
+// 	size_t r1;
+// 	size_t r2;
+
+// 	memset(buff1, 'A', 20);
+// 	memset(buff2, 'A', 20);
+
+// 	r1 = strlcpy(buff1, str, 2);
+// 	r2 = ft_strlcpy(buff2, str, 2);
+
+// 	printf("strlcpy:%zu, %s \n", r1, buff1);
+// 	printf("ft_strlcpy:%zu, %s \n", r2, buff2);
+// }
+
+// int main(void)
+// {
+// 	test_strlcpy();
+// 	return (0);
+// }

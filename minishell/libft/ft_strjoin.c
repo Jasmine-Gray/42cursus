@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strjoin.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/08 16:29:12 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:29:16 by mishimod         ###   ########.fr       */
+/*   Created: 2024/05/01 21:56:42 by tkusama           #+#    #+#             */
+/*   Updated: 2025/07/30 22:50:21 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,33 @@
 
 char	*ft_strjoin(char const *s1, char const *s2)
 {
-	char	*result;
-	size_t	len_s1;
-	size_t	len_s2;
-	size_t	total_len;
+	char	*str;
+	size_t	s1_len;
+	size_t	s2_len;
 
-	if (!s1 && !s2)
+	if (s1 == NULL || s2 == NULL)
 		return (NULL);
-	else if (!s1)
-		return (ft_strdup(s2));
-	else if (!s2)
-		return (ft_strdup(s1));
-	len_s1 = ft_strlen(s1);
-	len_s2 = ft_strlen(s2);
-	total_len = len_s1 + len_s2 + 1;
-	result = (char *)malloc(sizeof(char) * total_len);
-	if (!result)
+	s1_len = ft_strlen(s1);
+	s2_len = ft_strlen(s2);
+	str = malloc(s1_len + s2_len + 1);
+	if (str == NULL)
 		return (NULL);
-	ft_strlcpy(result, s1, len_s1 + 1);
-	ft_strlcat(result + len_s1, s2, len_s2 + 1);
-	return (result);
+	ft_memcpy(str, s1, s1_len);
+	ft_memcpy(str + s1_len, s2, s2_len + 1);
+	return (str);
 }
+
+//#include <stdio.h>
+//
+//int	main(void)
+//{
+//	char	*s1;
+//	char	*s2;
+//	char	*result;
+//
+//	s1 = "hello";
+//	s2 = "world";
+//	result = ft_strjoin(s1, s2);
+//	printf("result:%s", result);
+//	return (0);
+//}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_calloc.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/08 16:21:57 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:22:06 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:36:29 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:36:31 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,29 +15,30 @@
 void	*ft_calloc(size_t count, size_t size)
 {
 	void	*ptr;
-	void	*head;
-	size_t	total_size;
+	char	*p;
+	size_t	i;
+	size_t	memory_size;
 
-	if (count != 0 && SIZE_MAX / count < size)
+	i = 0;
+	memory_size = count * size;
+	if (count != 0 && (SIZE_MAX / count) < size)
 		return (NULL);
-	total_size = count * size;
-	ptr = malloc(total_size);
+	ptr = malloc(memory_size);
 	if (ptr == NULL)
 		return (NULL);
-	head = ptr;
-	while (total_size--)
-		*(char *)ptr++ = 0;
-	return (head);
+	p = ptr;
+	while (i < memory_size)
+	{
+		p[i] = 0;
+		i++;
+	}
+	return (ptr);
 }
 
-// bool check_calloc(void)
-// {
-// }
+// int	main(void)
+//{
+//	size_t	*ptr;
 //
-// int main(void)
-// {
-//   if(check_calloc())
-//     printf("OK\n");
-//   else
-//     printf("ERROR\n");
+//	ptr = ft_calloc(1, 1);
+//	return (0);
 //}

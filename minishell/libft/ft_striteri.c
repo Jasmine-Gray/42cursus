@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_striteri.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42.jp>          +#+  +:+       +#+        */
+/*   By: tkusama <tkusama@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/08 16:29:03 by mishimod          #+#    #+#             */
-/*   Updated: 2024/05/08 16:29:06 by mishimod         ###   ########.fr       */
+/*   Created: 2025/08/11 05:39:51 by tkusama           #+#    #+#             */
+/*   Updated: 2025/08/11 05:39:52 by tkusama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,32 @@
 
 void	ft_striteri(char *s, void (*f)(unsigned int, char *))
 {
-	size_t	i;
+	unsigned int	i;
 
-	if (!s || !f)
-		return ;
 	i = 0;
-	while (s[i])
+	if (s && f)
 	{
-		f(i, &s[i]);
-		i++;
+		while (s[i] != '\0')
+		{
+			f(i, &s[i]);
+			i++;
+		}
 	}
 }
+
+// void	lowercase(unsigned int i, char *c)
+//{
+//   (void)i;
+//	*c = ft_tolower(*c);
+// }
+//
+// #include <stdio.h>
+//
+// int	main(void)
+//{
+//	char	str[] = "hElLo WoRlD";
+//
+//	ft_striteri(str, lowercase);
+//	printf("Modified string: %s\n", str);
+//	return (0);
+// }
