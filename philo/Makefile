@@ -6,11 +6,11 @@
 #    By: mishimod <mishimod@student.42tokyo.jp      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/28 14:42:29 by mishimod          #+#    #+#              #
-#    Updated: 2025/08/28 14:51:26 by mishimod         ###   ########.fr        #
+#    Updated: 2025/09/02 13:18:43 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME		= philosophers
+NAME		= philo
 
 # Compiler settings
 CC			= cc
@@ -40,38 +40,24 @@ UNAME_S := $(shell uname -s)
 # Readline configuration
 ifeq ($(UNAME_S),Darwin)
 	# macOS with Homebrew
-	RLDIR    = $(shell brew --prefix readline)
-	LIB      = -L$(FT_PRINTF_DIR) -lftprintf -L$(LIBFT_DIR) -lft -L$(RLDIR)/lib -lreadline
-	INC      = -I$(INCS_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -I$(RLDIR)/include
+	INC      = -I$(INCS_DIR) 
 else
 	# Ubuntu/Linux
-	LIB      = -L$(FT_PRINTF_DIR) -lftprintf -L$(LIBFT_DIR) -lft -lreadline
-	INC      = -I$(INCS_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR)
+	INC      = -I$(INCS_DIR)
 endif
 
 all: $(NAME)
 
-$(NAME): $(MANDATORY_OBJS) $(LIBFT) $(FT_PRINTF)
+$(NAME): $(MANDATORY_OBJS) 
 	@echo "\n\nBuilding $(NAME)..."
-	$(CC) $(CFLAGS) $(MANDATORY_OBJS) -o $(NAME) $(LIB)
+	$(CC) $(CFLAGS) $(MANDATORY_OBJS) -o $(NAME)
 	@echo "\n$(NAME) is ready!"
-
-$(LIBFT):
-	@$(MAKE) -C $(LIBFT_DIR)
-
-$(FT_PRINTF):
-	@$(MAKE) -C $(FT_PRINTF_DIR)
 
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@) 
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 clean:
-	@echo "Cleaning object files..."
-	@$(MAKE) -C $(LIBFT_DIR) clean
-	@$(MAKE) -C $(FT_PRINTF_DIR) clean
-	$(RM) $(LIBFT)
-	$(RM) $(FT_PRINTF)
 	@echo "Cleaning dir..."
 	$(RM) -r $(OBJ_DIR)
 
