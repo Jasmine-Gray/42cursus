@@ -6,7 +6,7 @@
 #    By: mishimod <mishimod@student.42tokyo.jp      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/28 14:42:29 by mishimod          #+#    #+#              #
-#    Updated: 2025/09/02 13:18:43 by mishimod         ###   ########.fr        #
+#    Updated: 2025/09/05 19:04:12 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,11 @@ INCS_DIR	:= includes
 OBJ_DIR		 = obj
 
 # Mandatory source files:
-SRCS = main.c
+SRCS = src/check_args.c\
+	   src/init_thread.c\
+	   src/utils/error.c\
+	   src/utils/libft.c\
+	   main.c\
 
 # Object files for Mandatory sources
 MANDATORY_OBJS = $(SRCS:.c=.o)
