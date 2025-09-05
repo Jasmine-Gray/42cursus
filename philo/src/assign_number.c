@@ -1,23 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   assign_number.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42tokyo.jp      +#+  +:+       +#+        */
+/*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/28 14:46:13 by mishimod          #+#    #+#             */
-/*   Updated: 2025/09/05 19:19:34 by mishimod         ###   ########.fr       */
+/*   Created: 2025/09/05 19:20:01 by mishimod          #+#    #+#             */
+/*   Updated: 2025/09/05 19:22:39 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	main(int argc, char **argv)
+int assign_number(argc, argv)
 {
-	if (check_args(argc, argv) < 0)
-		return (1);
-	assign_number();
-	// init_thread();
-	// ft_philo();
-	return (0);
+	
 }
