@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/08 12:41:39 by mishimod          #+#    #+#             */
-/*   Updated: 2025/09/08 15:04:02 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/09/08 15:10:03 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int	main(int argc, char **argv)
 		error_phrase();
 		return (1);
 	}
-	// init_thread();
+	init_thread();
 	// ft_philo();
 	return (0);
 }

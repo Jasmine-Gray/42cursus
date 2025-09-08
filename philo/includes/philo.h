@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 19:26:43 by mishimod          #+#    #+#             */
-/*   Updated: 2025/09/08 15:03:56 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/09/08 16:41:07 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,12 @@
 # include <sys/time.h>
 # include <unistd.h>
 
+# define MAX_PHILO 200
+
 typedef struct s_philo
 {
 	struct s_arg	*arg;
+	p_thread		*thread;
 }					t_philo;
 
 typedef struct s_arg
@@ -34,6 +37,7 @@ typedef struct s_arg
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				num_times_philo_must_eat;
+	t_philo			philo[MAX_PHILO];
 }					t_arg;
 
 // srcs
