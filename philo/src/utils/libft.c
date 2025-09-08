@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/05 19:09:00 by mishimod          #+#    #+#             */
-/*   Updated: 2025/09/05 19:09:04 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/09/08 14:58:39 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,11 @@ int	ft_atoi(char *str)
 	while (ft_isspace(str[i]))
 		i++;
 	if (str[i] == '-')
-		return (-1);
+		return (1);
 	number = 0;
-	while (str[i] >= 0 && str[i] <= 9)
+	while (str[i] >= '0' && str[i] <= '9')
 	{
-		number = number * 10 + (str[i] - '0');
+		number = (number * 10) + (str[i] - '0');
 		i++;
 	}
 	return (number);

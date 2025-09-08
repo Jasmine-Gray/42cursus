@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mishimod <mishimod@student.42tokyo.jp      +#+  +:+       +#+        */
+/*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/28 14:46:13 by mishimod          #+#    #+#             */
-/*   Updated: 2025/09/05 19:19:34 by mishimod         ###   ########.fr       */
+/*   Created: 2025/09/08 12:41:39 by mishimod          #+#    #+#             */
+/*   Updated: 2025/09/08 15:04:02 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,16 @@
 
 int	main(int argc, char **argv)
 {
+	t_arg	arg;
+
 	if (check_args(argc, argv) < 0)
 		return (1);
-	assign_number();
+	assign_args(argc, argv, &arg);
+	if (!check_valid_assign(argc, &arg))
+	{
+		error_phrase();
+		return (1);
+	}
 	// init_thread();
 	// ft_philo();
 	return (0);

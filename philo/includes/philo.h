@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 19:26:43 by mishimod          #+#    #+#             */
-/*   Updated: 2025/09/05 19:27:11 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/09/08 15:03:56 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define PHILO_H
 
 # include <errno.h>
+# include <limits.h>
 # include <pthread.h>
 # include <stdio.h>
 # include <stdlib.h>
@@ -23,25 +24,27 @@
 
 typedef struct s_philo
 {
-	t_arg	arg;
-} t_philo
+	struct s_arg	*arg;
+}					t_philo;
 
-	typedef struct s_arg
+typedef struct s_arg
 {
-	long	number_of_philosophers;
-	long	time_to_die;
-	long	time_to_eat;
-	long	time_to_sleep;
-	long	number_of_times_each_philosopher_must_eat;
-} t_arg
+	int				num_of_philo;
+	int				time_to_die;
+	int				time_to_eat;
+	int				time_to_sleep;
+	int				num_times_philo_must_eat;
+}					t_arg;
 
-	int
-	check_args(int argc, char **argv);
-void		error_phrase(void);
+// srcs
+int					check_args(int argc, char **argv);
+void				assign_args(int argc, char **argv, t_arg *arg);
+int					check_valid_assign(int argc, t_arg *arg);
+void				error_phrase(void);
 
 // utils
-void		ft_putstr_fd(char *str, int fd);
-int			ft_atoi(char *str);
-int			ft_isdigit(int c);
+void				ft_putstr_fd(char *str, int fd);
+int					ft_atoi(char *str);
+int					ft_isdigit(int c);
 
 #endif
