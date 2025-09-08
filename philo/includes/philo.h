@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 19:26:43 by mishimod          #+#    #+#             */
-/*   Updated: 2025/09/08 16:41:07 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/09/08 18:46:19 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,15 +40,19 @@ typedef struct s_arg
 	t_philo			philo[MAX_PHILO];
 }					t_arg;
 
-// srcs
+// threads
+void				init_thread(t_arg *arg);
+static void			thread_func(t_arg, *arg);
+
+// args
 int					check_args(int argc, char **argv);
-void				assign_args(int argc, char **argv, t_arg *arg);
 int					check_valid_assign(int argc, t_arg *arg);
-void				error_phrase(void);
+void				assign_args(int argc, char **argv, t_arg *arg);
 
 // utils
 void				ft_putstr_fd(char *str, int fd);
 int					ft_atoi(char *str);
 int					ft_isdigit(int c);
+void				error_phrase(void);
 
 #endif

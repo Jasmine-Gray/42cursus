@@ -6,18 +6,18 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/05 19:17:51 by mishimod          #+#    #+#             */
-/*   Updated: 2025/09/08 17:24:53 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/09/08 18:45:49 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-thread_func()
+static void thread_func(t_arg, *arg)
 {
 	
 }
 
-void	init_thread(t_thread *thread)
+void	init_thread(t_arg *arg)
 {
 	int	i;
 
