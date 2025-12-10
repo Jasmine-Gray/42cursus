@@ -6,7 +6,7 @@
 #    By: mishimod <mishimod@student.42tokyo.jp      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/28 14:42:29 by mishimod          #+#    #+#              #
-#    Updated: 2025/11/27 21:41:23 by mishimod         ###   ########.fr        #
+#    Updated: 2025/12/10 21:02:34 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ NAME		= philo
 CC			= cc
 
 ifeq ($(DEBUG),1)
-	CFLAGS = -Wall -Wextra -Werror -g -O0 -fsanitize=address
+	CFLAGS = -Wall -Wextra -Werror -g -O-1 -fsanitize=address
 else
 	CFLAGS = -Wall -Wextra -Werror
 endif
@@ -31,6 +31,7 @@ OBJ_DIR		 = obj
 SRCS = src/check_args.c\
 	   src/assign_args.c\
 	   src/init_table.c\
+	   src/init_philo.c\
 	   src/utils/error.c\
 	   src/utils/libft.c\
 	   main.c\
