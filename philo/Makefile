@@ -6,7 +6,7 @@
 #    By: mishimod <mishimod@student.42tokyo.jp      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/28 14:42:29 by mishimod          #+#    #+#              #
-#    Updated: 2025/12/10 21:02:34 by mishimod         ###   ########.fr        #
+#    Updated: 2025/12/20 23:09:14 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,12 +28,14 @@ INCS_DIR	:= includes
 OBJ_DIR		 = obj
 
 # Mandatory source files:
-SRCS = src/check_args.c\
-	   src/assign_args.c\
-	   src/init_table.c\
+SRCS = src/assign_args.c\
+	   src/check_args.c\
 	   src/init_philo.c\
+	   src/init_table.c\
+	   src/monitor.c\
 	   src/utils/error.c\
 	   src/utils/libft.c\
+	   src/utils/time.c\
 	   main.c\
 
 # Object files for Mandatory sources
