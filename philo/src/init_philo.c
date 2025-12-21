@@ -6,7 +6,7 @@
 /*   By: mishimod <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 16:06:59 by mishimod          #+#    #+#             */
-/*   Updated: 2025/12/21 19:25:56 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/12/21 21:33:59 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ static void	philo_eat(t_philo *philo)
 
 	f1 = philo->left_fork_id;
 	f2 = philo->right_fork_id;
-	if (philo->left_fork_id < philo->right_fork_id)
+	if (philo->left_fork_id > philo->right_fork_id)
 	{
 		f1 = philo->right_fork_id;
 		f2 = philo->left_fork_id;
@@ -53,7 +53,6 @@ static void	philo_eat(t_philo *philo)
 	print_action(philo, "is eating");
 	pthread_mutex_lock(&philo->arg->meal_lock);
 	philo->last_meal_time = get_current_time();
-	philo->eat_count++;
 	pthread_mutex_unlock(&philo->arg->meal_lock);
 	ft_usleep(philo->arg->time_to_eat, philo->arg);
 	pthread_mutex_unlock(&philo->arg->forks[f2]);
@@ -72,15 +71,18 @@ void	*thread_func(void *ptr)
 	while (!check_if_dead(philo->arg))
 	{
 		philo_eat(philo);
+		print_action(philo, "is sleeping");
+		pthread_mutex_lock(&philo->arg->meal_lock);
+		philo->eat_count++;
+		pthread_mutex_unlock(&philo->arg->meal_lock);
 		if (philo->arg->num_times_philo_must_eat != -1
 			&& philo->eat_count >= philo->arg->num_times_philo_must_eat)
 			break ;
-		print_action(philo, "is sleeping");
 		ft_usleep(philo->arg->time_to_sleep, philo->arg);
 		print_action(philo, "is thinking");
 		if (philo->arg->num_of_philo % 2 != 0)
-			ft_usleep((philo->arg->time_to_eat * 2 - philo->arg->time_to_sleep)
-				* 0.4, philo->arg);
+			ft_usleep((philo->arg->time_to_eat * 2
+					- philo->arg->time_to_sleep) * 0.4, philo->arg);
 	}
 	return (NULL);
 }
