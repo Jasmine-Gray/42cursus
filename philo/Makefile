@@ -6,7 +6,7 @@
 #    By: mishimod <mishimod@student.42tokyo.jp      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/28 14:42:29 by mishimod          #+#    #+#              #
-#    Updated: 2025/12/21 18:23:04 by mishimod         ###   ########.fr        #
+#    Updated: 2025/12/21 23:03:31 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,7 @@ ifeq ($(DEBUG),1)
 endif
 
 ifeq ($(RACE),1)
-	CFLAGS += -g -O0 -fsanitize=thread
+	CFLAGS += -g -O0 -fsanitize=thread 
 endif
 
 
