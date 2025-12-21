@@ -6,7 +6,7 @@
 /*   By: mishimod <mishimod@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/04 19:26:43 by mishimod          #+#    #+#             */
-/*   Updated: 2025/12/20 23:15:23 by mishimod         ###   ########.fr       */
+/*   Updated: 2025/12/21 17:42:49 by mishimod         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,6 @@
 # include <string.h>
 # include <sys/time.h>
 # include <unistd.h>
-
-struct s_arg;
 
 typedef struct s_philo
 {

@@ -6,7 +6,7 @@
 #    By: mishimod <mishimod@student.42tokyo.jp      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/28 14:42:29 by mishimod          #+#    #+#              #
-#    Updated: 2025/12/20 23:09:14 by mishimod         ###   ########.fr        #
+#    Updated: 2025/12/21 18:23:04 by mishimod         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,11 +14,14 @@ NAME		= philo
 
 # Compiler settings
 CC			= cc
+CFLAGS = -Wall -Wextra -Werror
 
 ifeq ($(DEBUG),1)
-	CFLAGS = -Wall -Wextra -Werror -g -O-1 -fsanitize=address
-else
-	CFLAGS = -Wall -Wextra -Werror
+	CFLAGS += -g -O0 -fsanitize=address
+endif
+
+ifeq ($(RACE),1)
+	CFLAGS += -g -O0 -fsanitize=thread
 endif
 
 
