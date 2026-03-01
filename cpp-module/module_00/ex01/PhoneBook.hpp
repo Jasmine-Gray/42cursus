@@ -1,6 +1,7 @@
 #ifndef PHONEBOOK_HPP
 # define PHONEBOOK_HPP
 
+# include <string>
 # include "Contact.hpp"
 
 class PhoneBook {
@@ -16,7 +17,6 @@ private:
     
     int     _contact_count;
 
-    void    _display_summary(void) const;
     void    _print_column(std::string str) const;
 };
 
