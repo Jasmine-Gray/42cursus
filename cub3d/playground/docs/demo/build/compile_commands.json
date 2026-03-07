@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/Users/tomoya/Desktop/dev/42Tokyo/cub3d/demo/build",
+  "command": "/usr/bin/c++  -isystem /opt/homebrew/include -std=gnu++17 -arch arm64 -o CMakeFiles/raycaster.dir/main.cpp.o -c /Users/tomoya/Desktop/dev/42Tokyo/cub3d/demo/main.cpp",
+  "file": "/Users/tomoya/Desktop/dev/42Tokyo/cub3d/demo/main.cpp",
+  "output": "CMakeFiles/raycaster.dir/main.cpp.o"
+}
+]
