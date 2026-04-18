@@ -11,10 +11,13 @@ int main(int argc, char **argv)
 
     for (int i = 1; i < argc; i++)
     {
-        for (int j = 0; argv[i][j]; j++)
+        std::string str = argv[i];
+        
+        for (size_t j = 0; j < str.length(); j++)
         {
-            std::cout << (char)std::toupper(argv[i][j]);
+            str[j] = std::toupper(static_cast<unsigned char>(str[j]));
         }
+        std::cout << str;
     }
 
     std::cout << std::endl;

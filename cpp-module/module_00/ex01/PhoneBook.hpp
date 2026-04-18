@@ -1,23 +1,30 @@
 #ifndef PHONEBOOK_HPP
-# define PHONEBOOK_HPP
+#define PHONEBOOK_HPP
 
-# include <string>
-# include "Contact.hpp"
+#include "Contact.hpp"
 
-class PhoneBook {
-public:
-    PhoneBook(void);
-    ~PhoneBook(void);
-
-    void    add_contact(void);
-    void    search_contact(void) const;
-
+class PhoneBook
+{
 private:
     Contact _contacts[8];
     
-    int     _contact_count;
+    int _currentIndex;
+    int _totalContacts;
 
-    void    _print_column(std::string str) const;
+    bool _getInput(const std::string& prompt, std::string& input) const;
+    
+    std::string _truncate(std::string str) const;
+    bool _isNumeric(const std::string& str) const;
+    bool _hasControlChars(const std::string& str) const;
+
+    void _addContact();
+    void _searchContact() const;
+
+public:
+    PhoneBook();
+    ~PhoneBook();
+
+    void run();
 };
 
 #endif
