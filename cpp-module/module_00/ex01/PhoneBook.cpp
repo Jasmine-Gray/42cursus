@@ -184,9 +184,5 @@ void PhoneBook::run()
         {
             this->_searchContact();
         }
-        else if (!command.empty())
-        {
-            std::cout << "Invalid command. Only ADD, SEARCH, and EXIT are accepted." << std::endl;
-        }
     }
 }
