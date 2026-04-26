@@ -3,6 +3,8 @@
 
 # C++ Module 00
 
+
+
 ##  ex00: Megaphone
 
 * **標準入出力ストリーム (`<iostream>`)**
