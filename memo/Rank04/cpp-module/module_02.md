@@ -63,7 +63,7 @@ Fixed(const Fixed& other);
 #### なぜ「参照 (`&`)」が必要なのか？
 もし参照ではなく「値渡し」で引数を受け取ろうとすると、引数を渡す際にも「コピー」が発生してしまい、そのコピーのためにまたコピーコンストラクタが呼ばれ……という**無限ループ（再帰）**に陥ってしまいます。これを防ぐために、参照で受け取ることが文法上決まっています。
 
-<details> <summary> <b> 参照を使わない場合何が起きるのか？<br> ---> pull down</b></summary>
+<details> <summary> <b id="pd-1"> 参照を使わない場合何が起きるのか？[詳細を開く ＋]</b></summary>
 
 「参照（&）」を使わない場合に何が起きるのか
 
@@ -139,7 +139,9 @@ Fixed::Fixed(const Fixed& other) {
 
 この「コピーを発生させないために参照を使う」という理屈は、Module 02の「Orthodox Canonical Form」を理解する上で非常に重要です。
 
-
+<div align="right">
+		<a href="#pd-1">🔝上に戻る</a>
+<div>
 </details>
 
 ---

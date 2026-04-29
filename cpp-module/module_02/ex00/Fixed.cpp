@@ -9,7 +9,7 @@ Fixed::Fixed(const Fixed& other) {
     this->value = other.getRawBits();
 }
 
-// コピー代入演算子 [cite: 681]
+// コピー代入演算子 
 Fixed& Fixed::operator=(const Fixed& other) {
     std::cout << "Copy assignment operator called" << std::endl;
     if (this != &other) {
