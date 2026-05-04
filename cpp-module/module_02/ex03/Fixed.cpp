@@ -59,7 +59,6 @@ bool Fixed::operator<=(const Fixed& other) const { return this->value <= other.g
 bool Fixed::operator==(const Fixed& other) const { return this->value == other.getRawBits(); }
 bool Fixed::operator!=(const Fixed& other) const { return this->value != other.getRawBits(); }
 
-//  算術演算子
 Fixed Fixed::operator+(const Fixed& other) const {
     Fixed result;
     result.setRawBits(this->value + other.getRawBits());
@@ -80,9 +79,8 @@ Fixed Fixed::operator/(const Fixed& other) const {
     return Fixed(this->toFloat() / other.toFloat());
 }
 
-// 増減演算子 
 Fixed& Fixed::operator++() {
-    this->value++; // 最小単位 ε だけ増やす
+    this->value++; 
     return *this;
 }
 
