@@ -8,11 +8,8 @@ int main() {
     Point b(5.0f, 0.0f);
     Point c(0.0f, 5.0f);
 
-    // 完全に内側にある点
     Point p1(1.0f, 1.0f);
-    // 完全に外側にある点
     Point p2(5.0f, 5.0f);
-    // 辺上にある点
     Point p3(2.5f, 0.0f);
 
     std::cout << "p1 (inside): " << (bsp(a, b, c, p1) ? "True" : "False") << std::endl;
