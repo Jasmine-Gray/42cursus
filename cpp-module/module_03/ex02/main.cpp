@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main() {
-    std::cout << "\n========== [ex00] ClapTrap Constructor & OCF Tests ==========" << std::endl;
+    std::cout << "\n========== ClapTrap Constructor & OCF Tests ==========" << std::endl;
     {
         ClapTrap a;
         ClapTrap b("Bob");
@@ -13,7 +13,7 @@ int main() {
         d = b;
     }
 
-    std::cout << "\n========== [ex00] ClapTrap Basic Actions ==========" << std::endl;
+    std::cout << "\n========== ClapTrap Basic Actions ==========" << std::endl;
     {
         ClapTrap b("Bob");
         b.attack("Target_A");
@@ -26,7 +26,7 @@ int main() {
         b.beRepaired(10);   
     }
 
-    std::cout << "\n========== [ex00] ClapTrap Energy Exhaustion ==========" << std::endl;
+    std::cout << "\n========== ClapTrap Energy Exhaustion ==========" << std::endl;
     {
         ClapTrap e("Eve");
         for (int i = 0; i < 10; ++i) {
@@ -37,7 +37,7 @@ int main() {
         e.takeDamage(5);   
     }
 
-    std::cout << "\n========== [ex01] ScavTrap Tests ==========" << std::endl;
+    std::cout << "\n========== ScavTrap Tests ==========" << std::endl;
     {
         ScavTrap scav("Scavvy");
         
@@ -50,7 +50,7 @@ int main() {
         
     }
 
-    std::cout << "\n========== [ex02] FragTrap Tests ==========" << std::endl;
+    std::cout << "\n========== FragTrap Tests ==========" << std::endl;
     {
         FragTrap frag("Fraggy");
         

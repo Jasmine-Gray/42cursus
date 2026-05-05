@@ -39,6 +39,11 @@ DiamondTrap::~DiamondTrap() {
     std::cout << "DiamondTrap " << this->name << " destructor called" << std::endl;
 }
 
+void DiamondTrap::attack(const std::string& target) {
+    ScavTrap::attack(target);
+}
+
+
 void DiamondTrap::whoAmI() {
     if (this->hitPoints == 0) {
         std::cout << "DiamondTrap " << this->name << " is broken and can't speak..." << std::endl;

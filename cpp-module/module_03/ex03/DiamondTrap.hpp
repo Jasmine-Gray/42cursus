@@ -6,18 +6,21 @@
 
 class DiamondTrap : public ScavTrap, public FragTrap {
 private:
-    std::string name;
+    std::string name; // ClapTrapと同じ変数名にする（シャドウイング）
 
 public:
+    // Orthodox Canonical Form
     DiamondTrap();
     DiamondTrap(const std::string& name);
     DiamondTrap(const DiamondTrap& other);
     DiamondTrap& operator=(const DiamondTrap& other);
     ~DiamondTrap();
 
-    void whoAmI();
+    // オーバーライドしてScavTrapのものを呼ぶ
+    void attack(const std::string& target);
 
-    using ScavTrap::attack;
+    // 独自の特殊能力
+    void whoAmI();
 };
 
 #endif
