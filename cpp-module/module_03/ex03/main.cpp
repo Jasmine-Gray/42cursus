@@ -22,7 +22,7 @@ int main() {
         scav.guardGate();
     }
 
-    std::cout << "\n========== [ex02] FragTrap Tests ==========" << std::endl;
+    std::cout << "\n========== FragTrap Tests ==========" << std::endl;
     {
         FragTrap frag("Fraggy");
         frag.attack("Enemy_C");
@@ -31,7 +31,7 @@ int main() {
         frag.highFivesGuys();
     }
 
-    std::cout << "\n========== [ex03] DiamondTrap Tests ==========" << std::endl;
+    std::cout << "\n========== DiamondTrap Tests ==========" << std::endl;
     {
         DiamondTrap diamond("Dia");
 
