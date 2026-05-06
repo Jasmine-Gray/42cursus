@@ -37,6 +37,6 @@ int main() {
     // ダメージを受けることはEPに関係なく可能
     e.takeDamage(5);
 
-    std::cout << "\n========== [5] Destructor Tests (RAII in action) ==========" << std::endl;
+    std::cout << "\n========== [5] Destructor Tests ==========" << std::endl;
     return 0;
 }
