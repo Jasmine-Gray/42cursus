@@ -47,7 +47,6 @@ void MateriaSource::learnMateria(AMateria* m) {
             return;
         }
     }
-    // インベントリが一杯の場合はメモリリークを防ぐために破棄
     delete m; 
 }
 

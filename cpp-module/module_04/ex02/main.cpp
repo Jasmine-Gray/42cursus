@@ -6,7 +6,7 @@ int main()
 {
     std::cout << "===== Abstract Class Test =====" << std::endl;
     
-    // 以下の行のコメントアウトを外すと、コンパイルエラーになるはずです！
+    // 以下の行のコメントアウトを外すと、コンパイルエラー
     // AAnimal* cannotInstantiate = new AAnimal();
     // AAnimal cannotInstantiate2;
 
@@ -22,9 +22,6 @@ int main()
     std::cout << std::endl;
     delete j;
     delete i;
-
-    // ex01のArrayテスト等の動作も今まで通り動作します
-    // (AAnimalのポインタ配列として扱うことが可能)
 
     return 0;
 }

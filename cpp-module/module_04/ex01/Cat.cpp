@@ -25,7 +25,7 @@ Cat& Cat::operator=(const Cat& other) {
 }
 
 Cat::~Cat() {
-    delete this->brain; // デストラクタでBrainを破棄（RAIIの原則）
+    delete this->brain; 
     std::cout << "Cat destructor called" << std::endl;
 }
 

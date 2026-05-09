@@ -13,7 +13,7 @@ Ice& Ice::operator=(const Ice& other) {
 Ice::~Ice() {}
 
 AMateria* Ice::clone() const {
-    return new Ice(*this); // 自身のコピーを生成して返す
+    return new Ice(*this); 
 }
 
 void Ice::use(ICharacter& target) {

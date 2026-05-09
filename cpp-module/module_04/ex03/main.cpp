@@ -24,7 +24,7 @@ int main()
     me->use(1, *bob);
     
     std::cout << "\n===== Unequip & Memory Leak Prevention Test =====" << std::endl;
-    // unequip は delete しないため、事前にアドレスを保持しておく必要があります
+    // unequip は delete しないため、事前にアドレスを保持しておく
     AMateria* droppedMateria = src->createMateria("ice");
     me->equip(droppedMateria);
     me->use(2, *bob);
@@ -36,8 +36,8 @@ int main()
     std::cout << "\n===== Deep Copy Test =====" << std::endl;
     Character* cloneMe = new Character(*(Character*)me);
     std::cout << "Clone Name: " << cloneMe->getName() << std::endl;
-    cloneMe->use(0, *bob); // meが持っていたiceをコピーしているはず
-    cloneMe->use(1, *bob); // meが持っていたcureをコピーしているはず
+    cloneMe->use(0, *bob); // meが持っていたiceをコピー
+    cloneMe->use(1, *bob); // meが持っていたcureをコピー
 
     std::cout << "\n===== Cleanup =====" << std::endl;
     delete bob;

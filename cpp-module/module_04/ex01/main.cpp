@@ -9,18 +9,18 @@ int main()
     const Animal* i = new Cat();
     
     std::cout << std::endl;
-    delete j; // should not create a leak [cite: 187]
+    delete j; 
     delete i;
 
     std::cout << "\n===== Array Test =====" << std::endl;
     const int arraySize = 4;
-    Animal* animals[arraySize]; // Animalオブジェクトの配列 [cite: 169]
+    Animal* animals[arraySize]; // Animalオブジェクトの配列 
 
     for (int k = 0; k < arraySize / 2; k++) {
-        animals[k] = new Dog(); // 半分はDog [cite: 170]
+        animals[k] = new Dog(); 
     }
     for (int k = arraySize / 2; k < arraySize; k++) {
-        animals[k] = new Cat(); // もう半分はCat [cite: 170]
+        animals[k] = new Cat(); 
     }
 
     std::cout << std::endl;
@@ -30,7 +30,7 @@ int main()
 
     std::cout << std::endl;
     for (int k = 0; k < arraySize; k++) {
-        delete animals[k]; // ループで全て直接Animalとしてdeleteする [cite: 171, 172]
+        delete animals[k]; 
     }
 
     std::cout << "\n===== Deep Copy Test =====" << std::endl;
@@ -53,5 +53,5 @@ int main()
     std::cout << "Dog B idea: " << dogB.getBrain()->getIdea(0) << std::endl;
     // それぞれが独立したBrainを持っているため、出力が異なるはずです 。
 
-    return 0; // プログラム終了時に自動的にValgrindなどでリークチェックが行われることを想定 
+    return 0; 
 }

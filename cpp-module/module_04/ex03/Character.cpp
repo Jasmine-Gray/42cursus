@@ -28,7 +28,7 @@ Character& Character::operator=(const Character& other) {
     if (this != &other) {
         this->name = other.name;
         for (int i = 0; i < 4; i++) {
-            // Subjectの指示通り、既存のマテリアを削除してからコピーする
+            // Subjectの指示通り、既存のマテリアを削除してからコピー
             if (this->inventory[i]) {
                 delete this->inventory[i];
             }

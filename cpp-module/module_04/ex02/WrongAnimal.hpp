@@ -12,10 +12,10 @@ public:
     WrongAnimal();
     WrongAnimal(const WrongAnimal& other);
     WrongAnimal& operator=(const WrongAnimal& other);
-    virtual ~WrongAnimal(); // メモリリーク防止のためデストラクタはvirtualにしておく
+    virtual ~WrongAnimal(); 
 
     std::string getType() const;
-    void makeSound() const; // ★ここをvirtualにしないことでポリモーフィズムを防ぐ
+    void makeSound() const; 
 };
 
 #endif

@@ -6,7 +6,7 @@
 
 class Dog : public Animal {
 private:
-    Brain* brain; // プライベートなBrainポインタ 
+    Brain* brain;
 
 public:
     Dog();
@@ -15,7 +15,7 @@ public:
     ~Dog();
 
     void makeSound() const;
-    Brain* getBrain() const; // ディープコピーのテスト用
+    Brain* getBrain() const; 
 };
 
 #endif

@@ -2,11 +2,11 @@
 #define CAT_HPP
 
 #include "Animal.hpp"
-#include "Brain.hpp" // Brainを使用するために追加
+#include "Brain.hpp" 
 
 class Cat : public Animal {
 private:
-    Brain* brain; // プライベートなBrainポインタを追加
+    Brain* brain; 
 
 public:
     Cat();
@@ -15,7 +15,7 @@ public:
     ~Cat();
 
     void makeSound() const;
-    Brain* getBrain() const; // ディープコピーのテスト用に追加
+    Brain* getBrain() const; 
 };
 
 #endif
