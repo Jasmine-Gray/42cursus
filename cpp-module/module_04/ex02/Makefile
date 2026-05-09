@@ -1,9 +1,9 @@
-NAME        = moar_brains
+NAME        = abstract_animal
 CXX         = c++
-CXXFLAGS    = -Wall -Wextra -Werror -pedantic -std=c++98 
+CXXFLAGS    = -Wall -Wextra -Werror -pedantic -std=c++98
 
 SRCS        = main.cpp \
-              Animal.cpp \
+              AAnimal.cpp \
               Dog.cpp \
               Cat.cpp \
               WrongAnimal.cpp \

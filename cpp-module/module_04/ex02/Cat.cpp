@@ -7,7 +7,7 @@ Cat::Cat() {
 }
 
 // コピーコンストラクタでディープコピーを行う
-Cat::Cat(const Cat& other) : Animal(other) {
+Cat::Cat(const Cat& other) : AAnimal(other) {
     std::cout << "Cat copy constructor called" << std::endl;
     this->brain = new Brain(*other.brain); // otherのBrainを元に新しくメモリ確保
 }

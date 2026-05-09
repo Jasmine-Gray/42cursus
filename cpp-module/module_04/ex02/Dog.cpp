@@ -7,7 +7,7 @@ Dog::Dog() {
 }
 
 // コピーコンストラクタでディープコピーを行う
-Dog::Dog(const Dog& other) : Animal(other) {
+Dog::Dog(const Dog& other) : AAnimal(other) {
     std::cout << "Dog copy constructor called" << std::endl;
     this->brain = new Brain(*other.brain); // otherのBrainを元に新しく確保 
 }
