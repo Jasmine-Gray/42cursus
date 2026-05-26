@@ -1,0 +1,47 @@
+// ShrubberyCreationForm.cpp
+#include "ShrubberyCreationForm.hpp"
+#include "Bureaucrat.hpp"
+#include <fstream>
+
+ShrubberyCreationForm::ShrubberyCreationForm() : AForm("ShrubberyCreationForm", 145, 137), target("Default") {}
+
+ShrubberyCreationForm::ShrubberyCreationForm(const std::string& target) : AForm("ShrubberyCreationForm", 145, 137), target(target) {}
+
+ShrubberyCreationForm::ShrubberyCreationForm(const ShrubberyCreationForm& other) : AForm(other), target(other.target) {}
+
+ShrubberyCreationForm& ShrubberyCreationForm::operator=(const ShrubberyCreationForm& other) {
+    if (this != &other) {
+        AForm::operator=(other);
+        this->target = other.target;
+    }
+    return *this;
+}
+
+ShrubberyCreationForm::~ShrubberyCreationForm() {}
+
+void ShrubberyCreationForm::execute(Bureaucrat const & executor) const {
+    // 実行可能かチェック（例外が投げられたらここで処理が止まる）
+    this->checkExecutable(executor);
+
+    std::string filename = this->target + "_shrubbery";
+    std::ofstream outfile(filename.c_str());
+
+    // フィードバック対応: 状態ビットのチェック
+    if (outfile.fail()) {
+        std::cerr << "Error: Could not open file " << filename << std::endl;
+        return; // エラー時は処理を中断
+    }
+
+    outfile << "       _-_" << std::endl;
+    outfile << "    /~~   ~~\\" << std::endl;
+    outfile << " /~~         ~~\\" << std::endl;
+    outfile << "{               }" << std::endl;
+    outfile << " \\  _-     -_  /" << std::endl;
+    outfile << "   ~  \\\\ //  ~" << std::endl;
+    outfile << "_- -   | | _- _" << std::endl;
+    outfile << "  _ -  | |   -_" << std::endl;
+    outfile << "      // \\\\" << std::endl;
+
+    // フィードバック対応: RAIIの原則に従い、明示的な close() は記述しない
+    // outfile はデストラクタが呼ばれた際に自動的にファイルを閉じます
+}
