@@ -7,10 +7,10 @@ int main() {
         Bureaucrat john("John", 42);
         std::cout << john << std::endl;
         
-        john.incrementGrade(); // 42 -> 41
+        john.incrementGrade();
         std::cout << "After increment: " << john << std::endl;
         
-        john.decrementGrade(); // 41 -> 42
+        john.decrementGrade();
         std::cout << "After decrement: " << john << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
@@ -18,16 +18,16 @@ int main() {
 
     std::cout << "\n--- Test 2: Grade too high on creation ---" << std::endl;
     try {
-        Bureaucrat boss("Boss", 0); // Invalid (Too high)
-        std::cout << boss << std::endl; // Should not reach here
+        Bureaucrat boss("Boss", 0); 
+        std::cout << boss << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Exception caught: " << e.what() << std::endl;
     }
 
     std::cout << "\n--- Test 3: Grade too low on creation ---" << std::endl;
     try {
-        Bureaucrat lazy("Lazy", 151); // Invalid (Too low)
-        std::cout << lazy << std::endl; // Should not reach here
+        Bureaucrat lazy("Lazy", 151); 
+        std::cout << lazy << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Exception caught: " << e.what() << std::endl;
     }
@@ -36,7 +36,7 @@ int main() {
     try {
         Bureaucrat top("Top", 1);
         std::cout << top << std::endl;
-        top.incrementGrade(); // Should throw GradeTooHighException
+        top.incrementGrade(); 
     } catch (const std::exception& e) {
         std::cerr << "Exception caught: " << e.what() << std::endl;
     }
@@ -45,7 +45,7 @@ int main() {
     try {
         Bureaucrat bottom("Bottom", 150);
         std::cout << bottom << std::endl;
-        bottom.decrementGrade(); // Should throw GradeTooLowException
+        bottom.decrementGrade();
     } catch (const std::exception& e) {
         std::cerr << "Exception caught: " << e.what() << std::endl;
     }
