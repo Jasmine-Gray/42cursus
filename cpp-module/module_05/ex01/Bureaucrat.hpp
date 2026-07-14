@@ -23,12 +23,10 @@ public:
     const std::string& getName() const;
     int getGrade() const;
 
-    // Modifiers
     void incrementGrade();
     void decrementGrade();
     void signForm(Form& form) const;
 
-    // Exceptions
     class GradeTooHighException : public std::exception {
     public:
         virtual const char* what() const throw();
@@ -40,7 +38,6 @@ public:
     };
 };
 
-// Overload of the insertion (<<) operator
 std::ostream& operator<<(std::ostream& os, const Bureaucrat& bureaucrat);
 
 #endif 

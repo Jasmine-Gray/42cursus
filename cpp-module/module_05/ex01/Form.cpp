@@ -30,7 +30,6 @@ int Form::getGradeToSign() const { return this->gradeToSign; }
 int Form::getGradeToExecute() const { return this->gradeToExecute; }
 
 void Form::beSigned(const Bureaucrat& bureaucrat) {
-    // bureaucratのランクの数字が、gradeToSign「より大きい」場合はランクが「低い」ことを意味します
     if (bureaucrat.getGrade() > this->gradeToSign) {
         throw Form::GradeTooLowException();
     }
@@ -45,7 +44,6 @@ const char* Form::GradeTooLowException::what() const throw() {
     return "Form grade requirement is too low!";
 }
 
-// Insertion operator overload
 std::ostream& operator<<(std::ostream& os, const Form& form) {
     os << "Form: " << form.getName() 
        << ", Status: " << (form.getIsSigned() ? "Signed" : "Not Signed")
