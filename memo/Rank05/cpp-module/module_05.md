@@ -52,7 +52,7 @@ Module 05の `ex00` では、`std::exception` を継承して独自の例外ク�
 
 ---
 
-## ex00: Mommy, when I grow up, I want to be a bureaucrat!
+## **ex00: Mommy, when I grow up, I want to be a bureaucrat!**
 
 ### `main.cpp` の解説
 
@@ -280,6 +280,9 @@ std::ostream& operator<<(std::ostream& os, const Bureaucrat& bureaucrat) {
 
 --- 
 
+
+## ex02: No, you need form 28B, not 28C...
+
 ### 1. `PresidentialPardonForm.cpp` の解説
 
 このクラスは、ターゲット（対象者）がZaphod Beeblebroxによって恩赦されたことを報告する書類です。
@@ -367,5 +370,140 @@ std::ostream& operator<<(std::ostream& os, const Bureaucrat& bureaucrat) {
 
 ---
 
-## ex02: No, you need form 28B, not 28C...
 ## ex03: At least this beats coffee-making
+
+
+### 1. オブジェクトとポインタの準備
+
+```cpp
+Intern someRandomIntern;
+AForm* form1;
+AForm* form2;
+AForm* form3;
+AForm* unknownForm;
+
+```
+
+* まず、名前やグレードを持たない `Intern`（インターン）のインスタンスを作成します。
+* 次に、作成された書類を受け取るためのポインタ（`form1` 〜 `unknownForm`）を準備します。`Intern::makeForm()` は、生成した具体的な書類を `AForm` のポインタとして返すため（アップキャスト）、これらの変数はベースクラスである `AForm*` 型として定義されています。
+
+### 2. フォームの生成テスト（有効な名前）
+
+```cpp
+// 1. Shrubbery Creation Form
+form1 = someRandomIntern.makeForm("shrubbery creation", "Garden");
+
+// 2. Robotomy Request Form
+form2 = someRandomIntern.makeForm("robotomy request", "Bender");
+
+// 3. Presidential Pardon Form
+form3 = someRandomIntern.makeForm("presidential pardon", "Arthur Dent");
+
+```
+
+* インターンに対して、「フォーム名」と「ターゲット」を指示し、書類を作成させています。
+* `makeForm` 関数の内部実装が正しければ、各フォーム名の文字列に対応する具象クラス（`ShrubberyCreationForm` など）が `new` で動的に生成され、そのアドレスが各ポインタに代入されます。
+* 同時に、Subjectの要求通り `Intern creates <form>` というメッセージが出力されるはずです。
+
+### 3. フォームの生成テスト（無効な名前）
+
+```cpp
+// 4. 不明なフォーム（エラーメッセージが出力され、NULLが返る）
+unknownForm = someRandomIntern.makeForm("coffee making request", "Boss");
+
+```
+
+* 存在しないフォーム名（`"coffee making request"`）をインターンに要求しています。
+* この場合、インターンはフォームを作成できず、明示的なエラーメッセージ（例: `Error: form name 'coffee making request' does not exist.`）を出力し、`NULL`（または `nullptr`）を返して `unknownForm` に代入することが期待されています。
+
+### 4. 生成されたフォームの署名・実行テスト
+
+```cpp
+std::cout << "\n--- Execution Tests ---" << std::endl;
+
+Bureaucrat boss("Boss", 1);
+
+if (form1) {
+    boss.signForm(*form1);
+    boss.executeForm(*form1);
+}
+// form2, form3 も同様
+
+```
+
+* グレード1（すべての書類の署名・実行が可能）の官僚 `boss` を作成します。
+* `if (form1)` のようにポインタが `NULL` でないことを確認してから、官僚に署名（`signForm`）と実行（`executeForm`）をさせています。
+* この `NULL` チェックは非常に重要です。もしインターンがフォームの作成に失敗して `NULL` を返していた場合、そのまま実体（`*form1`）を参照しようとするとセグメンテーションフォールト（プログラムのクラッシュ）が発生してしまうからです。
+
+### 5. 後片付け（メモリリークの防止）
+
+```cpp
+// 動的確保されたオブジェクトを delete します
+delete form1;
+delete form2;
+delete form3;
+delete unknownForm; // これを追加することで変数が「使用された」ことになり、エラーが消えます
+
+```
+
+* `Intern::makeForm()` の内部では、オブジェクトが `new` を使ってヒープ領域に動的確保されています。
+* C++では `new` で確保したメモリは、不要になった時点でプログラマが明示的に `delete` して解放する必要があります。この処理がないとメモリリークとなります。
+* ここで重要なC++の仕様として、**`delete NULL;` （または `delete nullptr;`）は安全に行うことができ、何も起こりません。** そのため、作成に失敗して `NULL` が入っている `unknownForm` を `delete` してもプログラムはクラッシュしません。
+* また、コメントにもある通り、未使用の変数を残しておくとコンパイラフラグ（`-Wall -Wextra -Werror`）によってコンパイルエラーとして弾かれてしまうため、その対策としての意味も兼ねています。
+
+---
+### intern.cpp
+
+### 1. メンバ関数ポインタ配列の活用
+
+このコードの心臓部は `makeForm` 関数内にある以下の二つの配列です。
+
+```cpp
+std::string formNames[] = { "shrubbery creation", ... };
+AForm* (Intern::*formCreators[])(const std::string&) const = { ... };
+
+```
+
+* **`formNames`**: 対応するフォーム名を格納する配列です。
+
+
+* **`formCreators`**: ここがC++の強力な機能です。これは**メンバ関数ポインタの配列**です。「`Intern` クラスのメンバ関数であり、`const std::string&` を引数に取り、`AForm*` を返す関数」へのポインタを配列として保持しています。
+
+
+
+この配列を使うことで、フォーム名と生成関数を「データ」として紐付けることができ、`if/else if` 文を大量に並べる必要がなくなります。
+
+### 2. ループによる探索
+
+```cpp
+for (int i = 0; i < 3; ++i) {
+    if (formName == formNames[i]) {
+        std::cout << "Intern creates " << formName << std::endl;
+        return (this->*formCreators[i])(target); 
+    }
+}
+
+```
+
+* `for` ループで配列を回し、入力された `formName` が `formNames` のどれかと一致するかを確認します。
+
+
+* 一致した場合、そのインデックス `i` に対応する `formCreators[i]`（生成関数）を呼び出します。
+
+
+* **(this->*formCreators[i])(target)**: この構文が、配列に格納されたメンバ関数ポインタを呼び出す際のお決まりの記述です。`this` オブジェクトに対して、指定された関数ポインタを呼び出し、`target` を引数として渡しています。
+
+### 3. エラーハンドリング
+
+```cpp
+std::cerr << "Error: Intern cannot create form '" << formName << "' because it does not exist." << std::endl;
+return NULL;
+
+```
+
+* ループを最後まで回しても一致するものが見つからなかった場合、Subjectの要件である「明示的なエラーメッセージ」を標準エラー出力（`std::cerr`）に表示し、`NULL` を返して終了しています。
+
+
+
+---
+
