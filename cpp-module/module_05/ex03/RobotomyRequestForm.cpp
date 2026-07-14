@@ -20,7 +20,7 @@ RobotomyRequestForm& RobotomyRequestForm::operator=(const RobotomyRequestForm& o
 RobotomyRequestForm::~RobotomyRequestForm() {}
 
 void RobotomyRequestForm::execute(Bureaucrat const & executor) const {
-    this->checkExecutable(executor); // 実行可能かチェック
+    this->checkExecutable(executor); 
 
     std::cout << "* BZZZZZZZZ... VVRRRRRRR... *" << std::endl;
     // 50%の確率で成功/失敗

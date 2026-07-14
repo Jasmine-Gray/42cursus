@@ -7,7 +7,6 @@
 #include <cstdlib>
 
 int main() {
-    // 乱数シードの初期化（RobotomyRequestForm用）
     std::srand(static_cast<unsigned int>(std::time(NULL)));
 
     std::cout << "--- 1. Shrubbery Creation Form Tests ---" << std::endl;

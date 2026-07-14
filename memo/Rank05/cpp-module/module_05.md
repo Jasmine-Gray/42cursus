@@ -278,6 +278,93 @@ std::ostream& operator<<(std::ostream& os, const Bureaucrat& bureaucrat) {
 * `std::cout << form;` としたときに、書類の全情報（名前、サインの有無、必要なグレード2種）がわかりやすく出力されるようにフォーマットしています。
 * 三項演算子 `(form.getIsSigned() ? "Signed" : "Not Signed")` を使って、ブール値を人間が読みやすい文字列に変換している点がスマートです。
 
+--- 
+
+### 1. `PresidentialPardonForm.cpp` の解説
+
+このクラスは、ターゲット（対象者）がZaphod Beeblebroxによって恩赦されたことを報告する書類です。
+
+* **コンストラクタ群 (Orthodox Canonical Form):**
+* デフォルトコンストラクタやパラメータ付きコンストラクタでは、ベースクラスである `AForm` のコンストラクタを呼び出し、書類名を `"PresidentialPardonForm"`、サインに必要なグレードを `25`、実行に必要なグレードを `5` として初期化しています。
+
+
+* 同時に、対象者を示す `target` 変数を初期化リストで設定しています。
+
+
+* **コピーコンストラクタと代入演算子 (`operator=`):**
+* `AForm` のコピー機能（`AForm::operator=(other);`）を明示的に呼び出しつつ、自身の `target` も正しくコピーしています。
+
+
+* **`execute` 関数 (実行ロジック):**
+* まず `this->checkExecutable(executor);` を呼び出し、書類がサイン済みであることと、実行する官僚のグレードが十分に高いことを確認しています。
+
+
+* 条件をクリアした場合、`<target> has been pardoned by Zaphod Beeblebrox.` という課題指定のメッセージを標準出力に表示します。
+
+
+
+
+
+---
+
+### 2. `RobotomyRequestForm.cpp` の解説
+
+このクラスは、ドリルの音を鳴らし、50%の確率でターゲットのロボトミー化の成功・失敗を報告する書類です。
+
+* **コンストラクタ群:**
+* `AForm` を呼び出し、書類名を `"RobotomyRequestForm"`、サインに必要なグレードを `72`、実行に必要なグレードを `45` として初期化しています。
+
+
+
+
+* **`execute` 関数 (実行ロジック):**
+* 同じく `checkExecutable(executor);` で事前にフォームが署名済みか、実行者のグレードが十分かを確認します。
+
+
+* `std::cout << "* BZZZZZZZZ... VVRRRRRRR... *" << std::endl;` で、課題で要求されている「ドリルの音（drilling noises）」を擬似的に出力しています。
+
+
+* `std::rand() % 2 == 0` を用いて0か1をランダムに生成し、50%の確率で「成功（robotomized successfully）」と「失敗（failed）」の分岐処理を正しく実装しています。
+
+
+
+
+
+---
+
+### 3. `ShrubberyCreationForm.cpp` の解説
+
+このクラスは、`<target>_shrubbery` というファイルを作成し、そこにASCIIアートの木を書き込む書類です。いただいたフィードバックの教訓が最も活きている箇所です。
+
+* **コンストラクタ群:**
+* `AForm` を呼び出し、書類名を `"ShrubberyCreationForm"`、サインに必要なグレードを `145`、実行に必要なグレードを `137` として初期化しています。
+
+
+
+
+* **`execute` 関数 (実行ロジック):**
+* `checkExecutable(executor);` でフォームの署名確認と権限チェックを行います。
+
+
+* `std::string filename = this->target + "_shrubbery";` によって、作成すべきファイル名（`<target>_shrubbery`）を動的に生成しています。
+
+
+* `std::ofstream outfile(filename.c_str());` で出力用ファイルストリームを開きます。
+
+
+* **フィードバックの反映（ストリーム状態ビットのチェック）:**
+* `!is_open()` ではなく、`if (outfile.fail())` と記述することで、ストリームの状態ビットを確認し、ファイルのオープンや作成に失敗した場合のエラーハンドリングを確実に行っています。
+
+
+* **ファイルの書き込み:**
+* 開いたファイル（`outfile`）に対して、`<<` 演算子を用いてASCIIアートの木（ASCII trees）を直接書き込んでいます。
+
+
+
+
+* **フィードバックの反映（RAIIの原則）:**
+* `outfile.close();` が明記されていません。これは `std::ofstream` がRAIIの原則に従って設計されているため、関数が終了して `outfile` オブジェクトがスコープを抜ける（破棄される）際に、デストラクタが自動で安全にファイルを閉じてくれる仕組みを正しく利用しています。
+
 ---
 
 ## ex02: No, you need form 28B, not 28C...

@@ -29,10 +29,8 @@ public:
 
     void beSigned(const Bureaucrat& bureaucrat);
 
-    // 純粋仮想関数にしてAFormを抽象クラスにする
     virtual void execute(Bureaucrat const & executor) const = 0;
 
-    // 実行可能かどうかのチェックを基底クラスにまとめる（エレガントな方法）
     void checkExecutable(Bureaucrat const & executor) const;
 
     class GradeTooHighException : public std::exception {
