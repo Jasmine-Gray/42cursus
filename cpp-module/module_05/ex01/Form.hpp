@@ -5,7 +5,6 @@
 #include <string>
 #include <exception>
 
-// 前方宣言: 循環参照を防ぐため
 class Bureaucrat;
 
 class Form {
