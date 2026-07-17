@@ -23,7 +23,6 @@ void RobotomyRequestForm::execute(Bureaucrat const & executor) const {
     this->checkExecutable(executor); 
 
     std::cout << "* BZZZZZZZZ... VVRRRRRRR... *" << std::endl;
-    // 50%の確率で成功/失敗
     if (std::rand() % 2 == 0) {
         std::cout << this->target << " has been robotomized successfully!" << std::endl;
     } else {

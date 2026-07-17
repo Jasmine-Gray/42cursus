@@ -27,7 +27,7 @@ void ShrubberyCreationForm::execute(Bureaucrat const & executor) const {
 
     if (outfile.fail()) {
         std::cerr << "Error: Could not open file " << filename << std::endl;
-        return; // エラー時は処理を中断
+        return; 
     }
 
     outfile << "       _-_" << std::endl;
