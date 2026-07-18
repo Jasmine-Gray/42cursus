@@ -1,4 +1,3 @@
-// ShrubberyCreationForm.cpp
 #include "ShrubberyCreationForm.hpp"
 #include "Bureaucrat.hpp"
 #include <fstream>
