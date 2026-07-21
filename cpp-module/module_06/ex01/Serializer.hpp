@@ -6,7 +6,6 @@
 
 class Serializer {
 private:
-    // OCF: ユーザーによるインスタンス化を完全に防ぐためprivateに配置
     Serializer();
     Serializer(const Serializer& src);
     Serializer& operator=(const Serializer& rhs);
