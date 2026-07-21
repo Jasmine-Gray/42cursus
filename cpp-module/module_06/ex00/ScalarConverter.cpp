@@ -20,7 +20,6 @@ ScalarConverter& ScalarConverter::operator=(const ScalarConverter& rhs) {
 ScalarConverter::~ScalarConverter() {}
 
 void ScalarConverter::convert(const std::string& literal) {
-    // 1. 疑似リテラル（pseudo-literals）の処理
     if (literal == "nan" || literal == "nanf") {
         std::cout << "char: impossible\n";
         std::cout << "int: impossible\n";
@@ -28,7 +27,7 @@ void ScalarConverter::convert(const std::string& literal) {
         std::cout << "double: nan\n";
         return;
     }
-    if (literal == "+inf" || literal == "+inff") {
+    if (literal == "+inf" || literal == "+inff" || literal == "inf" || literal == "inff") {
         std::cout << "char: impossible\n";
         std::cout << "int: impossible\n";
         std::cout << "float: +inff\n";
@@ -49,20 +48,15 @@ void ScalarConverter::convert(const std::string& literal) {
     if (literal.length() == 1 && !std::isdigit(literal[0])) {
         val = static_cast<double>(literal[0]);
     } else {
-        // 3. 数値としてのパース処理
         std::string s = literal;
         
-        // floatリテラル末尾の 'f' を除去してパース可能にする
         if (s.length() > 1 && s[s.length() - 1] == 'f') {
             s.erase(s.length() - 1);
         }
 
-        // [フィードバック反映]: stringstream と状態ビットによる厳格なエラーハンドリング
-        // RAIIに基づき、ssはスコープ終了時に自動で破棄・解放されます。
         std::stringstream ss(s);
         ss >> val;
 
-        // failbit（変換失敗）または eofbitが立っていない（ゴミ文字が残っている）場合を検知
         if (ss.fail() || !ss.eof()) {
             std::cout << "char: impossible\n"
                       << "int: impossible\n"
@@ -72,7 +66,6 @@ void ScalarConverter::convert(const std::string& literal) {
         }
     }
 
-    // 4. 各スカラー型への明示的なキャストと出力
 
     // --- char型 ---
     if (val < std::numeric_limits<char>::min() || val > std::numeric_limits<char>::max() || std::isnan(val) || std::isinf(val)) {
@@ -87,7 +80,6 @@ void ScalarConverter::convert(const std::string& literal) {
     }
 
     // --- int型 ---
-    // C++98ではオーバーフローしたdoubleからintへのキャストは未定義動作になるため、先に範囲チェックを行う
     if (val < std::numeric_limits<int>::min() || val > std::numeric_limits<int>::max() || std::isnan(val) || std::isinf(val)) {
         std::cout << "int: impossible\n";
     } else {
@@ -97,7 +89,6 @@ void ScalarConverter::convert(const std::string& literal) {
     // --- float型 ---
     float fval = static_cast<float>(val);
     std::cout << "float: " << fval;
-    // 整数値の場合は ".0" を補完する（小数点以下の情報が欠落しないように）
     if (val == std::floor(val) && !std::isinf(val) && !std::isnan(val)) {
         std::cout << ".0";
     }

@@ -6,7 +6,6 @@
 
 class ScalarConverter {
 private:
-    // ユーザーによるインスタンス化を防ぐため、すべてprivateに配置
     ScalarConverter();
     ScalarConverter(const ScalarConverter& src);
     ScalarConverter& operator=(const ScalarConverter& rhs);
