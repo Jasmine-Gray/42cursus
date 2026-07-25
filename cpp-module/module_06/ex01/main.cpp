@@ -15,7 +15,6 @@ int main() {
 
     uintptr_t serialized = Serializer::serialize(&myData);
     
-    // uintptr_t の値を16進数で出力して確認（アドレス表現に近い形）
     std::cout << "--- Serialized ---" << std::endl;
     std::cout << "int : " << serialized << std::endl;
     std::cout << "Raw int : 0x" << std::hex << serialized << std::dec << std::endl;
@@ -29,7 +28,6 @@ int main() {
     std::cout << "Name    : " << deserialized->name << std::endl;
     std::cout << std::endl;
 
-    // 4. 復元されたポインタが元のポインタと等しいか比較
     std::cout << "--- Verification ---" << std::endl;
     if (deserialized == &myData) {
         std::cout << "Result  : SUCCESS! Pointers match." << std::endl;

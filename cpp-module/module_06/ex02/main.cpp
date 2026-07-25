@@ -11,9 +11,6 @@ Base* generate(void) {
     int random = std::rand() % 3;
     Base* instance = NULL;
 
-    // フィードバックの遵守: switch文を使用。
-    // 今回は各ケースで独立した処理を行うため break を使用しますが、
-    // もし意図的に次のケースへ流す場合は必ず // fallthrough を記述します。
     switch (random) {
         case 0:
             instance = new A();
@@ -29,7 +26,7 @@ Base* generate(void) {
 }
 
 void identify(Base* p) {
-    // ポインタに対する dynamic_cast は失敗時に NULL を返すことを利用する
+    // ポインタに対する dynamic_cast は失敗時NULLを返す
     if (dynamic_cast<A*>(p)) {
         std::cout << "Pointer identify: A" << std::endl;
     } else if (dynamic_cast<B*>(p)) {
@@ -42,7 +39,7 @@ void identify(Base* p) {
 }
 
 void identify(Base& p) {
-    // 参照に対する dynamic_cast は失敗時に例外を投げることを利用する
+    // 参照に対する dynamic_cast は失敗時に例外を投げる
     // <typeinfo>ヘッダーが禁止されているため、直接std::bad_castではなく
     // 基底クラスであるstd::exceptionでキャッチする
     try {
@@ -76,8 +73,6 @@ int main() {
         identify(instance);
         identify(*instance);
         
-        // フィードバックの遵守: RAIIの概念について
-        // C++98ではスマートポインタ(std::unique_ptr等)が標準にないため、
         // 動的確保したメモリはここで明示的に delete してリソースリークを防ぎます。
         delete instance;
         std::cout << std::endl;

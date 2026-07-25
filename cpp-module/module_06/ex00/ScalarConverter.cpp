@@ -44,7 +44,6 @@ void ScalarConverter::convert(const std::string& literal) {
 
     double val = 0.0;
     
-    // 2. 単一文字（char）リテラルの検出 ('0'~'9'の数字単体は除外)
     if (literal.length() == 1 && !std::isdigit(literal[0])) {
         val = static_cast<double>(literal[0]);
     } else {

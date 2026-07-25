@@ -12,7 +12,6 @@ private:
     ~Serializer();
 
 public:
-    // 課題で要求されている静的メソッド
     static uintptr_t serialize(Data* ptr);
     static Data* deserialize(uintptr_t raw);
 };

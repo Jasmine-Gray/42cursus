@@ -12,7 +12,6 @@ private:
     ~ScalarConverter();
 
 public:
-    // 課題で要求されている唯一の静的メソッド
     static void convert(const std::string& literal);
 };
 
