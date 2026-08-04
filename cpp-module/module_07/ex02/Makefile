@@ -1,4 +1,4 @@
-NAME        = iter
+NAME        = array
 CXX         = c++
 CXXFLAGS    = -Wall -Wextra -Werror -pedantic -std=c++98
 
