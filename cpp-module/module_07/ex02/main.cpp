@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <cstdlib>
+#include <ctime>
 #include "Array.hpp"
 
 #define MAX_VAL 750
@@ -10,7 +12,7 @@ int main(int, char**)
     Array<int> emptyArray;
     std::cout << "emptyArray size: " << emptyArray.size() << std::endl;
     try {
-        emptyArray[0] = 1; // ここで例外が発生するはず
+        emptyArray[0] = 1; 
     } catch(const std::exception& e) {
         std::cerr << e.what() << '\n';
     }
@@ -30,7 +32,6 @@ int main(int, char**)
     Array<int> tmp = numbers;
     Array<int> test(tmp);
 
-    // コピー先を変更して、元の配列に影響がないか確認
     tmp[0] = -1;
     test[0] = -2;
     std::cout << "numbers[0] (should be original): " << numbers[0] << std::endl;
