@@ -1,4 +1,4 @@
-NAME        = easyfind
+NAME        = ex02
 CXX         = c++
 CXXFLAGS    = -Wall -Wextra -Werror -std=c++98
 SRCS        = main.cpp
