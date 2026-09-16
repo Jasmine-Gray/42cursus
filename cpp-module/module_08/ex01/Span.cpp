@@ -2,8 +2,6 @@
 #include <algorithm>
 #include <limits>
 
-// Orthodox Canonical Form -----------------------------------------------------
-
 Span::Span() : maxSize(0) {}
 
 Span::Span(unsigned int n) : maxSize(n) {}
@@ -20,8 +18,6 @@ Span& Span::operator=(const Span& other) {
 
 Span::~Span() {}
 
-// Member Functions ------------------------------------------------------------
-
 void Span::addNumber(int number) {
     if (numbers.size() >= maxSize) {
         throw FullException();
@@ -34,7 +30,6 @@ unsigned int Span::shortestSpan() const {
         throw NotEnoughElementsException();
     }
 
-    // コンテナのコピーを作成してソートする（const関数内で元データを変更しないため）
     std::vector<int> sortedNumbers = numbers;
     std::sort(sortedNumbers.begin(), sortedNumbers.end());
 
@@ -53,14 +48,11 @@ unsigned int Span::longestSpan() const {
         throw NotEnoughElementsException();
     }
 
-    // std::min_element と std::max_element を使用して最大値と最小値を求める
     std::vector<int>::const_iterator minIt = std::min_element(numbers.begin(), numbers.end());
     std::vector<int>::const_iterator maxIt = std::max_element(numbers.begin(), numbers.end());
     
     return static_cast<unsigned int>(*maxIt - *minIt);
 }
-
-// Exception Definitions -------------------------------------------------------
 
 const char* Span::FullException::what() const throw() {
     return "Error: Span is already full.";
