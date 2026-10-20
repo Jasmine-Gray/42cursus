@@ -1,5 +1,4 @@
 #include "BitcoinExchange.hpp"
-#include <stdexcept> // std::invalid_argument に使用
 
 BitcoinExchange::BitcoinExchange() {}
 
@@ -17,13 +16,18 @@ BitcoinExchange::~BitcoinExchange() {}
 void BitcoinExchange::loadDatabase(const std::string& filename) {
     std::ifstream file(filename.c_str());
     
+    // 【NOTE対応】ファイルオープンの失敗を .fail() で検知
     if (file.fail()) {
         std::cerr << "Error: could not open database file." << std::endl;
         return;
     }
 
     std::string line;
-    std::getline(file, line); 
+    // データベースのヘッダーを読み飛ばす（空なら早期リターン）
+    if (!std::getline(file, line)) {
+        std::cerr << "Error: database file is empty." << std::endl;
+        return;
+    }
 
     while (std::getline(file, line)) {
         size_t commaPos = line.find(',');
@@ -44,10 +48,19 @@ void BitcoinExchange::processInput(const std::string& filename) const {
     }
 
     std::string line;
-    std::getline(file, line); 
+    if (!std::getline(file, line)) {
+        std::cerr << "Error: file is empty of could not be read." << std::endl;
+        return;
+    }
+
+    // 1行目のヘッダーフォーマット検証 ("date | value" 以外はエラーを出力して次の行へ)
+    if (line != "date | value") {
+        std::cerr << "Error: invalid file format." << std::endl;
+        std::cerr << "Usage: The first line of the input file must be exactly 'date | value'." << std::endl;
+        return;
+    }
 
     while (std::getline(file, line)) {
-        // 空行をスキップ
         if (line.empty()) continue;
 
         size_t delimPos = line.find(" | ");
@@ -73,37 +86,35 @@ void BitcoinExchange::processInput(const std::string& filename) const {
             float rate = getExchangeRate(date);
             std::cout << date << " => " << valueStr << " = " << (value * rate) << std::endl;
         } catch (const std::exception& e) {
-            // DBに直近過去の日付が存在しない場合のエラーハンドリング
             std::cerr << "Error: bad input => " << date << std::endl;
         }
+    }
+    
+    // 【NOTE対応】ループアウト後に致命的なストリームエラーがないか確認
+    if (file.bad()) {
+        std::cerr << "Error: fatal error reading the file." << std::endl;
     }
 }
 
 bool BitcoinExchange::isValidDate(const std::string& date) const {
-    // 形式チェック (YYYY-MM-DD)
     if (date.length() != 10 || date[4] != '-' || date[7] != '-') {
         return false;
     }
 
-    // 数値としてパース
     int year = std::atoi(date.substr(0, 4).c_str());
     int month = std::atoi(date.substr(5, 2).c_str());
     int day = std::atoi(date.substr(8, 2).c_str());
 
-    // 基本的な範囲チェック
     if (year < 0 || month < 1 || month > 12 || day < 1 || day > 31) {
         return false;
     }
 
-    // 各月の日数（2月は一旦28日とする）
     int daysInMonth[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-    // 閏年判定 (4で割り切れ、かつ100で割り切れない、または400で割り切れる)
     if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
         daysInMonth[2] = 29;
     }
 
-    // その月の日数を超えていないかチェック
     if (day > daysInMonth[month]) {
         return false;
     }
@@ -112,7 +123,6 @@ bool BitcoinExchange::isValidDate(const std::string& date) const {
 }
 
 bool BitcoinExchange::parseValue(const std::string& valueStr, float& value) const {
-    // 空文字、または空白文字のみの場合はエラー
     if (valueStr.empty() || valueStr.find_first_not_of(" \t\n\v\f\r") == std::string::npos) {
         std::cerr << "Error: bad input => " << valueStr << std::endl;
         return false;
@@ -147,9 +157,8 @@ float BitcoinExchange::getExchangeRate(const std::string& date) const {
         return it->second; 
     }
 
-    // データベースの最初の日付より前の場合、lower_boundの仕様上itはbegin()を指す
     if (it == database.begin()) {
-        throw std::invalid_argument("date too early"); // 例外を投げて呼び出し元でエラー表示
+        throw std::invalid_argument("date too early");
     }
 
     --it;

@@ -8,7 +8,6 @@ int main(int argc, char **argv) {
 
     BitcoinExchange btc;
     
-    // データベースファイルは "data.csv" という名前で提供される前提[cite: 1, 2]
     btc.loadDatabase("data.csv");
     btc.processInput(argv[1]);
 
