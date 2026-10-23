@@ -360,4 +360,3 @@ PRIVMSG bob :<SOH>DCC SEND file.txt 2130706433 9000 1234<SOH>
 * **Code Review**: AI was used as a peer-review tool to check our C++98 syntax constraints and find potential bugs, memory leaks, or array boundary errors before testing.
 * **Documentation Research & Summarization**: AI helped summarize complex network protocols and manual pages, including RFC 1459, RFC 2812, `poll()`, and `fcntl()`. This allowed the team to understand the requirements quickly.
 * **Test Case Creation**: AI helped design various test scenarios. This included preparing input data to check for malformed commands, empty lines, and fragmented packets to ensure the server never crashes.
-
