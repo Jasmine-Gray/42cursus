@@ -1,0 +1,1335 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IRC Server and Socket Programming</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #475569;
+      --subtle: #e2e8f0;
+      --line: #cbd5e1;
+      --accent: #0f766e;
+      --accent-soft: #ccfbf1;
+      --warn: #b45309;
+      --warn-soft: #fef3c7;
+      --ok: #15803d;
+      --error: #b91c1c;
+      --code: #111827;
+      --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      --radius: 8px;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1280px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 32px;
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.08;
+      text-wrap: balance;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 820px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+      text-wrap: pretty;
+    }
+
+    .flow-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .flow-strip span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border: 1px solid var(--subtle);
+      border-radius: 999px;
+      background: var(--panel);
+      padding: 5px 9px;
+      white-space: nowrap;
+    }
+
+    .flow-strip .irc-layer {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 4px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 8px 12px;
+      cursor: pointer;
+      box-shadow: 0 1px 1px rgba(15, 23, 42, 0.04);
+    }
+
+    .button:hover {
+      border-color: var(--accent);
+    }
+
+    .button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .button:focus-visible,
+    .speed input:focus-visible {
+      outline: 3px solid var(--accent-soft);
+      outline-offset: 2px;
+    }
+
+    .speed {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--muted);
+    }
+
+    .speed input {
+      width: 112px;
+      accent-color: var(--accent);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .board,
+    .side-panel,
+    .timeline {
+      border: 1px solid var(--subtle);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .board {
+      position: relative;
+      min-height: 660px;
+      overflow: hidden;
+    }
+
+    .legend {
+      position: absolute;
+      inset: 16px 16px auto auto;
+      z-index: 5;
+      display: grid;
+      gap: 6px;
+      min-width: 210px;
+      padding: 10px;
+      border: 1px solid var(--subtle);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.94);
+    }
+
+    .legend-row {
+      display: grid;
+      grid-template-columns: 16px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--line);
+    }
+
+    .dot.listen { background: #2563eb; }
+    .dot.client { background: var(--accent); }
+    .dot.bytes { background: var(--warn); }
+    .dot.reply { background: var(--ok); }
+
+    .socket-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .network-line {
+      fill: none;
+      stroke: var(--line);
+      stroke-width: 2;
+      stroke-dasharray: 7 7;
+    }
+
+    .network-line.main {
+      stroke: #94a3b8;
+      stroke-width: 3;
+      stroke-dasharray: none;
+      marker-end: url("#arrow");
+    }
+
+    .packet {
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .packet.client-bytes {
+      fill: var(--warn);
+    }
+
+    .packet.server-reply {
+      fill: var(--ok);
+    }
+
+    .motion-caption {
+      position: absolute;
+      left: 316px;
+      top: 26px;
+      z-index: 4;
+      display: inline-flex;
+      align-items: center;
+      max-width: 330px;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--ink);
+      padding: 9px 11px;
+      font-size: 13px;
+      line-height: 1.4;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      text-wrap: pretty;
+    }
+
+    .flow-packet {
+      position: absolute;
+      z-index: 4;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--ink);
+      padding: 6px 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      opacity: 0;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+      transform: translate3d(250px, 210px, 0);
+    }
+
+    .flow-packet::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .flow-packet.bytes {
+      border-color: #f59e0b;
+      background: var(--warn-soft);
+      color: #78350f;
+    }
+
+    .flow-packet.bytes::before {
+      background: var(--warn);
+    }
+
+    .flow-packet.reply {
+      border-color: #22c55e;
+      background: #dcfce7;
+      color: #14532d;
+    }
+
+    .flow-packet.reply::before {
+      background: var(--ok);
+    }
+
+    .flow-packet.close {
+      border-color: #fca5a5;
+      background: #fee2e2;
+      color: #7f1d1d;
+    }
+
+    .flow-packet.close::before {
+      background: var(--error);
+    }
+
+    .flow-packet.handshake { transform: translate3d(250px, 198px, 0); }
+    .flow-packet.bytes-in { transform: translate3d(250px, 214px, 0); }
+    .flow-packet.parse-in { transform: translate3d(470px, 238px, 0); }
+    .flow-packet.reply-out { transform: translate3d(650px, 356px, 0); }
+    .flow-packet.close-out { transform: translate3d(250px, 226px, 0); }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+    }
+
+    .node {
+      position: absolute;
+      border: 1px solid var(--subtle);
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+      overflow: hidden;
+    }
+
+    .node-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--subtle);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .node-title {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .node-body {
+      padding: 12px;
+    }
+
+    .terminal {
+      min-height: 154px;
+      border-radius: 6px;
+      background: var(--code);
+      color: #e5e7eb;
+      padding: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .terminal .muted {
+      color: #94a3b8;
+    }
+
+    .terminal .send {
+      color: #fbbf24;
+    }
+
+    .terminal .recv {
+      color: #86efac;
+    }
+
+    .client-a { left: 28px; top: 100px; width: 250px; }
+    .client-b { left: 28px; bottom: 38px; width: 250px; }
+    .kernel { left: 338px; top: 118px; width: 230px; }
+    .server { right: 36px; top: 150px; width: 330px; }
+    .dispatcher { right: 36px; bottom: 44px; width: 330px; }
+
+    .kernel-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .fd-row {
+      display: grid;
+      grid-template-columns: 56px minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 8px;
+      border: 1px solid var(--subtle);
+      border-radius: 6px;
+      background: #f8fafc;
+      font-size: 13px;
+    }
+
+    .fd-row.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .fd-row.warn {
+      border-color: #f59e0b;
+      background: var(--warn-soft);
+    }
+
+    .fd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .server-loop {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .loop-cell {
+      min-height: 64px;
+      padding: 9px;
+      border: 1px solid var(--subtle);
+      border-radius: 6px;
+      background: #f8fafc;
+    }
+
+    .loop-cell.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .loop-name {
+      margin: 0 0 4px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .loop-desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      text-wrap: pretty;
+    }
+
+    .buffer {
+      margin-top: 10px;
+      padding: 9px;
+      border: 1px solid var(--subtle);
+      border-radius: 6px;
+      background: #f8fafc;
+    }
+
+    .buffer-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .buffer-line {
+      min-height: 32px;
+      overflow: hidden;
+      border-radius: 6px;
+      background: #0f172a;
+      color: #fde68a;
+      padding: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.35;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .dispatch-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .dispatch-card {
+      min-height: 72px;
+      padding: 10px;
+      border: 1px solid var(--subtle);
+      border-radius: 6px;
+      background: #f8fafc;
+    }
+
+    .dispatch-card.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .dispatch-title {
+      margin: 0 0 5px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .dispatch-text {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      text-wrap: pretty;
+    }
+
+    .side-panel {
+      padding: 16px;
+    }
+
+    .step-kicker {
+      margin: 0 0 6px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .side-panel h2 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      line-height: 1.15;
+      text-wrap: balance;
+    }
+
+    .side-panel p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.65;
+      text-wrap: pretty;
+    }
+
+    .code-block {
+      margin: 0 0 14px;
+      overflow: auto;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .notes {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .notes li {
+      display: grid;
+      grid-template-columns: 20px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .notes li::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      margin-top: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .timeline {
+      margin-top: 16px;
+      padding: 10px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(9, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .step {
+      min-height: 58px;
+      border: 1px solid var(--subtle);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 8px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .step.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .step small {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .step span {
+      display: block;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    body[data-step="0"] .fd-listen,
+    body[data-step="1"] .fd-listen,
+    body[data-step="2"] .fd-listen,
+    body[data-step="3"] .fd-listen,
+    body[data-step="4"] .fd-client-a,
+    body[data-step="5"] .fd-client-a,
+    body[data-step="6"] .fd-client-a,
+    body[data-step="7"] .fd-client-a,
+    body[data-step="8"] .fd-client-b {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    body[data-step="0"] .cell-socket,
+    body[data-step="1"] .cell-bind,
+    body[data-step="2"] .cell-listen,
+    body[data-step="3"] .cell-poll,
+    body[data-step="4"] .cell-accept,
+    body[data-step="5"] .cell-recv,
+    body[data-step="6"] .cell-parse,
+    body[data-step="7"] .cell-send,
+    body[data-step="8"] .cell-close {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    body[data-step="5"] .buffer-line,
+    body[data-step="6"] .buffer-line {
+      color: #fbbf24;
+    }
+
+    body[data-step="6"] .dispatch-parser,
+    body[data-step="7"] .dispatch-replies,
+    body[data-step="8"] .dispatch-cleanup {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    body[data-step="0"] .packet.listen-pulse,
+    body[data-step="4"] .packet.syn,
+    body[data-step="5"] .packet.client-bytes,
+    body[data-step="7"] .packet.server-reply,
+    body[data-step="8"] .packet.close-pulse {
+      opacity: 1;
+    }
+
+    body[data-step="4"] .flow-packet.handshake,
+    body[data-step="5"] .flow-packet.bytes-in,
+    body[data-step="6"] .flow-packet.parse-in,
+    body[data-step="7"] .flow-packet.reply-out,
+    body[data-step="8"] .flow-packet.close-out {
+      opacity: 1;
+    }
+
+    body.is-running .packet.syn {
+      animation: packet-to-server 1400ms ease-out infinite;
+    }
+
+    body.is-running .packet.client-bytes {
+      animation: packet-to-server 1400ms ease-out infinite;
+    }
+
+    body.is-running .packet.server-reply {
+      animation: packet-to-client 1400ms ease-out infinite;
+    }
+
+    body.is-running .packet.listen-pulse,
+    body.is-running .packet.close-pulse {
+      animation: pulse-dot 1400ms ease-out infinite;
+    }
+
+    body.is-running[data-step="4"] .flow-packet.handshake {
+      animation: connect-client-to-listener 1500ms ease-out infinite;
+    }
+
+    body.is-running[data-step="5"] .flow-packet.bytes-in {
+      animation: bytes-client-to-server 1500ms ease-out infinite;
+    }
+
+    body.is-running[data-step="6"] .flow-packet.parse-in {
+      animation: bytes-kernel-to-parser 1500ms ease-out infinite;
+    }
+
+    body.is-running[data-step="7"] .flow-packet.reply-out {
+      animation: reply-server-to-client-b 1500ms ease-out infinite;
+    }
+
+    body.is-running[data-step="8"] .flow-packet.close-out {
+      animation: close-client-to-kernel 1500ms ease-out infinite;
+    }
+
+    @keyframes packet-to-server {
+      from {
+        transform: translate(-230px, -100px) scale(0.9);
+        opacity: 0;
+      }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      to {
+        transform: translate(0, 0) scale(1);
+        opacity: 0;
+      }
+    }
+
+    @keyframes packet-to-client {
+      from {
+        transform: translate(0, 0) scale(0.9);
+        opacity: 0;
+      }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      to {
+        transform: translate(-230px, -100px) scale(1);
+        opacity: 0;
+      }
+    }
+
+    @keyframes connect-client-to-listener {
+      0% {
+        transform: translate3d(250px, 198px, 0) scale(0.96);
+        opacity: 0;
+      }
+      15%, 85% { opacity: 1; }
+      48% { transform: translate3d(430px, 224px, 0) scale(1); }
+      100% {
+        transform: translate3d(655px, 244px, 0) scale(0.96);
+        opacity: 0;
+      }
+    }
+
+    @keyframes bytes-client-to-server {
+      0% {
+        transform: translate3d(250px, 214px, 0) scale(0.96);
+        opacity: 0;
+      }
+      14%, 88% { opacity: 1; }
+      42% { transform: translate3d(424px, 238px, 0) scale(1); }
+      100% {
+        transform: translate3d(650px, 270px, 0) scale(0.96);
+        opacity: 0;
+      }
+    }
+
+    @keyframes bytes-kernel-to-parser {
+      0% {
+        transform: translate3d(470px, 238px, 0) scale(0.96);
+        opacity: 0;
+      }
+      16%, 84% { opacity: 1; }
+      100% {
+        transform: translate3d(650px, 455px, 0) scale(0.96);
+        opacity: 0;
+      }
+    }
+
+    @keyframes reply-server-to-client-b {
+      0% {
+        transform: translate3d(650px, 356px, 0) scale(0.96);
+        opacity: 0;
+      }
+      14%, 88% { opacity: 1; }
+      52% { transform: translate3d(430px, 344px, 0) scale(1); }
+      100% {
+        transform: translate3d(250px, 520px, 0) scale(0.96);
+        opacity: 0;
+      }
+    }
+
+    @keyframes close-client-to-kernel {
+      0% {
+        transform: translate3d(250px, 226px, 0) scale(0.96);
+        opacity: 0;
+      }
+      18%, 82% { opacity: 1; }
+      100% {
+        transform: translate3d(420px, 300px, 0) scale(0.96);
+        opacity: 0;
+      }
+    }
+
+    @keyframes pulse-dot {
+      from {
+        transform: scale(0.7);
+        opacity: 0.2;
+      }
+      45% {
+        transform: scale(1.25);
+        opacity: 1;
+      }
+      to {
+        transform: scale(0.7);
+        opacity: 0.2;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    @media (max-width: 1040px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .side-panel {
+        order: -1;
+      }
+
+      .board {
+        min-height: 720px;
+      }
+
+      .server,
+      .dispatcher {
+        right: 24px;
+      }
+
+      .steps {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: min(100% - 20px, 1280px);
+        padding-top: 14px;
+      }
+
+      .header {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        justify-content: stretch;
+      }
+
+      .toolbar .button,
+      .speed {
+        flex: 1 1 auto;
+      }
+
+      .board {
+        min-height: 980px;
+      }
+
+      .legend {
+        position: static;
+        margin: 10px;
+      }
+
+      .client-a,
+      .client-b,
+      .kernel,
+      .server,
+      .dispatcher {
+        left: 12px;
+        right: 12px;
+        width: auto;
+      }
+
+      .client-a { top: 130px; }
+      .kernel { top: 330px; }
+      .server { top: 510px; }
+      .dispatcher { top: 760px; bottom: auto; }
+      .client-b { display: none; }
+      .socket-layer,
+      .flow-packet,
+      .motion-caption { display: none; }
+      .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body data-step="0">
+  <main class="page">
+    <header class="header">
+      <div>
+        <h1>IRC server は socket programming の上に乗っている</h1>
+        <p class="lead">
+          IRC の `PASS`、`NICK`、`USER`、`PRIVMSG` は TCP に流れる文字列です。
+          socket programming は、その文字列を運ぶ接続、fd、`recv()`、`send()`、`poll()` を扱います。
+        </p>
+        <div class="flow-strip" aria-label="Socket programming flow">
+          <span>socket()</span>
+          <span>-&gt;</span>
+          <span>bind()</span>
+          <span>-&gt;</span>
+          <span>listen()</span>
+          <span>-&gt;</span>
+          <span>poll()</span>
+          <span>-&gt;</span>
+          <span>accept()</span>
+          <span>-&gt;</span>
+          <span>recv()</span>
+          <span>-&gt;</span>
+          <span class="irc-layer">IRC parse / dispatch</span>
+          <span>-&gt;</span>
+          <span>send()</span>
+          <span>-&gt;</span>
+          <span>close()</span>
+        </div>
+      </div>
+      <div class="toolbar" aria-label="Animation controls">
+        <button class="button" type="button" id="prev">Prev</button>
+        <button class="button primary" type="button" id="play">Pause</button>
+        <button class="button" type="button" id="next">Next</button>
+        <label class="speed">
+          Speed
+          <input id="speed" type="range" min="900" max="2600" value="1500" step="100">
+        </label>
+      </div>
+    </header>
+
+    <section class="layout" aria-label="IRC socket animation">
+      <div class="board" id="board">
+        <div class="legend" aria-label="Legend">
+          <div class="legend-row"><span class="dot listen"></span><span>listening socket: 新規接続を待つ fd</span></div>
+          <div class="legend-row"><span class="dot client"></span><span>client socket: accept 後の会話用 fd</span></div>
+          <div class="legend-row"><span class="dot bytes"></span><span>client bytes: IRC command text</span></div>
+          <div class="legend-row"><span class="dot reply"></span><span>server reply: numeric / message</span></div>
+        </div>
+
+        <svg class="socket-layer" viewBox="0 0 900 660" role="img" aria-label="Network paths between clients, kernel socket table, and IRC server">
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#64748b"></path>
+            </marker>
+          </defs>
+          <path class="network-line main" d="M 260 202 C 330 196, 365 214, 420 234"></path>
+          <path class="network-line main" d="M 560 252 C 620 244, 660 242, 720 248"></path>
+          <path class="network-line main" d="M 720 330 C 610 350, 500 348, 430 342"></path>
+          <path class="network-line main" d="M 430 342 C 350 398, 300 462, 260 520"></path>
+          <path class="network-line" d="M 260 200 C 340 190, 350 200, 420 230"></path>
+          <path class="network-line" d="M 560 250 C 640 230, 650 230, 720 240"></path>
+          <path class="network-line" d="M 260 520 C 340 510, 350 350, 420 300"></path>
+          <circle class="packet listen-pulse" cx="452" cy="230" r="8" fill="#2563eb"></circle>
+          <circle class="packet syn" cx="720" cy="240" r="9" fill="#0f766e"></circle>
+          <circle class="packet client-bytes" cx="720" cy="250" r="9"></circle>
+          <circle class="packet server-reply" cx="720" cy="250" r="9"></circle>
+          <circle class="packet close-pulse" cx="452" cy="300" r="8" fill="#b91c1c"></circle>
+        </svg>
+        <div class="motion-caption" id="motionCaption"></div>
+        <div class="flow-packet handshake">TCP SYN</div>
+        <div class="flow-packet bytes bytes-in">PASS/NICK</div>
+        <div class="flow-packet bytes parse-in">CRLF line</div>
+        <div class="flow-packet reply reply-out">PRIVMSG</div>
+        <div class="flow-packet close close-out">FIN/HUP</div>
+
+        <div class="scene">
+          <section class="node client-a" aria-label="Client A terminal">
+            <div class="node-header">
+              <span class="node-title">IRC client A</span>
+              <span>nc / irssi</span>
+            </div>
+            <div class="node-body">
+              <div class="terminal" id="clientTerminal"></div>
+            </div>
+          </section>
+
+          <section class="node client-b" aria-label="Client B terminal">
+            <div class="node-header">
+              <span class="node-title">IRC client B</span>
+              <span>same TCP server</span>
+            </div>
+            <div class="node-body">
+              <div class="terminal"><span class="muted">$ nc localhost 4242</span>
+<span class="send">PASS pass</span>
+<span class="send">NICK bob</span>
+<span class="send">USER bob 0 * :Bob</span>
+<span class="recv">:ft_irc 001 bob :Welcome</span></div>
+            </div>
+          </section>
+
+          <section class="node kernel" aria-label="Kernel socket table">
+            <div class="node-header">
+              <span class="node-title">OS kernel</span>
+              <span>fd table</span>
+            </div>
+            <div class="node-body kernel-grid">
+              <div class="fd-row fd-listen"><span class="fd">fd 3</span><span>listening socket</span><span class="chip">POLLIN</span></div>
+              <div class="fd-row fd-client-a"><span class="fd">fd 7</span><span>client A socket</span><span class="chip">rw</span></div>
+              <div class="fd-row fd-client-b"><span class="fd">fd 8</span><span>client B socket</span><span class="chip">rw</span></div>
+            </div>
+          </section>
+
+          <section class="node server" aria-label="IRC server loop">
+            <div class="node-header">
+              <span class="node-title">ircserv event loop</span>
+              <span>single process</span>
+            </div>
+            <div class="node-body">
+              <div class="server-loop">
+                <div class="loop-cell cell-socket"><p class="loop-name">socket()</p><p class="loop-desc">TCP endpoint を作る</p></div>
+                <div class="loop-cell cell-bind"><p class="loop-name">bind()</p><p class="loop-desc">port 4242 に名前を付ける</p></div>
+                <div class="loop-cell cell-listen"><p class="loop-name">listen()</p><p class="loop-desc">接続待ち queue を持つ</p></div>
+                <div class="loop-cell cell-poll"><p class="loop-name">poll()</p><p class="loop-desc">複数 fd を同時に監視</p></div>
+                <div class="loop-cell cell-accept"><p class="loop-name">accept()</p><p class="loop-desc">会話用 fd を追加</p></div>
+                <div class="loop-cell cell-recv"><p class="loop-name">recv()</p><p class="loop-desc">TCP bytes を読む</p></div>
+                <div class="loop-cell cell-parse"><p class="loop-name">buffer</p><p class="loop-desc">CRLF まで command にしない</p></div>
+                <div class="loop-cell cell-send"><p class="loop-name">send()</p><p class="loop-desc">reply を socket へ書く</p></div>
+              </div>
+              <div class="buffer">
+                <div class="buffer-label"><span>per-client input buffer</span><span id="bufferState">waiting</span></div>
+                <div class="buffer-line" id="bufferLine"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="node dispatcher" aria-label="IRC protocol dispatcher">
+            <div class="node-header">
+              <span class="node-title">IRC protocol layer</span>
+              <span>socket の上</span>
+            </div>
+            <div class="node-body dispatch-grid">
+              <div class="dispatch-card dispatch-parser"><p class="dispatch-title">Parser</p><p class="dispatch-text">`PRIVMSG #dev :hi` を command と params に分解</p></div>
+              <div class="dispatch-card dispatch-replies"><p class="dispatch-title">State + replies</p><p class="dispatch-text">nick、channel、operator、numeric を更新</p></div>
+              <div class="dispatch-card dispatch-cleanup"><p class="dispatch-title">Cleanup</p><p class="dispatch-text">disconnect 時に fd、nick、channel membership を消す</p></div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <aside class="side-panel" aria-live="polite">
+        <p class="step-kicker" id="stepKicker">Step 1 / 9</p>
+        <h2 id="stepTitle"></h2>
+        <p id="stepBody"></p>
+        <pre class="code-block" id="stepCode"></pre>
+        <ul class="notes" id="stepNotes"></ul>
+      </aside>
+    </section>
+
+    <section class="timeline" aria-label="Animation steps">
+      <div class="steps" id="steps"></div>
+    </section>
+  </main>
+
+  <script>
+    const steps = [
+      {
+        title: "listening socket を作る",
+        body: "IRC server は最初に TCP socket を作ります。この時点では IRC protocol はまだ出てきません。ただの OS fd です。",
+        code: "int fd = socket(AF_INET, SOCK_STREAM, 0);",
+        notes: ["socket は通信の入口になる fd を返す", "IRC の command はこの fd の上に流れる文字列"],
+        terminal: "$ ./ircserv 4242 pass\n# server prepares a TCP socket",
+        buffer: "",
+        bufferState: "empty",
+        motion: "通信はまだ始まっていません。server process が OS に TCP endpoint を作っている段階です。"
+      },
+      {
+        title: "bind で port に結びつける",
+        body: "bind は socket に IP address と port を割り当てます。localhost でも 0.0.0.0 でも、server は TCP port で接続を受けます。",
+        code: "bind(fd, 0.0.0.0:4242);",
+        notes: ["127.0.0.1 は自分の machine だけから接続", "0.0.0.0 は使える network interface 全体で待つ"],
+        terminal: "$ nc 127.0.0.1 4242\n# client chooses the server address and port",
+        buffer: "",
+        bufferState: "empty",
+        motion: "client は IP address と port を目標にします。まだ IRC command は流れていません。"
+      },
+      {
+        title: "listen で接続待ちにする",
+        body: "listen した fd は listening socket です。これは client と会話する fd ではなく、新規接続を受けるための fd です。",
+        code: "listen(fd, SOMAXCONN);",
+        notes: ["listening fd は accept のために残る", "client ごとの read/write は別 fd で行う"],
+        terminal: "$ nc localhost 4242\n# TCP handshake reaches the listening socket",
+        buffer: "",
+        bufferState: "empty",
+        motion: "listening socket は新規 TCP handshake を待つ入口です。会話用 fd はまだありません。"
+      },
+      {
+        title: "poll で複数 fd を監視する",
+        body: "ft_irc は fork せず、poll で listening socket と client sockets を同時に見ます。ここが non-blocking server の中心です。",
+        code: "poll(fds, nfds, -1);",
+        notes: ["POLLIN: 読める fd", "POLLOUT: 送れる fd", "POLLHUP: disconnect cleanup の入口"],
+        terminal: "poll: fd 3 waiting for POLLIN\npoll: client fds will be added later",
+        buffer: "",
+        bufferState: "waiting",
+        motion: "poll は fd 群を寝て待ちます。どれかの fd に動きが出た時だけ server code が進みます。"
+      },
+      {
+        title: "accept で client socket が増える",
+        body: "client が接続すると、accept は会話用の新しい fd を返します。server は listening fd を残したまま、この client fd を poll 対象に追加します。",
+        code: "int client_fd = accept(listen_fd, ...);\nset_nonblocking(client_fd);",
+        notes: ["fd 3 は新規接続用", "fd 7 は client A との会話用", "client が増えるほど fd が増える"],
+        terminal: "$ nc localhost 4242\n# connected as client A",
+        buffer: "",
+        bufferState: "empty",
+        motion: "TCP handshake が client から listening socket へ動き、accept 後に client 専用 fd が増えます。"
+      },
+      {
+        title: "recv は IRC command ではなく bytes を読む",
+        body: "TCP は stream なので、recv 1 回が IRC command 1 個とは限りません。途中で切れたり、複数 command がまとめて届いたりします。",
+        code: "recv(fd7, buf, sizeof(buf), 0);\n// \"PRIVMSG #dev :hel\"",
+        notes: ["partial command を早く parse しない", "複数行が来たら CRLF ごとに処理", "ここで input buffer が必要になる"],
+        terminal: "$ PRIVMSG #dev :hello\n# bytes may arrive as: \"PRIVMSG #dev :hel\"",
+        buffer: "PRIVMSG #dev :hel",
+        bufferState: "partial",
+        motion: "client が打った IRC 文字列は TCP bytes として kernel を通り、server の recv() に届きます。"
+      },
+      {
+        title: "CRLF まで buffer してから parse する",
+        body: "IRC command は CRLF で終わります。server は client ごとに buffer を持ち、\\r\\n が来たところで Parser に渡します。",
+        code: "buffer += recv_bytes;\nwhile (line = pop_until_CRLF(buffer))\n    dispatch(parse(line));",
+        notes: ["`PASS pa` だけでは command 未完了", "`\\r\\n` が来て初めて 1 command", "長い入力でも次の client を止めない"],
+        terminal: "$ PRIVMSG #dev :hello\\r\\n\n# now parser receives one complete IRC line",
+        buffer: "PRIVMSG #dev :hello\\r\\n",
+        bufferState: "complete",
+        motion: "recv() した bytes が input buffer に入り、CRLF が見えた瞬間に IRC parser へ渡ります。"
+      },
+      {
+        title: "IRC layer が state と reply を作る",
+        body: "Parser 後は IRC の仕事です。nick、channel、operator 権限を見て、numeric reply や PRIVMSG 配送を output queue に積みます。",
+        code: "dispatch(PRIVMSG, [\"#dev\", \"hello\"]);\nsend(fd, \":alice PRIVMSG #dev :hello\\r\\n\", ...);",
+        notes: ["socket layer は bytes を運ぶ", "IRC layer は command の意味を決める", "send も一度で全部送れるとは限らない"],
+        terminal: "< :alice PRIVMSG #dev :hello\n> :ft_irc 001 alice :Welcome",
+        buffer: "",
+        bufferState: "drained",
+        motion: "server が IRC の意味を解釈し、send() で reply bytes を別 client の socket へ流します。"
+      },
+      {
+        title: "disconnect で fd と IRC state を片付ける",
+        body: "recv が 0、POLLHUP、POLLERR、または quit が来たら cleanup します。socket fd だけでなく nick map や channel membership も消す必要があります。",
+        code: "close(fd7);\nremove_pollfd(fd7);\nremove_nick_and_channels(\"alice\");",
+        notes: ["fd leak は socket programming の bug", "nick/channel の残りは IRC protocol state の bug", "Valgrind と fd tracking で検出できる"],
+        terminal: "$ Ctrl-C / QUIT\n# server closes fd and removes IRC state",
+        buffer: "",
+        bufferState: "closed",
+        motion: "client close は FIN/HUP として fd に現れます。server は socket と IRC state の両方を片付けます。"
+      }
+    ];
+
+    const body = document.body;
+    const board = document.getElementById("board");
+    const stepKicker = document.getElementById("stepKicker");
+    const stepTitle = document.getElementById("stepTitle");
+    const stepBody = document.getElementById("stepBody");
+    const stepCode = document.getElementById("stepCode");
+    const stepNotes = document.getElementById("stepNotes");
+    const stepsRoot = document.getElementById("steps");
+    const clientTerminal = document.getElementById("clientTerminal");
+    const bufferLine = document.getElementById("bufferLine");
+    const bufferState = document.getElementById("bufferState");
+    const motionCaption = document.getElementById("motionCaption");
+    const playButton = document.getElementById("play");
+    const prevButton = document.getElementById("prev");
+    const nextButton = document.getElementById("next");
+    const speedInput = document.getElementById("speed");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let current = 0;
+    let timer = null;
+    let playing = !reduceMotion;
+    let visible = true;
+
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function terminalHtml(text) {
+      return escapeHtml(text)
+        .replace(/^(\$ .*?)$/gm, '<span class="send">$1</span>')
+        .replace(/^(&lt; .*?)$/gm, '<span class="recv">$1</span>')
+        .replace(/^(# .*?)$/gm, '<span class="muted">$1</span>');
+    }
+
+    function renderStepButtons() {
+      stepsRoot.innerHTML = steps.map((step, index) => (
+        `<button class="step" type="button" data-index="${index}" aria-label="Go to step ${index + 1}: ${escapeHtml(step.title)}">
+          <small>${String(index + 1).padStart(2, "0")}</small>
+          <span>${escapeHtml(step.title)}</span>
+        </button>`
+      )).join("");
+      stepsRoot.querySelectorAll(".step").forEach((button) => {
+        button.addEventListener("click", () => {
+          setStep(Number(button.dataset.index));
+          stop();
+        });
+      });
+    }
+
+    function setStep(index) {
+      current = (index + steps.length) % steps.length;
+      const step = steps[current];
+      body.dataset.step = String(current);
+      stepKicker.textContent = `Step ${current + 1} / ${steps.length}`;
+      stepTitle.textContent = step.title;
+      stepBody.textContent = step.body;
+      stepCode.textContent = step.code;
+      stepNotes.innerHTML = step.notes.map((note) => `<li>${escapeHtml(note)}</li>`).join("");
+      clientTerminal.innerHTML = terminalHtml(step.terminal);
+      bufferLine.textContent = step.buffer || " ";
+      bufferState.textContent = step.bufferState;
+      motionCaption.textContent = step.motion;
+      stepsRoot.querySelectorAll(".step").forEach((button, buttonIndex) => {
+        button.classList.toggle("active", buttonIndex === current);
+        button.setAttribute("aria-current", buttonIndex === current ? "step" : "false");
+      });
+    }
+
+    function schedule() {
+      clearTimeout(timer);
+      if (!playing || !visible) {
+        return;
+      }
+      timer = setTimeout(() => {
+        setStep(current + 1);
+        schedule();
+      }, Number(speedInput.value));
+    }
+
+    function play() {
+      playing = true;
+      playButton.textContent = "Pause";
+      body.classList.add("is-running");
+      schedule();
+    }
+
+    function stop() {
+      playing = false;
+      playButton.textContent = "Play";
+      body.classList.remove("is-running");
+      clearTimeout(timer);
+    }
+
+    playButton.addEventListener("click", () => {
+      if (playing) {
+        stop();
+      } else {
+        play();
+      }
+    });
+
+    prevButton.addEventListener("click", () => {
+      setStep(current - 1);
+      stop();
+    });
+
+    nextButton.addEventListener("click", () => {
+      setStep(current + 1);
+      stop();
+    });
+
+    speedInput.addEventListener("input", schedule);
+
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        visible = entries.some((entry) => entry.isIntersecting);
+        if (visible) {
+          schedule();
+        } else {
+          clearTimeout(timer);
+          body.classList.remove("is-running");
+        }
+      });
+      observer.observe(board);
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      visible = document.visibilityState === "visible";
+      if (visible && playing) {
+        body.classList.add("is-running");
+        schedule();
+      } else {
+        clearTimeout(timer);
+        body.classList.remove("is-running");
+      }
+    });
+
+    renderStepButtons();
+    setStep(0);
+    if (playing) {
+      play();
+    } else {
+      stop();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ft_irc を理解する — socket 通信アニメーション集</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --subtle: #e2e8f0;
+      --line: #cbd5e1;
+      --client: #2563eb;
+      --server: #0f766e;
+      --server-soft: #ccfbf1;
+      --net: #ea580c;
+      --reg: #7c3aed;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100dvh; background: radial-gradient(130% 130% at 50% 0%, #ffffff 0%, var(--bg) 55%); color: var(--ink); }
+    a { color: inherit; }
+    .page { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 36px 0 44px; }
+
+    /* hero */
+    .hero { text-align: center; margin-bottom: 14px; }
+    .hero h1 { margin: 0 0 8px; font-size: clamp(28px, 4.4vw, 46px); line-height: 1.08; text-wrap: balance; }
+    .hero p { margin: 0 auto; max-width: 640px; color: var(--muted); font-size: 16px; line-height: 1.65; }
+
+    /* animated mini wire */
+    .demo {
+      position: relative;
+      max-width: 760px;
+      margin: 26px auto 36px;
+      height: 130px;
+      border: 1px solid var(--subtle);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .demo .end {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+      padding: 12px 16px;
+      border-radius: 12px;
+      z-index: 2;
+    }
+    .demo .end.client { left: 22px; }
+    .demo .end.server { right: 22px; }
+    .demo .end .ic {
+      width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center;
+      font-size: 22px; color: #fff; box-shadow: 0 6px 14px rgba(15,23,42,0.16);
+    }
+    .demo .end.client .ic { background: var(--client); }
+    .demo .end.server .ic { background: var(--server); }
+    .demo .end .lb { font-size: 12px; font-weight: 800; color: var(--muted); }
+
+    .demo .wire {
+      position: absolute; top: 50%; left: 110px; right: 110px; height: 4px; transform: translateY(-50%);
+      background: linear-gradient(90deg, var(--client), var(--server)); border-radius: 4px; opacity: 0.85;
+    }
+    .demo .pkt {
+      position: absolute; top: 50%; left: 110px;
+      display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 999px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 800;
+      color: #fff; box-shadow: 0 6px 14px rgba(15,23,42,0.18); opacity: 0; white-space: nowrap; z-index: 3;
+    }
+    .demo .pkt.a { background: var(--client); animation: toR 3.2s ease-in-out infinite; }
+    .demo .pkt.b { background: var(--server); animation: toL 3.2s ease-in-out infinite 1.6s; }
+    @keyframes toR {
+      0% { left: 120px; opacity: 0; transform: translateY(-50%) scale(.8); }
+      12% { opacity: 1; transform: translateY(-50%) scale(1); }
+      85% { opacity: 1; }
+      100% { left: calc(100% - 230px); opacity: 0; transform: translateY(-50%) scale(.85); }
+    }
+    @keyframes toL {
+      0% { left: calc(100% - 230px); opacity: 0; transform: translateY(-50%) scale(.8); }
+      12% { opacity: 1; transform: translateY(-50%) scale(1); }
+      85% { opacity: 1; }
+      100% { left: 120px; opacity: 0; transform: translateY(-50%) scale(.85); }
+    }
+
+    .start-row { text-align: center; margin-bottom: 34px; }
+    .start-btn {
+      display: inline-flex; align-items: center; gap: 10px; padding: 13px 24px; border-radius: 12px;
+      background: var(--server); color: #fff; text-decoration: none; font-weight: 800; font-size: 16px;
+      box-shadow: 0 10px 22px rgba(15,118,110,0.28);
+    }
+    .start-btn:hover { background: #0b5f58; }
+    .start-hint { margin-top: 10px; color: var(--muted); font-size: 13px; }
+
+    .section-title { font-size: 15px; font-weight: 800; color: var(--muted); text-align: center; margin: 0 0 16px; letter-spacing: 0.04em; }
+
+    /* lesson cards */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+    .card {
+      position: relative; display: grid; gap: 8px; padding: 18px; border: 1px solid var(--subtle); border-radius: 16px;
+      background: var(--panel); box-shadow: var(--shadow); text-decoration: none; color: inherit;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 18px 36px rgba(15,23,42,0.13); border-color: var(--server); }
+    .card .num {
+      position: absolute; top: 16px; right: 16px; width: 30px; height: 30px; border-radius: 999px;
+      display: grid; place-items: center; background: #f1f5f9; color: var(--muted); font-weight: 800; font-size: 13px;
+    }
+    .card .ct { font-size: 19px; font-weight: 800; line-height: 1.2; padding-right: 36px; }
+    .card .cd { color: var(--muted); font-size: 13.5px; line-height: 1.55; }
+    .card .calls { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+    .card .calls span {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700;
+      padding: 3px 8px; border-radius: 999px; background: var(--server-soft); color: #134e4a;
+    }
+    .card .go { margin-top: 4px; font-weight: 800; font-size: 13px; color: var(--server); }
+
+    .card[data-accent="net"]:hover { border-color: var(--net); }
+    .card[data-accent="net"] .calls span { background: #ffedd5; color: #7c2d12; }
+    .card[data-accent="net"] .go { color: var(--net); }
+    .card[data-accent="client"]:hover { border-color: var(--client); }
+    .card[data-accent="client"] .calls span { background: #dbeafe; color: #1e3a8a; }
+    .card[data-accent="client"] .go { color: var(--client); }
+    .card[data-accent="reg"]:hover { border-color: var(--reg); }
+    .card[data-accent="reg"] .calls span { background: #ede9fe; color: #5b21b6; }
+    .card[data-accent="reg"] .go { color: var(--reg); }
+
+    .foot { margin-top: 30px; text-align: center; color: var(--muted); font-size: 12.5px; line-height: 1.6; }
+
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="hero">
+      <h1>ft_irc を理解する</h1>
+      <p>IRC サーバが <b>socket 通信</b>の上でどう動くかを、1 つずつアニメーションで。順番に見ると、バイトの流れからプロトコルまでつながります。</p>
+    </div>
+
+    <div class="demo" aria-hidden="true">
+      <div class="wire"></div>
+      <div class="end client"><div class="ic">💻</div><div class="lb">client</div></div>
+      <div class="end server"><div class="ic">🖥️</div><div class="lb">ircserv</div></div>
+      <span class="pkt a">PRIVMSG #dev :hi\r\n</span>
+      <span class="pkt b">:srv 001 :Welcome\r\n</span>
+    </div>
+
+    <div class="start-row">
+      <a class="start-btn" href="socket_story.html">▶ 最初から始める（socket の一生）</a>
+      <div class="start-hint">上から順に見るのがおすすめ。各ページから前後・一覧に移動できます。</div>
+    </div>
+
+    <p class="section-title">レッスン一覧</p>
+    <div class="grid" id="grid"></div>
+
+    <div class="foot">
+      ソースは <code>srcs/server/Server.cpp</code> ほか。各アニメは実際のコードの流れに沿っています。<br>
+      補足：旧版の <a href="irc_socket_animation.html">irc_socket_animation</a> / <a href="socket_io_animation.html">socket_io_animation</a> も残しています。
+    </div>
+  </main>
+
+  <script>
+    const lessons = [
+      {
+        file: "socket_story.html", accent: "server", title: "socket の一生",
+        desc: "通信路が1本できて、読んで、書いて、閉じるまで。全体像をまず掴む入口。",
+        calls: ["socket", "bind", "listen", "accept", "recv", "send", "close"]
+      },
+      {
+        file: "byte_order_animation.html", accent: "net", title: "htons / htonl",
+        desc: "CPU ごとに違うバイトの並びを、通信前にネットワーク順へそろえる。bind の前準備。",
+        calls: ["htons", "htonl", "sockaddr_in", "bind"]
+      },
+      {
+        file: "poll_loop_animation.html", accent: "server", title: "poll() ループ",
+        desc: "fork も thread も使わず、1プロセスで全 socket を監視。events と revents の分岐。",
+        calls: ["poll", "POLLIN", "POLLOUT", "POLLHUP"]
+      },
+      {
+        file: "fds_state_animation.html", accent: "server", title: "pollfds_ で状態を保つ",
+        desc: "fork/thread 無しの唯一の記憶が pollfds_ 配列。fds[0] が起点で、各エントリが events/revents を持つ。",
+        calls: ["pollfds_", "events", "revents", "push_back"]
+      },
+      {
+        file: "recv_send_animation.html", accent: "client", title: "recv / send",
+        desc: "TCP はバイトの流れ。1回の recv ≠ 1コマンド。CRLF で行にし、send は残りを持ち越す。",
+        calls: ["recv", "send", "inputBuffer_", "CRLF"]
+      },
+      {
+        file: "client_session_animation.html", accent: "reg", title: "ClientSession",
+        desc: "client 1人分の状態。行の組み立て・登録（PASS/NICK/USER）・出力キューを管理。",
+        calls: ["popNextLine", "registered_", "enqueueReply"]
+      },
+      {
+        file: "relay_animation.html", accent: "reg", title: "メッセージ中継",
+        desc: "alice の発言が bob に届くまで。受けた fd 7 と送る fd 8 は別。nickToFd_ と出力キュー＋POLLOUT が橋渡し。",
+        calls: ["broadcastToChannel", "nickToFd_", "sendToClient", "POLLOUT"]
+      }
+    ];
+
+    document.getElementById("grid").innerHTML = lessons.map((l, i) => (
+      `<a class="card" data-accent="${l.accent}" href="${l.file}">
+        <span class="num">${i + 1}</span>
+        <span class="ct">${l.title}</span>
+        <span class="cd">${l.desc}</span>
+        <span class="calls">${l.calls.map((c) => `<span>${c}</span>`).join("")}</span>
+        <span class="go">開く →</span>
+      </a>`
+    )).join("");
+  </script>
+</body>
+</html>

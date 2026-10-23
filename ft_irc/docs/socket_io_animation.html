@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>socket と read/write の組み合わせ</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #475569;
+      --subtle: #e2e8f0;
+      --line: #cbd5e1;
+      --accent: #0f766e;
+      --accent-soft: #ccfbf1;
+      --blue: #2563eb;
+      --blue-soft: #dbeafe;
+      --amber: #b45309;
+      --amber-soft: #fef3c7;
+      --ok: #15803d;
+      --ok-soft: #dcfce7;
+      --error: #b91c1c;
+      --error-soft: #fee2e2;
+      --code: #111827;
+      --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      --radius: 8px;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    button, input { font: inherit; }
+
+    .page {
+      width: min(1320px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 32px;
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 3.6vw, 38px);
+      line-height: 1.1;
+      text-wrap: balance;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+      text-wrap: pretty;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 4px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 8px 12px;
+      cursor: pointer;
+      box-shadow: 0 1px 1px rgba(15, 23, 42, 0.04);
+    }
+
+    .button:hover { border-color: var(--accent); }
+    .button.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .button:focus-visible, .speed input:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 2px; }
+
+    .speed {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--muted);
+    }
+
+    .speed input { width: 112px; accent-color: var(--accent); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .board, .side-panel, .timeline {
+      border: 1px solid var(--subtle);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .board {
+      position: relative;
+      padding: 16px;
+      min-height: 660px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 14px;
+    }
+
+    /* lifecycle track */
+    .track {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .stage {
+      position: relative;
+      min-height: 62px;
+      padding: 8px 9px;
+      border: 1px solid var(--subtle);
+      border-radius: 6px;
+      background: #f8fafc;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+
+    .stage .sn {
+      margin: 0 0 3px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .stage .sd {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+      text-wrap: pretty;
+    }
+
+    .stage.active { border-color: var(--accent); background: var(--accent-soft); }
+    .stage.active.s-read { border-color: var(--blue); background: var(--blue-soft); }
+    .stage.active.s-write { border-color: var(--ok); background: var(--ok-soft); }
+    .stage.active.s-close { border-color: var(--error); background: var(--error-soft); }
+
+    /* the fd actor: the unifying object */
+    .fd-stage {
+      display: grid;
+      grid-template-columns: 188px 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .fd-card {
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      background: #ffffff;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+    }
+
+    .fd-card .fd-id {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .fd-card .fd-role {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .fd-cap {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .cap {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #94a3b8;
+      border: 1px solid var(--subtle);
+    }
+
+    .cap.on { background: var(--blue-soft); color: #1e3a8a; border-color: #93c5fd; }
+    .cap.on.w { background: var(--ok-soft); color: #14532d; border-color: #86efac; }
+
+    .fd-card.born { border-color: var(--accent); box-shadow: 0 6px 18px rgba(15,118,110,0.16); }
+    .fd-card.reading { border-color: var(--blue); box-shadow: 0 6px 18px rgba(37,99,235,0.16); }
+    .fd-card.writing { border-color: var(--ok); box-shadow: 0 6px 18px rgba(21,128,61,0.16); }
+    .fd-card.closed { border-color: var(--error); background: #fef2f2; opacity: 0.75; }
+
+    .fd-tag {
+      display: inline-flex;
+      align-self: start;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      color: #134e4a;
+    }
+    .fd-card.closed .fd-tag { background: var(--error-soft); color: #7f1d1d; }
+
+    /* detail panel: layers + bytes */
+    .detail {
+      border: 1px solid var(--subtle);
+      border-radius: 10px;
+      padding: 12px;
+      background: #f8fafc;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 10px;
+    }
+
+    .layers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .layer {
+      border: 1px solid var(--subtle);
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: #ffffff;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+
+    .layer .ln {
+      margin: 0 0 2px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .layer .ld {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+      text-wrap: pretty;
+    }
+
+    .layer.socket.hot { border-color: var(--accent); background: var(--accent-soft); }
+    .layer.irc.hot { border-color: var(--amber); background: var(--amber-soft); }
+
+    .bytes-box { display: grid; gap: 8px; align-content: start; }
+
+    .bytes-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .bytes-meta code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: var(--ink);
+    }
+
+    .bstate {
+      font-weight: 700;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--subtle);
+      color: var(--muted);
+    }
+    .bstate.in { background: var(--blue-soft); color: #1e3a8a; }
+    .bstate.out { background: var(--ok-soft); color: #14532d; }
+    .bstate.partial { background: var(--amber-soft); color: #78350f; }
+    .bstate.idle { background: #f1f5f9; color: #94a3b8; }
+
+    .byte-strip {
+      display: flex;
+      flex-wrap: wrap;
+      min-height: 44px;
+      padding: 8px;
+      border-radius: 8px;
+      background: #0f172a;
+      align-content: flex-start;
+    }
+
+    .seg {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 7px;
+      margin: 2px;
+      border-radius: 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: pre;
+      transition: opacity 240ms ease, transform 240ms ease;
+    }
+
+    .seg.pending { background: #1e293b; color: #cbd5e1; }
+    .seg.crlf { background: #334155; color: #93c5fd; }
+    .seg.complete { background: var(--ok-soft); color: #14532d; }
+    .seg.partial { background: var(--amber-soft); color: #78350f; outline: 2px dashed var(--amber); outline-offset: -2px; }
+    .seg.sent { background: #1e293b; color: #475569; text-decoration: line-through; }
+    .seg.remaining { background: var(--ok-soft); color: #14532d; }
+    .seg.in { background: var(--blue-soft); color: #1e3a8a; }
+    .seg.arriving { animation: seg-in 360ms ease-out; }
+
+    @keyframes seg-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .flow-note {
+      display: inline-flex;
+      align-self: start;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: #ffffff;
+      border: 1px solid var(--subtle);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .flow-note .dir {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 800;
+    }
+    .flow-note.read .dir { color: var(--blue); }
+    .flow-note.write .dir { color: var(--ok); }
+
+    .side-panel { padding: 16px; }
+
+    .step-kicker {
+      margin: 0 0 6px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .side-panel h2 { margin: 0 0 10px; font-size: 23px; line-height: 1.15; text-wrap: balance; }
+    .side-panel p { margin: 0 0 14px; color: var(--muted); line-height: 1.65; text-wrap: pretty; }
+
+    .code-block {
+      margin: 0 0 14px;
+      overflow: auto;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .code-block .hl { color: #fbbf24; }
+    .code-block .cm { color: #94a3b8; }
+
+    .notes { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .notes li {
+      display: grid;
+      grid-template-columns: 20px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .notes li::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      margin-top: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .timeline { margin-top: 16px; padding: 10px; }
+    .steps { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+    .step {
+      min-height: 58px;
+      border: 1px solid var(--subtle);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 8px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .step.active { border-color: var(--accent); background: var(--accent-soft); }
+    .step small {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+    .step span { display: block; color: var(--ink); font-size: 12px; font-weight: 800; line-height: 1.2; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; }
+    }
+
+    @media (max-width: 1040px) {
+      .layout { grid-template-columns: 1fr; }
+      .side-panel { order: -1; }
+      .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .fd-stage { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .header { grid-template-columns: 1fr; }
+      .toolbar { justify-content: stretch; }
+      .toolbar .button, .speed { flex: 1 1 auto; }
+      .track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .layers { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body data-step="0">
+  <main class="page">
+    <header class="header">
+      <div>
+        <h1>socket と read/write の組み合わせ</h1>
+        <p class="lead">
+          <code>socket()</code> が作るのは <b>1 本の fd</b> です。<code>recv()</code> / <code>send()</code> は、その同じ fd に対する
+          <b>読み・書き</b>に過ぎません。socket programming は fd の<b>一生</b>（生成 → 接続 → 会話 → 後始末）を扱い、
+          IRC はその上に流れる文字列を扱う。主役の <code>fd 7</code> を追いかけると両者の関係が見えます。
+        </p>
+      </div>
+      <div class="toolbar" aria-label="Animation controls">
+        <button class="button" type="button" id="prev">Prev</button>
+        <button class="button primary" type="button" id="play">Pause</button>
+        <button class="button" type="button" id="next">Next</button>
+        <label class="speed">
+          Speed
+          <input id="speed" type="range" min="1000" max="3200" value="2100" step="100">
+        </label>
+      </div>
+    </header>
+
+    <section class="layout" aria-label="socket and IO animation">
+      <div class="board" id="board">
+        <!-- lifecycle track -->
+        <div class="track" aria-label="socket fd lifecycle">
+          <div class="stage s-create">
+            <p class="sn">socket / bind / listen</p>
+            <p class="sd">通信の入口になる fd を用意</p>
+          </div>
+          <div class="stage s-accept">
+            <p class="sn">accept()</p>
+            <p class="sd">接続ごとに会話用 fd が誕生</p>
+          </div>
+          <div class="stage s-read">
+            <p class="sn">recv()</p>
+            <p class="sd">fd から読む（byte stream）</p>
+          </div>
+          <div class="stage s-write">
+            <p class="sn">send()</p>
+            <p class="sd">同じ fd へ書く（返信）</p>
+          </div>
+          <div class="stage s-close">
+            <p class="sn">close()</p>
+            <p class="sd">fd を閉じて後始末</p>
+          </div>
+        </div>
+
+        <!-- fd actor + detail -->
+        <div class="fd-stage">
+          <div class="fd-card" id="fdCard">
+            <span class="fd-tag" id="fdTag">—</span>
+            <span class="fd-id" id="fdId">fd ?</span>
+            <span class="fd-role" id="fdRole"></span>
+            <div class="fd-cap">
+              <span class="cap" id="capRead">read</span>
+              <span class="cap w" id="capWrite">write</span>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div class="layers">
+              <div class="layer socket" id="layerSocket">
+                <p class="ln">socket layer</p>
+                <p class="ld">fd・接続・recv/send・close を扱う</p>
+              </div>
+              <div class="layer irc" id="layerIrc">
+                <p class="ln">IRC layer</p>
+                <p class="ld">バイト列を command の意味に変える</p>
+              </div>
+            </div>
+            <div class="flow-note" id="flowNote"><span class="dir">·</span><span id="flowText">—</span></div>
+          </div>
+        </div>
+
+        <!-- byte detail -->
+        <div class="detail" style="background:#fff;">
+          <div class="bytes-meta">
+            <span><code id="bufName">buffer</code></span>
+            <span class="bstate idle" id="bufState">idle</span>
+          </div>
+          <div class="byte-strip" id="byteStrip"></div>
+        </div>
+      </div>
+
+      <aside class="side-panel" aria-live="polite">
+        <p class="step-kicker" id="stepKicker">Step 1 / 8</p>
+        <h2 id="stepTitle"></h2>
+        <p id="stepBody"></p>
+        <pre class="code-block" id="stepCode"></pre>
+        <ul class="notes" id="stepNotes"></ul>
+      </aside>
+    </section>
+
+    <section class="timeline" aria-label="Animation steps">
+      <div class="steps" id="steps"></div>
+    </section>
+  </main>
+
+  <script>
+    function s(t, k) { return { t, k }; }
+    const CRLF = s("\\r\\n", "crlf");
+
+    // stage: which lifecycle box lights up (create|accept|read|write|close)
+    // fdState: born|reading|writing|closed|idle ; tag/id/role/caps describe the fd card
+    // layer: "socket" | "irc" | "both" — which layer is hot
+    // flow: { dir, text } small annotation
+    // buf: { name, state:[cls,label], segs:[...] }
+    const steps = [
+      {
+        stage: "create",
+        title: "socket() — まず fd を作る",
+        body: "サーバは socket(AF_INET, SOCK_STREAM, 0) で 1 本の fd を作り、bind で port 4242 に結び、listen で接続待ちにします。この listening fd(fd 3) はまだ会話しません。新しい接続を受け取るための入口です。",
+        code: 'serverFd_ = socket(AF_INET, SOCK_STREAM, 0);\nbind(serverFd_, 0.0.0.0:4242);\nlisten(serverFd_, SOMAXCONN);',
+        notes: [
+          "socket() が返すのは ただの fd（整数）",
+          "listening fd は accept 専用、会話は別 fd",
+          "まだ IRC の文字列は 1 バイトも流れていない"
+        ],
+        fdState: "born", fdTag: "listening", fdId: "fd 3", fdRole: "listening socket — 新規接続を待つ入口",
+        capRead: false, capWrite: false,
+        layer: "socket",
+        flow: ["·", "fd を用意しただけ。データの流れはまだ無い"],
+        buf: ["—", ["idle", "no data"], []]
+      },
+      {
+        stage: "accept",
+        title: "accept() — 会話用の fd 7 が誕生",
+        body: "client が接続すると accept() が新しい fd(fd 7) を返します。ここから先、この client との読み書きはすべて fd 7 に対して行います。socket programming の主役がここで生まれます。",
+        code: 'int clientFd = accept(serverFd_, ...);\nsetNonBlocking(clientFd);\n<span class="cm">// clientFd = 7  ← この client 専用</span>',
+        notes: [
+          "接続 1 本ごとに fd が 1 本生まれる",
+          "fd 7 = この client との通信路",
+          "listening fd 3 はそのまま次の接続を待つ"
+        ],
+        fdState: "born", fdTag: "new", fdId: "fd 7", fdRole: "client socket — この client との会話路が誕生",
+        capRead: true, capWrite: true,
+        layer: "socket",
+        flow: ["+", "fd 7 が生まれた。これから読み書きの対象になる"],
+        buf: ["inputBuffer_ (fd 7)", ["idle", "empty"], []]
+      },
+      {
+        stage: "read",
+        title: "recv() — fd 7 から「読む」",
+        body: "client がコマンドを送ると、fd 7 が読める状態になります。recv(fd7, ...) でバイトを読みますが、TCP はストリームなので途中までしか来ないこともあります。read とはこの「fd からバイトを取り出す」操作です。",
+        code: 'received = recv(<span class="hl">fd7</span>, buffer, sizeof(buffer), 0);\n<span class="cm">// "PRIVMSG #dev :hel" ← 途中まで</span>',
+        notes: [
+          "recv = fd から読む（戻り値はバイト数）",
+          "socket は同じ fd 7、向きが「読み」",
+          "1 recv ≠ 1 コマンド"
+        ],
+        fdState: "reading", fdTag: "readable", fdId: "fd 7", fdRole: "client socket — 読み込み可能 (POLLIN)",
+        capRead: true, capWrite: true, capReadOn: true,
+        layer: "socket",
+        flow: ["read", "client → fd 7 → recv() でバイトを読む"],
+        buf: ["inputBuffer_ (fd 7)", ["in", "受信中"], [s("PRIVMSG #dev :hel", "in", true)]]
+      },
+      {
+        stage: "read",
+        title: "バッファして CRLF で行に切る（IRC layer へ橋渡し）",
+        body: "読めたバイトは inputBuffer_ に溜め、\\n が来た行だけ popNextLine で切り出します。ここが socket layer と IRC layer の境界です。socket は「バイト」を運び、IRC は「完成した行」を受け取ります。",
+        code: 'appendInput(chunk);\nwhile (popNextLine(line))\n  dispatcher_.dispatch(client,\n    CommandParser::parseLine(line));',
+        notes: [
+          "socket layer: バイトを溜める / framing",
+          "IRC layer: 完成した行を command として解釈",
+          "半端な行はバッファに残して次の recv を待つ"
+        ],
+        fdState: "reading", fdTag: "framing", fdId: "fd 7", fdRole: "client socket — バイト列を行に整形",
+        capRead: true, capWrite: true, capReadOn: true,
+        layer: "both",
+        flow: ["read", "バイト → CRLF で行 → IRC layer が意味を付ける"],
+        buf: ["inputBuffer_ (fd 7)", ["partial", "1 行完成 + 残り"], [
+          s("PRIVMSG #dev :hello", "complete"), s("NICK al", "partial")
+        ]]
+      },
+      {
+        stage: "write",
+        title: "返信を出力バッファに積む",
+        body: "IRC layer が作った返信（numeric や配送する PRIVMSG）は、すぐ送らず outputBuffers_[fd7] に積みます。送信は fd 7 が「書ける」状態(POLLOUT)になってから。socket layer に戻ってきました。",
+        code: 'queuePendingReplies(<span class="hl">fd7</span>);\n<span class="cm">// outputBuffers_[fd7] +=</span>\n<span class="cm">//   ":ft_irc 001 alice :Welcome\\r\\n"</span>',
+        notes: [
+          "IRC layer が中身（文字列）を決める",
+          "socket layer が同じ fd 7 へ送る準備",
+          "送信待ちがある fd だけ POLLOUT を立てる"
+        ],
+        fdState: "writing", fdTag: "queued", fdId: "fd 7", fdRole: "client socket — 送信待ちデータあり",
+        capRead: true, capWrite: true, capWriteOn: true,
+        layer: "both",
+        flow: ["write", "IRC が返信を作る → 出力バッファに積む"],
+        buf: ["outputBuffers_[fd7]", ["out", "送信待ち"], [s(":ft_irc 001 alice :Welcome", "remaining", true), CRLF]]
+      },
+      {
+        stage: "write",
+        title: "send() — 同じ fd 7 へ「書く」",
+        body: "fd 7 が書ける状態になったら send(fd7, ...) で出力バッファを書き出します。recv と対称で、これは「fd へバイトを押し込む」操作。send も部分送信があるので、送れた分だけ erase して残りは次回送ります。",
+        code: 'sent = send(<span class="hl">fd7</span>, buffer.c_str(), buffer.size(), 0);\nif (sent > 0) buffer.erase(0, sent); <span class="cm">// 残りは次回</span>',
+        notes: [
+          "send = fd へ書く（同じ fd 7、向きが「書き」）",
+          "戻り値は送れたバイト数（部分送信あり）",
+          "EAGAIN なら次の POLLOUT を待つ"
+        ],
+        fdState: "writing", fdTag: "writable", fdId: "fd 7", fdRole: "client socket — 書き込み可能 (POLLOUT)",
+        capRead: true, capWrite: true, capWriteOn: true,
+        layer: "socket",
+        flow: ["write", "fd 7 → client へ send() でバイトを書く"],
+        buf: ["outputBuffers_[fd7]", ["partial", "一部送信済"], [
+          s(":ft_irc 001 ", "sent"), s("alice :Welcome", "remaining"), CRLF
+        ]]
+      },
+      {
+        stage: "close",
+        title: "close() — fd 7 の一生を終える",
+        body: "recv が 0、または POLLHUP/POLLERR が来たら closeClient(fd7)。close() で fd を閉じ、pollfds_ から外し、出力バッファも消します。さらに IRC layer の nick / channel 状態も片付けます。socket と IRC、両方の後始末が要ります。",
+        code: 'close(<span class="hl">fd7</span>);\nremovePollFd(fd7);\noutputBuffers_.erase(fd7);\n<span class="cm">// + nick / channel など IRC state も削除</span>',
+        notes: [
+          "fd を閉じ忘れると fd leak（socket バグ）",
+          "nick/channel を消し忘れると IRC state バグ",
+          "fd 7 の一生: 生成 → 読み → 書き → close"
+        ],
+        fdState: "closed", fdTag: "closed", fdId: "fd 7", fdRole: "client socket — クローズ済み",
+        capRead: false, capWrite: false,
+        layer: "both",
+        flow: ["·", "fd 7 を閉じ、socket と IRC の状態を両方掃除"],
+        buf: ["outputBuffers_[fd7]", ["idle", "erased"], []]
+      },
+      {
+        stage: "create",
+        title: "まとめ — 1 本の fd を read/write でやり取りする",
+        body: "socket programming は fd の一生を管理する仕事です。socket()/accept() で fd を得て、recv() で読み、send() で書き、close() で閉じる。IRC はその fd に流れるバイト列を意味に変える上のレイヤー。同じ fd 7 を読み書きしているのが核心です。",
+        code: 'fd = accept(...);   <span class="cm">// 生成</span>\nrecv(fd, ...);      <span class="cm">// 読み</span>\nsend(fd, ...);      <span class="cm">// 書き</span>\nclose(fd);          <span class="cm">// 後始末</span>',
+        notes: [
+          "recv/send は「同じ fd の読み・書き」",
+          "socket layer = 運ぶ、IRC layer = 意味づけ",
+          "poll() がどの fd を読み書きすべきか教えてくれる"
+        ],
+        fdState: "idle", fdTag: "fd 7 の一生", fdId: "fd 7", fdRole: "生成 → recv → send → close",
+        capRead: true, capWrite: true,
+        layer: "both",
+        flow: ["·", "socket = fd の一生 / recv・send = その読み書き"],
+        buf: ["—", ["idle", "—"], []]
+      }
+    ];
+
+    const body = document.body;
+    const board = document.getElementById("board");
+    const stepKicker = document.getElementById("stepKicker");
+    const stepTitle = document.getElementById("stepTitle");
+    const stepBody = document.getElementById("stepBody");
+    const stepCode = document.getElementById("stepCode");
+    const stepNotes = document.getElementById("stepNotes");
+    const stepsRoot = document.getElementById("steps");
+    const fdCard = document.getElementById("fdCard");
+    const fdTag = document.getElementById("fdTag");
+    const fdId = document.getElementById("fdId");
+    const fdRole = document.getElementById("fdRole");
+    const capRead = document.getElementById("capRead");
+    const capWrite = document.getElementById("capWrite");
+    const layerSocket = document.getElementById("layerSocket");
+    const layerIrc = document.getElementById("layerIrc");
+    const flowNote = document.getElementById("flowNote");
+    const flowText = document.getElementById("flowText");
+    const bufName = document.getElementById("bufName");
+    const bufState = document.getElementById("bufState");
+    const byteStrip = document.getElementById("byteStrip");
+    const playButton = document.getElementById("play");
+    const prevButton = document.getElementById("prev");
+    const nextButton = document.getElementById("next");
+    const speedInput = document.getElementById("speed");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let current = 0;
+    let timer = null;
+    let playing = !reduceMotion;
+    let visible = true;
+
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+      }[char]));
+    }
+
+    function segHtml(seg) {
+      const enter = seg.arriving ? " arriving" : "";
+      return `<span class="seg ${seg.k}${enter}">${escapeHtml(seg.t)}</span>`;
+    }
+
+    function renderStrip(segs) {
+      byteStrip.innerHTML = (!segs || segs.length === 0)
+        ? `<span class="seg pending" style="background:transparent;color:#475569;">（空）</span>`
+        : segs.map(segHtml).join("");
+    }
+
+    function renderStepButtons() {
+      stepsRoot.innerHTML = steps.map((step, index) => (
+        `<button class="step" type="button" data-index="${index}" aria-label="Go to step ${index + 1}: ${escapeHtml(step.title)}">
+          <small>${String(index + 1).padStart(2, "0")}</small>
+          <span>${escapeHtml(step.title)}</span>
+        </button>`
+      )).join("");
+      stepsRoot.querySelectorAll(".step").forEach((button) => {
+        button.addEventListener("click", () => { setStep(Number(button.dataset.index)); stop(); });
+      });
+    }
+
+    const FD_STATE_CLASS = ["born", "reading", "writing", "closed"];
+
+    function setStep(index) {
+      current = (index + steps.length) % steps.length;
+      const step = steps[current];
+      body.dataset.step = String(current);
+      stepKicker.textContent = `Step ${current + 1} / ${steps.length}`;
+      stepTitle.textContent = step.title;
+      stepBody.textContent = step.body;
+      stepCode.innerHTML = step.code;
+      stepNotes.innerHTML = step.notes.map((n) => `<li>${escapeHtml(n)}</li>`).join("");
+
+      // lifecycle track
+      board.querySelectorAll(".stage").forEach((el) => el.classList.remove("active"));
+      const stage = board.querySelector(".s-" + step.stage);
+      if (stage) stage.classList.add("active");
+
+      // fd card
+      FD_STATE_CLASS.forEach((c) => fdCard.classList.remove(c));
+      if (step.fdState && step.fdState !== "idle") fdCard.classList.add(step.fdState);
+      fdTag.textContent = step.fdTag;
+      fdId.textContent = step.fdId;
+      fdRole.textContent = step.fdRole;
+      capRead.classList.toggle("on", !!step.capReadOn);
+      capWrite.classList.toggle("on", !!step.capWriteOn);
+      capRead.style.opacity = step.capRead ? "1" : "0.4";
+      capWrite.style.opacity = step.capWrite ? "1" : "0.4";
+
+      // layers
+      layerSocket.classList.toggle("hot", step.layer === "socket" || step.layer === "both");
+      layerIrc.classList.toggle("hot", step.layer === "irc" || step.layer === "both");
+
+      // flow note
+      flowNote.classList.remove("read", "write");
+      if (step.flow[0] === "read") flowNote.classList.add("read");
+      if (step.flow[0] === "write") flowNote.classList.add("write");
+      flowNote.querySelector(".dir").textContent = step.flow[0];
+      flowText.textContent = step.flow[1];
+
+      // bytes
+      bufName.textContent = step.buf[0];
+      const [bcls, blabel] = step.buf[1];
+      bufState.className = "bstate " + bcls;
+      bufState.textContent = blabel;
+      renderStrip(step.buf[2]);
+
+      stepsRoot.querySelectorAll(".step").forEach((b, i) => {
+        b.classList.toggle("active", i === current);
+        b.setAttribute("aria-current", i === current ? "step" : "false");
+      });
+    }
+
+    function schedule() {
+      clearTimeout(timer);
+      if (!playing || !visible) return;
+      timer = setTimeout(() => { setStep(current + 1); schedule(); }, Number(speedInput.value));
+    }
+
+    function play() { playing = true; playButton.textContent = "Pause"; schedule(); }
+    function stop() { playing = false; playButton.textContent = "Play"; clearTimeout(timer); }
+
+    playButton.addEventListener("click", () => { playing ? stop() : play(); });
+    prevButton.addEventListener("click", () => { setStep(current - 1); stop(); });
+    nextButton.addEventListener("click", () => { setStep(current + 1); stop(); });
+    speedInput.addEventListener("input", schedule);
+
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        visible = entries.some((e) => e.isIntersecting);
+        if (visible) schedule(); else clearTimeout(timer);
+      });
+      observer.observe(board);
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      visible = document.visibilityState === "visible";
+      if (visible && playing) schedule(); else clearTimeout(timer);
+    });
+
+    renderStepButtons();
+    setStep(0);
+    playing ? play() : stop();
+  </script>
+</body>
+</html>

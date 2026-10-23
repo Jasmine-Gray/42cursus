@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>poll() ループと pollfd の流れ</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #475569;
+      --subtle: #e2e8f0;
+      --line: #cbd5e1;
+      --accent: #0f766e;
+      --accent-soft: #ccfbf1;
+      --blue: #2563eb;
+      --blue-soft: #dbeafe;
+      --warn: #b45309;
+      --warn-soft: #fef3c7;
+      --ok: #15803d;
+      --ok-soft: #dcfce7;
+      --error: #b91c1c;
+      --error-soft: #fee2e2;
+      --code: #111827;
+      --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      --radius: 8px;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    button, input { font: inherit; }
+
+    .page {
+      width: min(1280px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 32px;
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 3.6vw, 38px);
+      line-height: 1.1;
+      text-wrap: balance;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+      text-wrap: pretty;
+    }
+
+    .flow-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .flow-strip span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border: 1px solid var(--subtle);
+      border-radius: 999px;
+      background: var(--panel);
+      padding: 5px 9px;
+      white-space: nowrap;
+    }
+
+    .flow-strip .hot {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 4px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      padding: 8px 12px;
+      cursor: pointer;
+      box-shadow: 0 1px 1px rgba(15, 23, 42, 0.04);
+    }
+
+    .button:hover { border-color: var(--accent); }
+
+    .button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .button:focus-visible,
+    .speed input:focus-visible {
+      outline: 3px solid var(--accent-soft);
+      outline-offset: 2px;
+    }
+
+    .speed {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--muted);
+    }
+
+    .speed input {
+      width: 112px;
+      accent-color: var(--accent);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .board,
+    .side-panel,
+    .timeline {
+      border: 1px solid var(--subtle);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .board {
+      position: relative;
+      padding: 16px;
+      min-height: 660px;
+    }
+
+    .board-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .board-title h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .board-title code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* poll() phase indicator */
+    .phases {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .phase {
+      position: relative;
+      min-height: 58px;
+      padding: 8px 9px;
+      border: 1px solid var(--subtle);
+      border-radius: 6px;
+      background: #f8fafc;
+      transition: border-color 160ms ease, background 160ms ease;
+    }
+
+    .phase .pn {
+      margin: 0 0 3px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .phase .pd {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+      text-wrap: pretty;
+    }
+
+    .phase.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .phase.active::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -10px;
+      width: 12px;
+      height: 12px;
+      background: var(--accent-soft);
+      border-right: 1px solid var(--accent);
+      border-bottom: 1px solid var(--accent);
+      transform: translateX(-50%) rotate(45deg);
+    }
+
+    /* pollfd table */
+    .pollfds {
+      border: 1px solid var(--subtle);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .pollfd-head,
+    .pollfd-row {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, 2fr);
+      gap: 8px;
+      align-items: center;
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+
+    .pollfd-head {
+      background: #0f172a;
+      color: #e5e7eb;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pollfd-row {
+      border-top: 1px solid var(--subtle);
+      background: #ffffff;
+      transition: background 160ms ease, opacity 220ms ease, transform 220ms ease;
+    }
+
+    .pollfd-row .fd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pollfd-row .kind {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .flag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 30px;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--subtle);
+      color: var(--muted);
+      margin-right: 4px;
+    }
+
+    .flag.in { background: var(--blue-soft); color: #1e3a8a; }
+    .flag.out { background: var(--warn-soft); color: #78350f; }
+    .flag.hup { background: var(--error-soft); color: #7f1d1d; }
+    .flag.zero { background: #f1f5f9; color: #94a3b8; }
+
+    .pollfd-row.fired {
+      background: var(--accent-soft);
+    }
+
+    .pollfd-row.dispatch {
+      background: var(--ok-soft);
+    }
+
+    .pollfd-row.dim { opacity: 0.4; }
+
+    .pollfd-row.entering {
+      animation: row-in 360ms ease-out;
+    }
+
+    @keyframes row-in {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .action-note {
+      grid-column: 5;
+      justify-self: start;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      color: var(--muted);
+      opacity: 0;
+      transition: opacity 200ms ease;
+    }
+
+    .pollfd-row.fired .action-note,
+    .pollfd-row.dispatch .action-note { opacity: 1; }
+    .pollfd-row.dispatch .action-note { color: var(--ok); font-weight: 700; }
+    .pollfd-row.fired .action-note { color: var(--accent); font-weight: 700; }
+
+    /* branch diagram */
+    .branch {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .branch-card {
+      min-height: 92px;
+      padding: 10px;
+      border: 1px solid var(--subtle);
+      border-radius: 6px;
+      background: #f8fafc;
+      transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+    }
+
+    .branch-card .cond {
+      margin: 0 0 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .branch-card .act {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      text-wrap: pretty;
+    }
+
+    .branch-card .act b { color: var(--ink); }
+
+    .branch-card.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: 0 6px 16px rgba(15, 118, 110, 0.18);
+    }
+
+    .branch-card.b-accept.active { border-color: var(--blue); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.18); background: var(--blue-soft); }
+    .branch-card.b-close.active { border-color: var(--error); box-shadow: 0 6px 16px rgba(185, 28, 28, 0.18); background: var(--error-soft); }
+
+    .sleep-badge {
+      position: absolute;
+      right: 18px;
+      top: 76px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.95);
+      color: var(--muted);
+      font-size: 13px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 200ms ease, transform 200ms ease;
+      pointer-events: none;
+    }
+
+    .sleep-badge .z {
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: 2px;
+    }
+
+    body[data-step="2"] .sleep-badge {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    body.is-running[data-step="2"] .sleep-badge .z {
+      animation: blink 1200ms ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    .side-panel { padding: 16px; }
+
+    .step-kicker {
+      margin: 0 0 6px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .side-panel h2 {
+      margin: 0 0 10px;
+      font-size: 23px;
+      line-height: 1.15;
+      text-wrap: balance;
+    }
+
+    .side-panel p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.65;
+      text-wrap: pretty;
+    }
+
+    .code-block {
+      margin: 0 0 14px;
+      overflow: auto;
+      border-radius: 8px;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .code-block .hl { color: #fbbf24; }
+    .code-block .cm { color: #94a3b8; }
+
+    .notes {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .notes li {
+      display: grid;
+      grid-template-columns: 20px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .notes li::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      margin-top: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .timeline {
+      margin-top: 16px;
+      padding: 10px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .step {
+      min-height: 58px;
+      border: 1px solid var(--subtle);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 8px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .step.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .step small {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .step span {
+      display: block;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+
+    @media (max-width: 1040px) {
+      .layout { grid-template-columns: 1fr; }
+      .side-panel { order: -1; }
+      .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .branch { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .header { grid-template-columns: 1fr; }
+      .toolbar { justify-content: stretch; }
+      .toolbar .button, .speed { flex: 1 1 auto; }
+      .phases { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pollfd-head, .pollfd-row { grid-template-columns: 48px 1fr 1fr; }
+      .pollfd-head span:nth-child(4),
+      .pollfd-head span:nth-child(5),
+      .pollfd-row .kind,
+      .action-note { display: none; }
+      .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body data-step="0">
+  <main class="page">
+    <style>.lnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;padding:8px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;box-shadow:0 6px 16px rgba(15,23,42,.06);font-size:13px}.lnav a{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;text-decoration:none;color:#0f172a;border:1px solid #e2e8f0;background:#fff;white-space:nowrap}.lnav a:hover{border-color:#0f766e;color:#0f766e}.lnav .home{background:#0f172a;color:#fff;border-color:#0f172a;font-weight:700}.lnav .pos{color:#64748b;font-weight:700}.lnav .sp{flex:1 1 auto}.lnav a.off{opacity:.3;pointer-events:none}@media(max-width:600px){.lnav .pos{display:none}}</style>
+    <nav class="lnav">
+      <a class="home" href="index.html">☰ 一覧</a>
+      <span class="pos">Lesson 3 / 7</span>
+      <span class="sp"></span>
+      <a href="byte_order_animation.html">‹ htons / htonl</a>
+      <a href="fds_state_animation.html">pollfds_ で状態を保つ ›</a>
+    </nav>
+    <header class="header">
+      <div>
+        <h1><code>poll()</code> ループと pollfd の流れ</h1>
+        <p class="lead">
+          ft_irc は fork も thread も使わず、1 つの process が <code>pollfds_</code> 配列で全 socket を監視します。
+          <code>events</code>（見たいもの）を毎周セットし、<code>poll()</code> が <code>revents</code>（実際に起きたこと）を書き込み、
+          その値で <b>accept / recv / send / close</b> に枝分かれします。実コードは <code>srcs/server/Server.cpp</code> の <code>run()</code> です。
+        </p>
+        <div class="flow-strip" aria-label="poll loop cycle">
+          <span class="hot">updatePollEvents()</span>
+          <span>-&gt;</span>
+          <span class="hot">poll() で待つ</span>
+          <span>-&gt;</span>
+          <span class="hot">revents を読む</span>
+          <span>-&gt;</span>
+          <span>accept / recv / send / close</span>
+          <span>-&gt;</span>
+          <span>loop へ戻る</span>
+        </div>
+      </div>
+      <div class="toolbar" aria-label="Animation controls">
+        <button class="button" type="button" id="prev">Prev</button>
+        <button class="button primary" type="button" id="play">Pause</button>
+        <button class="button" type="button" id="next">Next</button>
+        <label class="speed">
+          Speed
+          <input id="speed" type="range" min="1000" max="3000" value="1900" step="100">
+        </label>
+      </div>
+    </header>
+
+    <section class="layout" aria-label="poll loop animation">
+      <div class="board" id="board">
+        <div class="board-title">
+          <h2>Server::run() の 1 周</h2>
+          <code>poll(&amp;pollfds_[0], pollfds_.size(), -1)</code>
+        </div>
+
+        <div class="sleep-badge"><span class="z">Z z z</span> poll() でブロック中（timeout = -1）</div>
+
+        <div class="phases" aria-label="poll loop phases">
+          <div class="phase p-update">
+            <p class="pn">1. updatePollEvents()</p>
+            <p class="pd">revents=0 にして events を組み立てる</p>
+          </div>
+          <div class="phase p-poll">
+            <p class="pn">2. poll()</p>
+            <p class="pd">イベントが来るまで寝て待つ</p>
+          </div>
+          <div class="phase p-read">
+            <p class="pn">3. revents 読取</p>
+            <p class="pd">kernel が書いた結果を見る</p>
+          </div>
+          <div class="phase p-branch">
+            <p class="pn">4. 分岐 dispatch</p>
+            <p class="pd">fd 種別と revents で処理を選ぶ</p>
+          </div>
+        </div>
+
+        <div class="pollfds" id="pollfds" aria-label="pollfds_ array"></div>
+
+        <div class="branch" aria-label="revents branch">
+          <div class="branch-card b-skip">
+            <p class="cond">revents == 0</p>
+            <p class="act"><b>continue</b><br>何も起きていない fd は飛ばす</p>
+          </div>
+          <div class="branch-card b-accept">
+            <p class="cond">fd == serverFd_<br>&amp; POLLIN</p>
+            <p class="act"><b>acceptClients()</b><br>新 client fd を配列に追加</p>
+          </div>
+          <div class="branch-card b-rw">
+            <p class="cond">POLLIN / POLLOUT</p>
+            <p class="act"><b>recv() / send()</b><br>読めば dispatch、送れば書き出し</p>
+          </div>
+          <div class="branch-card b-close">
+            <p class="cond">POLLERR | HUP<br>| NVAL</p>
+            <p class="act"><b>closeClient()</b><br>fd と IRC state を片付ける</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-panel" aria-live="polite">
+        <p class="step-kicker" id="stepKicker">Step 1 / 8</p>
+        <h2 id="stepTitle"></h2>
+        <p id="stepBody"></p>
+        <pre class="code-block" id="stepCode"></pre>
+        <ul class="notes" id="stepNotes"></ul>
+      </aside>
+    </section>
+
+    <section class="timeline" aria-label="Animation steps">
+      <div class="steps" id="steps"></div>
+    </section>
+  </main>
+
+  <script>
+    // pollfd rows shown per step. Each fd: events flags + revents flags + state class + action note.
+    // state: ""(plain) | "fired"(accent) | "dispatch"(green) | "dim" | "enter"(new row) | "gone"(removed)
+    const FD_LISTEN = { fd: "fd 3", kind: "listening socket" };
+    const FD_A = { fd: "fd 7", kind: "client A socket" };
+    const FD_B = { fd: "fd 8", kind: "client B socket" };
+
+    function row(base, events, revents, state, note) {
+      return { ...base, events, revents, state: state || "", note: note || "" };
+    }
+
+    const steps = [
+      {
+        title: "ループの先頭: events を組み立て直す",
+        body: "while(!g_stopRequested) の毎周、まず updatePollEvents() が走ります。すべての fd の revents を 0 に戻し、events を POLLIN にセット。送るべき出力が溜まっている client fd だけ POLLOUT も足します。",
+        code: 'pollfds_[i].revents = 0;\npollfds_[i].events = POLLIN;\n<span class="cm">// 出力待ちがあるとき</span>\nif (hasPendingOutput) events <span class="hl">|= POLLOUT</span>;',
+        notes: [
+          "events = 自分が監視したいイベント",
+          "listening fd は常に POLLIN だけ（接続が来たかどうか）",
+          "毎周 revents を 0 に戻すのが大事 — 前回の結果を消す"
+        ],
+        phase: "p-update",
+        rows: [
+          row(FD_LISTEN, ["in"], ["zero"], "", "events 構築"),
+          row(FD_A, ["in"], ["zero"], "", "events 構築"),
+          row(FD_B, ["in", "out"], ["zero"], "", "送信待ち → +POLLOUT")
+        ]
+      },
+      {
+        title: "poll() で全 fd をまとめて待つ",
+        body: "poll(&pollfds_[0], pollfds_.size(), -1) を呼ぶと、配列の全 fd を一括監視します。timeout は -1 なので、どれかの fd にイベントが起きるまで process はブロックして寝ます。CPU を無駄に回しません。",
+        code: 'if (poll(&pollfds_[0], pollfds_.size(), -1) < 0) {\n  if (errno == EINTR) continue;\n  ...\n}',
+        notes: [
+          "fork / thread なしで複数 client を同時に扱える核心",
+          "-1 = timeout なし。イベントが来るまで起きない",
+          "signal で中断されたら（EINTR）ループ先頭へ戻る"
+        ],
+        phase: "p-poll",
+        rows: [
+          row(FD_LISTEN, ["in"], ["zero"], "dim", ""),
+          row(FD_A, ["in"], ["zero"], "dim", ""),
+          row(FD_B, ["in", "out"], ["zero"], "dim", "")
+        ]
+      },
+      {
+        title: "新規接続: listening fd に POLLIN が立つ",
+        body: "client が TCP 接続してくると、kernel は listening socket(fd 3) の revents に POLLIN を書き込み、poll() が返ります。これは「読める」ではなく「accept できる新規接続がある」という意味です。",
+        code: 'const short revents = pollfds_[i].revents;\nif (fd == serverFd_) {\n  if (revents <span class="hl">& POLLIN</span>) acceptClients();\n  i++; continue;\n}',
+        notes: [
+          "revents = poll() が実際に起きたと書き込んだ結果",
+          "serverFd_ の POLLIN は「新規接続あり」",
+          "client fd の POLLIN（データ到着）とは意味が違う"
+        ],
+        phase: "p-read",
+        rows: [
+          row(FD_LISTEN, ["in"], ["in"], "fired", "POLLIN!"),
+          row(FD_A, ["in"], ["zero"], "dim", ""),
+          row(FD_B, ["in", "out"], ["zero"], "dim", "")
+        ]
+      },
+      {
+        title: "分岐: acceptClients() で client fd が増える",
+        body: "fd == serverFd_ かつ POLLIN なので acceptClients() へ。accept() が返した新しい会話用 fd を non-blocking にして pollfds_ に push_back します。listening fd はそのまま残り、監視対象が 1 つ増えます。",
+        code: 'int clientFd = accept(serverFd_, ...);\nsetNonBlocking(clientFd);\nclientPollfd.fd = clientFd;\nclientPollfd.events = POLLIN;\npollfds_.<span class="hl">push_back</span>(clientPollfd);',
+        notes: [
+          "listening fd は accept 専用、会話は別 fd",
+          "新 fd は次の周から poll() の監視に入る",
+          "client が増えるほど配列が伸びる"
+        ],
+        phase: "p-branch",
+        branch: "b-accept",
+        rows: [
+          row(FD_LISTEN, ["in"], ["in"], "fired", "accept"),
+          row(FD_A, ["in"], ["zero"], "dim", ""),
+          row(FD_B, ["in", "out"], ["zero"], "dim", ""),
+          row({ fd: "fd 9", kind: "client C (new)" }, ["in"], ["zero"], "enter", "push_back")
+        ]
+      },
+      {
+        title: "データ到着: client fd の POLLIN → recv()",
+        body: "次の周。client A がコマンドを送ると fd 7 の revents に POLLIN が立ちます。handleClientRead(fd) が recv() で bytes を読み、CRLF まで揃った行を dispatcher に渡します。listening fd は静かなので revents = 0 のまま。",
+        code: 'if (revents <span class="hl">& POLLIN</span>)\n  handleClientRead(fd);\n<span class="cm">// recv() → buffer → CRLF ごとに dispatch()</span>',
+        notes: [
+          "client fd の POLLIN は「読めるデータがある」",
+          "recv 1 回 = IRC コマンド 1 個とは限らない",
+          "CRLF が揃うまで buffer して parse する"
+        ],
+        phase: "p-branch",
+        branch: "b-rw",
+        rows: [
+          row(FD_LISTEN, ["in"], ["zero"], "", "—"),
+          row(FD_A, ["in"], ["in"], "dispatch", "recv → dispatch"),
+          row(FD_B, ["in"], ["zero"], "dim", "")
+        ]
+      },
+      {
+        title: "送信可: POLLOUT → send()",
+        body: "client B には送るべき返信が溜まっています。updatePollEvents() が events に POLLOUT を足していたので、socket が書ける状態になると revents に POLLOUT が立ち、handleClientWrite(fd) が send() で出力バッファを書き出します。",
+        code: 'if (clients_.find(fd) != clients_.end()\n    && (revents <span class="hl">& POLLOUT</span>))\n  handleClientWrite(fd);',
+        notes: [
+          "POLLOUT を常時監視すると busy-loop になる",
+          "だから出力待ちのある fd だけ events に足す",
+          "send も一度で全部送れるとは限らない"
+        ],
+        phase: "p-branch",
+        branch: "b-rw",
+        rows: [
+          row(FD_LISTEN, ["in"], ["zero"], "", "—"),
+          row(FD_A, ["in"], ["zero"], "dim", ""),
+          row(FD_B, ["in", "out"], ["out"], "dispatch", "send")
+        ]
+      },
+      {
+        title: "切断: POLLHUP / POLLERR → closeClient()",
+        body: "client が切断すると、その fd の revents に POLLHUP（や POLLERR / POLLNVAL）が立ちます。closeClient(fd) が socket を close し、pollfds_ から fd を外し、nick や channel など IRC 側の状態も一緒に片付けます。",
+        code: 'if (clients_.find(fd) != clients_.end()\n    && (revents <span class="hl">& (POLLERR | POLLHUP | POLLNVAL)</span>))\n  closeClient(fd);',
+        notes: [
+          "POLLHUP = 相手が切断、POLLNVAL = 無効な fd",
+          "fd を消し忘れると fd leak（socket バグ）",
+          "nick / channel を消し忘れると IRC state バグ"
+        ],
+        phase: "p-branch",
+        branch: "b-close",
+        rows: [
+          row(FD_LISTEN, ["in"], ["zero"], "", "—"),
+          row(FD_A, ["in"], ["hup"], "fired", "closeClient"),
+          row(FD_B, ["in"], ["zero"], "dim", "")
+        ]
+      },
+      {
+        title: "静かな fd は skip して poll() へ戻る",
+        body: "revents == 0 の fd は何も起きていないので continue で飛ばします。配列を一周したら while ループの先頭に戻り、また updatePollEvents() → poll() を繰り返します。これが ft_irc のイベントループの 1 サイクルです。",
+        code: 'if (revents == 0) { i++; continue; }\n<span class="cm">// 全 fd を見終わったら while 先頭へ</span>',
+        notes: [
+          "イベントの立った fd だけ処理する（効率的）",
+          "1 process がこのループで全 client を回す",
+          "Step 1 へ戻って永遠に繰り返す"
+        ],
+        phase: "p-update",
+        rows: [
+          row(FD_LISTEN, ["in"], ["zero"], "dim", "skip"),
+          row(FD_A, ["in"], ["zero"], "dim", "skip"),
+          row(FD_B, ["in"], ["zero"], "dim", "skip")
+        ]
+      }
+    ];
+
+    const body = document.body;
+    const board = document.getElementById("board");
+    const stepKicker = document.getElementById("stepKicker");
+    const stepTitle = document.getElementById("stepTitle");
+    const stepBody = document.getElementById("stepBody");
+    const stepCode = document.getElementById("stepCode");
+    const stepNotes = document.getElementById("stepNotes");
+    const stepsRoot = document.getElementById("steps");
+    const pollfdsRoot = document.getElementById("pollfds");
+    const playButton = document.getElementById("play");
+    const prevButton = document.getElementById("prev");
+    const nextButton = document.getElementById("next");
+    const speedInput = document.getElementById("speed");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let current = 0;
+    let timer = null;
+    let playing = !reduceMotion;
+    let visible = true;
+    let prevPhase = null;
+
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+      }[char]));
+    }
+
+    const FLAG_LABEL = { in: "POLLIN", out: "POLLOUT", hup: "POLLHUP", zero: "0" };
+
+    function flagsHtml(flags) {
+      return flags.map((f) => `<span class="flag ${f}">${FLAG_LABEL[f]}</span>`).join("");
+    }
+
+    function renderPollfds(step) {
+      pollfdsRoot.innerHTML =
+        `<div class="pollfd-head">
+          <span>fd</span><span>種別</span><span>events</span><span>revents</span><span>action</span>
+        </div>` +
+        step.rows.map((r) => {
+          const enter = r.state === "enter" ? " entering" : "";
+          const cls = r.state === "enter" ? "" : (r.state || "");
+          return `<div class="pollfd-row ${cls}${enter}">
+            <span class="fd">${escapeHtml(r.fd)}</span>
+            <span class="kind">${escapeHtml(r.kind)}</span>
+            <span>${flagsHtml(r.events)}</span>
+            <span>${flagsHtml(r.revents)}</span>
+            <span class="action-note">${escapeHtml(r.note)}</span>
+          </div>`;
+        }).join("");
+    }
+
+    function renderStepButtons() {
+      stepsRoot.innerHTML = steps.map((step, index) => (
+        `<button class="step" type="button" data-index="${index}" aria-label="Go to step ${index + 1}: ${escapeHtml(step.title)}">
+          <small>${String(index + 1).padStart(2, "0")}</small>
+          <span>${escapeHtml(step.title)}</span>
+        </button>`
+      )).join("");
+      stepsRoot.querySelectorAll(".step").forEach((button) => {
+        button.addEventListener("click", () => {
+          setStep(Number(button.dataset.index));
+          stop();
+        });
+      });
+    }
+
+    function setStep(index) {
+      current = (index + steps.length) % steps.length;
+      const step = steps[current];
+      body.dataset.step = String(current);
+      stepKicker.textContent = `Step ${current + 1} / ${steps.length}`;
+      stepTitle.textContent = step.title;
+      stepBody.textContent = step.body;
+      stepCode.innerHTML = step.code;
+      stepNotes.innerHTML = step.notes.map((note) => `<li>${escapeHtml(note)}</li>`).join("");
+
+      renderPollfds(step);
+
+      // phase highlight
+      board.querySelectorAll(".phase").forEach((p) => p.classList.remove("active"));
+      if (step.phase) {
+        const ph = board.querySelector("." + step.phase);
+        if (ph) ph.classList.add("active");
+      }
+
+      // branch highlight
+      board.querySelectorAll(".branch-card").forEach((c) => c.classList.remove("active"));
+      if (step.branch) {
+        const bc = board.querySelector("." + step.branch);
+        if (bc) bc.classList.add("active");
+      }
+
+      stepsRoot.querySelectorAll(".step").forEach((button, buttonIndex) => {
+        button.classList.toggle("active", buttonIndex === current);
+        button.setAttribute("aria-current", buttonIndex === current ? "step" : "false");
+      });
+    }
+
+    function schedule() {
+      clearTimeout(timer);
+      if (!playing || !visible) return;
+      timer = setTimeout(() => {
+        setStep(current + 1);
+        schedule();
+      }, Number(speedInput.value));
+    }
+
+    function play() {
+      playing = true;
+      playButton.textContent = "Pause";
+      body.classList.add("is-running");
+      schedule();
+    }
+
+    function stop() {
+      playing = false;
+      playButton.textContent = "Play";
+      body.classList.remove("is-running");
+      clearTimeout(timer);
+    }
+
+    playButton.addEventListener("click", () => { playing ? stop() : play(); });
+    prevButton.addEventListener("click", () => { setStep(current - 1); stop(); });
+    nextButton.addEventListener("click", () => { setStep(current + 1); stop(); });
+    speedInput.addEventListener("input", schedule);
+
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver((entries) => {
+        visible = entries.some((entry) => entry.isIntersecting);
+        if (visible) schedule();
+        else { clearTimeout(timer); body.classList.remove("is-running"); }
+      });
+      observer.observe(board);
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      visible = document.visibilityState === "visible";
+      if (visible && playing) { body.classList.add("is-running"); schedule(); }
+      else { clearTimeout(timer); body.classList.remove("is-running"); }
+    });
+
+    renderStepButtons();
+    setStep(0);
+    playing ? play() : stop();
+  </script>
+</body>
+</html>

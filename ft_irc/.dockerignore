@@ -1,0 +1,10 @@
+.git
+objs
+ircserv
+*.o
+*.a
+*.d
+*.log
+__pycache__
+*.pyc
+.DS_Store

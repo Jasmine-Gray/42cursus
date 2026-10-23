@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>htons / htonl — ホストとネットワークのバイト順</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --subtle: #e2e8f0;
+      --line: #cbd5e1;
+      --host: #2563eb;
+      --host-soft: #dbeafe;
+      --net: #ea580c;
+      --net-soft: #ffedd5;
+      --ok: #15803d;
+      --ok-soft: #dcfce7;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100dvh; background: radial-gradient(120% 120% at 50% 0%, #fff 0%, var(--bg) 60%); color: var(--ink); }
+    button { font: inherit; }
+    .page { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 36px; }
+    .top { text-align: center; margin-bottom: 14px; }
+    h1 { margin: 0 0 6px; font-size: clamp(23px, 3.3vw, 33px); line-height: 1.1; }
+    .sub { margin: 0; color: var(--muted); font-size: 15px; }
+
+    /* pipeline */
+    .pipeline { position: relative; display: flex; align-items: flex-start; justify-content: center; flex-wrap: nowrap; max-width: 820px; margin: 18px auto 20px; padding: 8px 4px; overflow-x: auto; }
+    .pnode { position: relative; z-index: 2; flex: none; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 104px; text-align: center; }
+    .pnode .chip { display: grid; place-items: center; width: 100%; min-height: 38px; padding: 7px 6px; border: 1.5px solid var(--subtle); border-radius: 10px; background: var(--panel); color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11.5px; font-weight: 800; transition: all 200ms ease; }
+    .pnode .tip { font-size: 10px; color: var(--muted); opacity: 0; transition: opacity 200ms ease; }
+    .pconn { flex: none; position: relative; align-self: flex-start; width: 22px; height: 38px; margin: 0 -2px; }
+    .pconn::before { content: ""; position: absolute; top: 50%; left: 0; right: 6px; height: 2px; transform: translateY(-50%); background: var(--line); transition: background 200ms ease; }
+    .pconn::after { content: ""; position: absolute; top: 50%; right: 4px; transform: translateY(-50%); border-left: 6px solid var(--line); border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: border-left-color 200ms ease; }
+    .pnode.done .chip { border-color: var(--net); color: var(--net); background: var(--net-soft); }
+    .pconn.done::before { background: var(--net); }
+    .pconn.done::after { border-left-color: var(--net); }
+    .pnode.now .chip { border-color: var(--net); background: var(--net); color: #fff; transform: translateY(-2px) scale(1.06); box-shadow: 0 8px 18px rgba(234,88,12,0.28); }
+    .pnode.now .tip { opacity: 1; color: var(--ink); font-weight: 700; }
+
+    .flow-pulse { position: absolute; top: 24px; left: 0; width: 9px; height: 9px; border-radius: 999px; background: #fbbf24; box-shadow: 0 0 0 4px rgba(251,191,36,0.25); opacity: 0; pointer-events: none; z-index: 3; }
+    body.run .flow-pulse { animation: flow-travel 3.4s linear infinite; }
+    @keyframes flow-travel { 0% { left: 4%; opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { left: 96%; opacity: 0; } }
+
+    /* narration */
+    .narration { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 70px; margin: 0 auto 16px; padding: 14px 20px; max-width: 800px; border: 1px solid var(--subtle); border-radius: 14px; background: var(--panel); box-shadow: var(--shadow); text-align: center; }
+    .narration .call { flex: none; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 800; font-size: 14px; padding: 7px 12px; border-radius: 10px; background: var(--net-soft); color: var(--net); white-space: nowrap; }
+    .narration .text { font-size: 16px; line-height: 1.55; color: var(--ink); text-wrap: balance; }
+
+    /* stage */
+    .stage { border: 1px solid var(--subtle); border-radius: 16px; background: var(--panel); box-shadow: var(--shadow); padding: 22px 18px; margin-bottom: 18px; }
+
+    .value-line { text-align: center; margin-bottom: 6px; color: var(--muted); font-size: 13px; }
+    .value-line b { color: var(--ink); font-family: ui-monospace, monospace; font-size: 15px; }
+
+    /* two byte rows: host (top) and network (bottom) */
+    .lanes { display: grid; gap: 18px; margin: 18px auto 6px; max-width: 640px; }
+    .lane { display: grid; grid-template-columns: 150px 1fr; gap: 14px; align-items: center; }
+    .lane-tag { display: grid; gap: 2px; justify-items: end; text-align: right; }
+    .lane-tag .nm { font-weight: 800; font-size: 13px; }
+    .lane-tag .nm.host { color: var(--host); }
+    .lane-tag .nm.net { color: var(--net); }
+    .lane-tag .dsc { font-size: 11px; color: var(--muted); }
+
+    .bytes { display: flex; gap: 8px; }
+    .byte {
+      position: relative; width: 56px; height: 56px; border-radius: 10px;
+      display: grid; place-items: center; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px; font-weight: 800; border: 2px solid var(--line); background: #f8fafc; color: var(--ink);
+      transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1), border-color 200ms ease, background 200ms ease, opacity 200ms ease;
+    }
+    .byte .addr { position: absolute; top: -16px; left: 0; right: 0; text-align: center; font-size: 9px; color: var(--muted); font-weight: 700; }
+    .byte.b-hi { border-color: var(--host); background: var(--host-soft); color: #1e3a8a; }
+    .byte.b-lo { border-color: #7c3aed; background: #ede9fe; color: #5b21b6; }
+    .byte.zero { opacity: 0.5; }
+    .byte.net-hi { border-color: var(--net); background: var(--net-soft); color: #7c2d12; }
+    .lane.dim { opacity: 0.32; }
+
+    /* swap motion: shift the two bytes past each other */
+    body.run[data-step="2"] .host-lane .byte.swap-a { animation: swapA 1700ms ease-in-out infinite; }
+    body.run[data-step="2"] .host-lane .byte.swap-b { animation: swapB 1700ms ease-in-out infinite; }
+    @keyframes swapA { 0%,12% { transform: translateX(0); } 50% { transform: translateX(64px) translateY(-10px); } 88%,100% { transform: translateX(0); } }
+    @keyframes swapB { 0%,12% { transform: translateX(0); } 50% { transform: translateX(-64px) translateY(10px); } 88%,100% { transform: translateX(0); } }
+
+    .swap-note { text-align: center; margin-top: 14px; color: var(--muted); font-size: 13px; min-height: 20px; }
+    .swap-note code { font-family: ui-monospace, monospace; color: var(--ink); }
+
+    /* two-machines illustration for step 0 */
+    .machines { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
+    .machine { border: 1px solid var(--subtle); border-radius: 12px; padding: 12px 16px; background: #f8fafc; text-align: center; min-width: 150px; }
+    .machine .mn { font-weight: 800; font-size: 13px; margin-bottom: 6px; }
+    .machine .order { font-family: ui-monospace, monospace; font-size: 13px; font-weight: 800; display: flex; gap: 5px; justify-content: center; }
+    .machine .order span { padding: 4px 8px; border-radius: 6px; background: #fff; border: 1px solid var(--line); }
+    .machine.le { border-color: var(--host); } .machine.le .mn { color: var(--host); }
+    .machine.be { border-color: var(--net); } .machine.be .mn { color: var(--net); }
+    .vs { font-weight: 800; color: var(--muted); }
+
+    /* sockaddr_in struct view */
+    .struct { max-width: 560px; margin: 6px auto 0; border: 1px solid var(--subtle); border-radius: 12px; overflow: hidden; }
+    .struct-head { background: #0f172a; color: #e5e7eb; padding: 8px 12px; font-family: ui-monospace, monospace; font-size: 12px; font-weight: 700; }
+    .field { display: grid; grid-template-columns: 160px 1fr; gap: 10px; padding: 9px 12px; border-top: 1px solid var(--subtle); font-family: ui-monospace, monospace; font-size: 12.5px; align-items: center; }
+    .field .fn { color: var(--muted); }
+    .field .fv { font-weight: 800; }
+    .field.hot { background: var(--net-soft); }
+    .field .fv .net-bytes { color: var(--net); }
+
+    /* controls + rail */
+    .controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 16px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; min-width: 44px; padding: 8px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); cursor: pointer; }
+    .btn:hover { border-color: var(--net); }
+    .btn.primary { border-color: var(--net); background: var(--net); color: #fff; }
+    .btn:focus-visible { outline: 3px solid var(--net-soft); outline-offset: 2px; }
+    .rail { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .dot { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 116px; padding: 10px 6px; border: 1px solid var(--subtle); border-radius: 12px; background: var(--panel); cursor: pointer; text-align: center; }
+    .dot .num { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 999px; background: #f1f5f9; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .dot .nm { font-family: ui-monospace, monospace; font-size: 11px; font-weight: 700; color: var(--ink); }
+    .dot.active { border-color: var(--net); background: var(--net-soft); }
+    .dot.active .num { background: var(--net); color: #fff; }
+
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; } }
+    @media (max-width: 680px) { .lane { grid-template-columns: 1fr; gap: 6px; } .lane-tag { justify-items: start; text-align: left; } .dot { width: 92px; } }
+  </style>
+</head>
+<body data-step="0">
+  <main class="page">
+    <style>.lnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;padding:8px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;box-shadow:0 6px 16px rgba(15,23,42,.06);font-size:13px}.lnav a{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;text-decoration:none;color:#0f172a;border:1px solid #e2e8f0;background:#fff;white-space:nowrap}.lnav a:hover{border-color:#0f766e;color:#0f766e}.lnav .home{background:#0f172a;color:#fff;border-color:#0f172a;font-weight:700}.lnav .pos{color:#64748b;font-weight:700}.lnav .sp{flex:1 1 auto}.lnav a.off{opacity:.3;pointer-events:none}@media(max-width:600px){.lnav .pos{display:none}}</style>
+    <nav class="lnav">
+      <a class="home" href="index.html">☰ 一覧</a>
+      <span class="pos">Lesson 2 / 7</span>
+      <span class="sp"></span>
+      <a href="socket_story.html">‹ socket の一生</a>
+      <a href="poll_loop_animation.html">poll() ループ ›</a>
+    </nav>
+    <div class="top">
+      <h1>htons / htonl — バイト順をネットワークに合わせる</h1>
+      <p class="sub">CPU ごとに違うバイトの並びを、通信前に「ネットワーク順（ビッグエンディアン）」へそろえる</p>
+    </div>
+
+    <div class="pipeline" id="pipeline">
+      <span class="flow-pulse"></span>
+      <div class="pnode" data-key="host"><span class="chip">host order</span><span class="tip">CPU 依存</span></div>
+      <div class="pconn" data-after="host"></div>
+      <div class="pnode" data-key="htons"><span class="chip">htons / htonl</span><span class="tip">network へ変換</span></div>
+      <div class="pconn" data-after="htons"></div>
+      <div class="pnode" data-key="struct"><span class="chip">sockaddr_in</span><span class="tip">詰める</span></div>
+      <div class="pconn" data-after="struct"></div>
+      <div class="pnode" data-key="bind"><span class="chip">bind()</span><span class="tip">OS へ渡す</span></div>
+    </div>
+
+    <div class="narration">
+      <span class="call" id="call">なぜ必要?</span>
+      <span class="text" id="narrText"></span>
+    </div>
+
+    <div class="stage" id="stage">
+      <div id="stageBody"></div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="prev" aria-label="前へ">‹</button>
+      <button class="btn primary" id="play">Pause</button>
+      <button class="btn" id="next" aria-label="次へ">›</button>
+    </div>
+
+    <div class="rail" id="rail"></div>
+  </main>
+
+  <script>
+    const PIPE = ["host", "htons", "struct", "bind"];
+
+    // each step renders a chunk of HTML into #stageBody
+    const machinesHTML = `
+      <div class="value-line">同じ 16bit の値 <b>0x1092</b> でも、メモリの並びが CPU で違う</div>
+      <div class="machines">
+        <div class="machine le">
+          <div class="mn">x86 / ARM (little-endian)</div>
+          <div class="order"><span>0x92</span><span>0x10</span></div>
+          <div class="dsc" style="font-size:11px;color:var(--muted);margin-top:6px;">下位バイトが先</div>
+        </div>
+        <span class="vs">≠</span>
+        <div class="machine be">
+          <div class="mn">network (big-endian)</div>
+          <div class="order"><span>0x10</span><span>0x92</span></div>
+          <div class="dsc" style="font-size:11px;color:var(--muted);margin-top:6px;">上位バイトが先</div>
+        </div>
+      </div>
+      <div class="swap-note">どちらの CPU でも通じるように、送る前に <code>htons/htonl</code> で <b>network 順</b>へそろえる</div>
+    `;
+
+    function bytesLanes(opts) {
+      // opts: { host:[{v,cls}], net:[{v,cls}], hostDim, netDim, swap }
+      const hostBytes = opts.host.map((b, i) => (
+        `<div class="byte ${b.cls}${opts.swap ? (i === 0 ? " swap-a" : (i === opts.host.length - 1 ? " swap-b" : "")) : ""}">${b.v}</div>`
+      )).join("");
+      const netBytes = (opts.net || []).map((b) => `<div class="byte ${b.cls}">${b.v}</div>`).join("");
+      return `
+        <div class="value-line">${opts.title}</div>
+        <div class="lanes">
+          <div class="lane host-lane ${opts.hostDim ? "dim" : ""}">
+            <div class="lane-tag"><span class="nm host">host order</span><span class="dsc">${opts.hostDsc}</span></div>
+            <div class="bytes">${hostBytes}</div>
+          </div>
+          <div class="lane net-lane ${opts.netDim ? "dim" : ""}">
+            <div class="lane-tag"><span class="nm net">network order</span><span class="dsc">${opts.netDsc}</span></div>
+            <div class="bytes">${netBytes || '<span class="dsc" style="color:var(--muted)">変換後ここに出る</span>'}</div>
+          </div>
+        </div>
+        <div class="swap-note">${opts.note || ""}</div>
+      `;
+    }
+
+    const steps = [
+      {
+        reached: 0, now: ["host"], call: "なぜ必要?",
+        text: "CPU によってバイトの並び（エンディアン）が違う。だから通信では「ネットワーク順」に統一する約束になっている。",
+        html: machinesHTML
+      },
+      {
+        reached: 1, now: ["host"], call: "port_ = 4242",
+        text: "ポート番号 4242（= 0x1092）。x86 のメモリでは下位バイト 0x92 が先に置かれる（リトルエンディアン）。",
+        html: bytesLanes({
+          title: "16bit のポート番号 <b>4242 = 0x1092</b> を 1 バイトずつに分ける",
+          hostDsc: "x86 = little-endian", netDsc: "まだ未変換",
+          host: [{ v: "92", cls: "b-lo" }, { v: "10", cls: "b-hi" }],
+          net: null, netDim: true,
+          note: "このまま送ると big-endian の相手は <code>0x9210 = 37392</code> と誤読してしまう"
+        })
+      },
+      {
+        reached: 2, now: ["htons"], call: "htons(4242)",
+        text: "htons が2バイトを入れ替えて network 順にする。0x92 と 0x10 が場所を交換して [10][92] に。",
+        html: bytesLanes({
+          title: "<b>htons</b> = host TO network short（16bit）",
+          hostDsc: "[92][10]", netDsc: "入れ替え中…",
+          host: [{ v: "92", cls: "b-lo" }, { v: "10", cls: "b-hi" }],
+          net: null, netDim: true, swap: true,
+          note: "再生中：2 バイトが入れ替わって <code>[10][92]</code> = network 順になる"
+        })
+      },
+      {
+        reached: 2, now: ["htons"], call: "= 0x1092 (network)",
+        text: "変換完了。network 順 [10][92] になった。これでどの CPU の相手でも 4242 と正しく読める。",
+        html: bytesLanes({
+          title: "変換後：<b>network byte order</b>",
+          hostDsc: "[92][10]", netDsc: "[10][92] ✓",
+          host: [{ v: "92", cls: "b-lo" }, { v: "10", cls: "b-hi" }], hostDim: true,
+          net: [{ v: "10", cls: "net-hi" }, { v: "92", cls: "net-hi" }],
+          note: "<code>htonl</code> は 32bit 版。IP アドレス用（<code>htonl(INADDR_ANY)</code> = 0.0.0.0 は全部 0）"
+        })
+      },
+      {
+        reached: 3, now: ["struct"], call: "sockaddr_in を組み立て",
+        text: "変換した値を sockaddr_in 構造体に詰める。sin_port は htons、sin_addr は htonl。sin_family は AF_INET。",
+        html: `
+          <div class="value-line">OS に渡すための住所構造体を埋める</div>
+          <div class="struct">
+            <div class="struct-head">struct sockaddr_in address;</div>
+            <div class="field"><span class="fn">sin_family</span><span class="fv">AF_INET <span style="color:var(--muted)">// IPv4</span></span></div>
+            <div class="field hot"><span class="fn">sin_addr.s_addr</span><span class="fv">htonl(INADDR_ANY) <span class="net-bytes">// 0.0.0.0 全 interface</span></span></div>
+            <div class="field hot"><span class="fn">sin_port</span><span class="fv">htons(4242) <span class="net-bytes">// [10][92]</span></span></div>
+          </div>
+          <div class="swap-note">port と addr だけ変換が要る。<code>sin_family</code> は OS が解釈するので変換不要</div>
+        `
+      },
+      {
+        reached: 4, now: ["bind"], call: "bind(fd, &address)",
+        text: "network 順に整えた sockaddr_in を bind に渡す。これで「このポート・このIPで待つ」が OS に正しく伝わる。",
+        html: `
+          <div class="value-line">完成した構造体を OS へ</div>
+          <div class="struct">
+            <div class="struct-head">bind(serverFd_, (sockaddr*)&address, sizeof(address));</div>
+            <div class="field"><span class="fn">sin_family</span><span class="fv">AF_INET</span></div>
+            <div class="field"><span class="fn">sin_addr</span><span class="fv"><span class="net-bytes">00 00 00 00</span> (0.0.0.0)</span></div>
+            <div class="field"><span class="fn">sin_port</span><span class="fv"><span class="net-bytes">10 92</span> (4242)</span></div>
+          </div>
+          <div class="swap-note">受信側で IP やポートを<b>読む</b>ときは逆変換 <code>ntohs / ntohl</code> で host 順に戻す</div>
+        `
+      }
+    ];
+
+    const body = document.body;
+    const pipeline = document.getElementById("pipeline");
+    const call = document.getElementById("call");
+    const narrText = document.getElementById("narrText");
+    const stageBody = document.getElementById("stageBody");
+    const rail = document.getElementById("rail");
+    const playBtn = document.getElementById("play");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let current = 0, timer = null, playing = !reduceMotion, visible = true;
+    const DURATION = 3600;
+
+    function esc(v) { return v.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
+
+    function renderRail() {
+      rail.innerHTML = steps.map((s, i) => (
+        `<button class="dot" data-i="${i}" type="button"><span class="num">${i + 1}</span><span class="nm">${esc(s.call.split("(")[0].slice(0, 12))}</span></button>`
+      )).join("");
+      rail.querySelectorAll(".dot").forEach((d) => d.addEventListener("click", () => { setStep(Number(d.dataset.i)); stop(); }));
+    }
+
+    function setStep(i) {
+      current = (i + steps.length) % steps.length;
+      const s = steps[current];
+      body.dataset.step = String(current);
+      call.textContent = s.call;
+      narrText.textContent = s.text;
+      stageBody.innerHTML = s.html;
+
+      const nowSet = new Set(s.now);
+      pipeline.querySelectorAll(".pnode").forEach((n) => {
+        const idx = PIPE.indexOf(n.dataset.key);
+        n.classList.toggle("done", idx < s.reached && !nowSet.has(n.dataset.key));
+        n.classList.toggle("now", nowSet.has(n.dataset.key));
+      });
+      pipeline.querySelectorAll(".pconn").forEach((c) => {
+        const idx = PIPE.indexOf(c.dataset.after);
+        c.classList.toggle("done", idx < s.reached - 1 || (idx < s.reached && !nowSet.has(PIPE[idx + 1])));
+      });
+
+      rail.querySelectorAll(".dot").forEach((d, di) => d.classList.toggle("active", di === current));
+    }
+
+    function schedule() { clearTimeout(timer); if (!playing || !visible) return; timer = setTimeout(() => { setStep(current + 1); schedule(); }, DURATION); }
+    function play() { playing = true; playBtn.textContent = "Pause"; body.classList.add("run"); schedule(); }
+    function stop() { playing = false; playBtn.textContent = "Play"; body.classList.remove("run"); clearTimeout(timer); }
+
+    playBtn.addEventListener("click", () => { playing ? stop() : play(); });
+    prevBtn.addEventListener("click", () => { setStep(current - 1); stop(); });
+    nextBtn.addEventListener("click", () => { setStep(current + 1); stop(); });
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((es) => {
+        visible = es.some((e) => e.isIntersecting);
+        if (visible && playing) { body.classList.add("run"); schedule(); } else { clearTimeout(timer); body.classList.remove("run"); }
+      }).observe(document.getElementById("stage"));
+    }
+    document.addEventListener("visibilitychange", () => {
+      visible = document.visibilityState === "visible";
+      if (visible && playing) { body.classList.add("run"); schedule(); } else { clearTimeout(timer); body.classList.remove("run"); }
+    });
+
+    renderRail();
+    setStep(0);
+    playing ? play() : stop();
+  </script>
+</body>
+</html>

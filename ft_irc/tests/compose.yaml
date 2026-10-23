@@ -1,0 +1,12 @@
+services:
+  ft_irc:
+    build:
+      context: ..
+      dockerfile: tests/docker/Dockerfile
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace
+    ports:
+      - "6667:6667"
+    stdin_open: true
+    tty: true

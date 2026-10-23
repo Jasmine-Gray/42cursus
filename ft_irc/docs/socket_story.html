@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>socket の一生 — client と server のあいだ</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --subtle: #e2e8f0;
+      --line: #cbd5e1;
+      --client: #2563eb;
+      --client-soft: #dbeafe;
+      --server: #0f766e;
+      --server-soft: #ccfbf1;
+      --in: #2563eb;
+      --out: #15803d;
+      --close: #b91c1c;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      background: radial-gradient(120% 120% at 50% 0%, #ffffff 0%, var(--bg) 60%);
+      color: var(--ink);
+    }
+
+    button, input { font: inherit; }
+
+    .page {
+      width: min(1100px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 36px;
+    }
+
+    .top {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(24px, 3.4vw, 34px);
+      line-height: 1.1;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    /* narration line — the one sentence that matters this step */
+    .narration {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-height: 72px;
+      margin: 0 auto 16px;
+      padding: 14px 20px;
+      max-width: 760px;
+      border: 1px solid var(--subtle);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .narration .syscall {
+      flex: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 7px 12px;
+      border-radius: 10px;
+      background: var(--server-soft);
+      color: var(--server);
+      white-space: nowrap;
+    }
+    body[data-step="2"] .narration .syscall { background: var(--client-soft); color: var(--client); }
+    body[data-step="3"] .narration .syscall { background: var(--server-soft); color: var(--out); }
+    body[data-step="4"] .narration .syscall { background: #fee2e2; color: var(--close); }
+
+    .narration .text {
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--ink);
+      text-wrap: balance;
+    }
+
+    /* syscall pipeline — the connected chain of calls */
+    .pipeline {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: nowrap;
+      gap: 0;
+      max-width: 880px;
+      margin: 0 auto 22px;
+      padding: 8px 4px 26px;
+      overflow-x: auto;
+    }
+
+    .pnode {
+      position: relative;
+      z-index: 2;
+      flex: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      width: 76px;
+      text-align: center;
+    }
+
+    .pnode .chip {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      min-height: 38px;
+      padding: 7px 6px;
+      border: 1.5px solid var(--subtle);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      transition: border-color 200ms ease, background 200ms ease, color 200ms ease, transform 200ms ease;
+    }
+
+    .pnode .tip {
+      font-size: 10px;
+      color: var(--muted);
+      opacity: 0;
+      transition: opacity 200ms ease;
+      line-height: 1.25;
+    }
+
+    /* connector arrow between chips */
+    .pconn {
+      flex: none;
+      position: relative;
+      align-self: flex-start;
+      width: 26px;
+      height: 38px;
+      margin: 0 -2px;
+    }
+    .pconn::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 6px;
+      height: 2px;
+      transform: translateY(-50%);
+      background: var(--line);
+      transition: background 200ms ease;
+    }
+    .pconn::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: 4px;
+      transform: translateY(-50%);
+      border-left: 6px solid var(--line);
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      transition: border-left-color 200ms ease;
+    }
+
+    /* states */
+    .pnode.done .chip { border-color: var(--server); color: var(--server); background: var(--server-soft); }
+    .pconn.done::before { background: var(--server); }
+    .pconn.done::after { border-left-color: var(--server); }
+
+    .pnode.now .chip {
+      border-color: var(--server);
+      background: var(--server);
+      color: #fff;
+      transform: translateY(-2px) scale(1.06);
+      box-shadow: 0 8px 18px rgba(15,118,110,0.28);
+    }
+    .pnode.now .tip { opacity: 1; color: var(--ink); font-weight: 700; }
+
+    /* color the active call by direction */
+    body[data-step="2"] .pnode.now .chip { border-color: var(--client); background: var(--client); box-shadow: 0 8px 18px rgba(37,99,235,0.28); }
+    body[data-step="4"] .pnode.now .chip { border-color: var(--out); background: var(--out); box-shadow: 0 8px 18px rgba(21,128,61,0.28); }
+    body[data-step="5"] .pnode.now .chip { border-color: var(--close); background: var(--close); box-shadow: 0 8px 18px rgba(185,28,28,0.28); }
+
+    /* the recv <-> send loop bracket */
+    .ploop {
+      position: absolute;
+      left: var(--loop-l, 50%);
+      width: var(--loop-w, 180px);
+      bottom: 2px;
+      height: 16px;
+      border: 2px solid var(--line);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      transition: border-color 200ms ease, opacity 200ms ease;
+      opacity: 0.5;
+    }
+    .ploop .loop-tag {
+      position: absolute;
+      left: 50%;
+      bottom: -9px;
+      transform: translateX(-50%);
+      padding: 1px 8px;
+      border-radius: 999px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    body[data-step="3"] .ploop,
+    body[data-step="4"] .ploop {
+      border-color: var(--server);
+      opacity: 1;
+    }
+    body[data-step="3"] .ploop .loop-tag,
+    body[data-step="4"] .ploop .loop-tag {
+      color: var(--server);
+      border-color: var(--server);
+    }
+
+    /* a pulse that travels the connectors while running, to show flow */
+    .flow-pulse {
+      position: absolute;
+      top: 24px;
+      left: 0;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #fbbf24;
+      box-shadow: 0 0 0 4px rgba(251,191,36,0.25);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+    body.run .flow-pulse { animation: flow-travel 3.2s linear infinite; }
+    @keyframes flow-travel {
+      0% { left: 4%; opacity: 0; }
+      8% { opacity: 1; }
+      92% { opacity: 1; }
+      100% { left: 96%; opacity: 0; }
+    }
+
+    /* the stage: client --- wire --- server */
+    .stage {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      min-height: 320px;
+      margin-bottom: 18px;
+    }
+
+    .node {
+      position: relative;
+      z-index: 2;
+      border-radius: 16px;
+      padding: 18px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--subtle);
+    }
+
+    .node.client {
+      margin-right: 90px;
+      border-top: 4px solid var(--client);
+    }
+    .node.server {
+      margin-left: 90px;
+      border-top: 4px solid var(--server);
+    }
+
+    .node-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+    .node.client .node-name::before {
+      content: "";
+      width: 11px; height: 11px; border-radius: 999px; background: var(--client);
+    }
+    .node.server .node-name::before {
+      content: "";
+      width: 11px; height: 11px; border-radius: 999px; background: var(--server);
+    }
+
+    .node-sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .screen {
+      border-radius: 10px;
+      background: #0f172a;
+      color: #e5e7eb;
+      padding: 11px 12px;
+      min-height: 132px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .screen .you { color: #fbbf24; }
+    .screen .srv { color: #86efac; }
+    .screen .dim { color: #64748b; }
+    .screen .caret {
+      display: inline-block;
+      width: 8px;
+      background: #fbbf24;
+      color: transparent;
+      animation: caret 900ms steps(1) infinite;
+    }
+    @keyframes caret { 50% { opacity: 0; } }
+
+    /* server buffer indicator */
+    .buf {
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px dashed var(--line);
+      padding: 9px 11px;
+      background: #f8fafc;
+      min-height: 56px;
+    }
+    .buf-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+    .buf-content {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      min-height: 20px;
+      transition: color 200ms ease;
+    }
+    .buf.flash {
+      border-color: var(--out);
+      background: var(--server-soft);
+      animation: bufflash 700ms ease-out;
+    }
+    @keyframes bufflash {
+      0% { background: #bbf7d0; }
+      100% { background: var(--server-soft); }
+    }
+    .buf .partial {
+      color: #b45309;
+      border-bottom: 2px dashed #f59e0b;
+    }
+    .buf .done { color: var(--out); }
+
+    /* the wire between the two nodes */
+    .wire {
+      position: absolute;
+      z-index: 1;
+      top: 96px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: repeating-linear-gradient(90deg, var(--line) 0 8px, transparent 8px 16px);
+      opacity: 0.5;
+    }
+    .wire.live {
+      background: linear-gradient(90deg, var(--client), var(--server));
+      opacity: 1;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.6);
+    }
+    body[data-step="0"] .wire { opacity: 0.25; }
+    body[data-step="5"] .wire {
+      background: repeating-linear-gradient(90deg, #fca5a5 0 6px, transparent 6px 14px);
+      opacity: 0.6;
+    }
+
+    /* moving packets on the wire */
+    .packets {
+      position: absolute;
+      z-index: 3;
+      top: 78px;
+      left: 0;
+      right: 0;
+      height: 40px;
+      pointer-events: none;
+    }
+    .pkt {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: inline-flex;
+      align-items: center;
+      height: 30px;
+      padding: 0 11px;
+      border-radius: 999px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 6px 14px rgba(15,23,42,0.16);
+      opacity: 0;
+      white-space: nowrap;
+    }
+    .pkt.in { background: var(--client); color: #fff; }
+    .pkt.out { background: var(--out); color: #fff; }
+    .pkt.syn { background: #1d4ed8; color: #fff; }
+    .pkt.fin { background: var(--close); color: #fff; }
+
+    /* show + animate packets only on their step, while running */
+    body.run[data-step="2"] .pkt.p-syn { animation: flyRight 1500ms ease-in-out infinite; }
+
+    body.run[data-step="3"] .pkt.p-in1 { animation: flyRight 1700ms ease-in-out infinite; }
+    body.run[data-step="3"] .pkt.p-in2 { animation: flyRight 1700ms ease-in-out infinite 0.55s; }
+    body.run[data-step="3"] .pkt.p-in3 { animation: flyRight 1700ms ease-in-out infinite 1.1s; }
+
+    body.run[data-step="4"] .pkt.p-out1 { animation: flyLeft 1700ms ease-in-out infinite; }
+    body.run[data-step="4"] .pkt.p-out2 { animation: flyLeft 1700ms ease-in-out infinite 0.6s; }
+
+    body.run[data-step="5"] .pkt.p-fin { animation: flyRight 1600ms ease-in-out infinite; }
+
+    @keyframes flyRight {
+      0%   { left: 6%;  opacity: 0; transform: scale(0.8); }
+      12%  { opacity: 1; transform: scale(1); }
+      85%  { opacity: 1; }
+      100% { left: 86%; opacity: 0; transform: scale(0.85); }
+    }
+    @keyframes flyLeft {
+      0%   { left: 86%; opacity: 0; transform: scale(0.8); }
+      12%  { opacity: 1; transform: scale(1); }
+      85%  { opacity: 1; }
+      100% { left: 6%;  opacity: 0; transform: scale(0.85); }
+    }
+
+    /* listening pulse on server in step 1 */
+    .listen-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 10px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: var(--server-soft);
+      color: var(--server);
+      font-size: 12px;
+      font-weight: 700;
+      opacity: 0;
+    }
+    .listen-badge::before {
+      content: "";
+      width: 9px; height: 9px; border-radius: 999px; background: var(--server);
+    }
+    body[data-step="0"] .listen-badge,
+    body[data-step="1"] .listen-badge { opacity: 1; }
+    body.run[data-step="0"] .listen-badge::before,
+    body.run[data-step="1"] .listen-badge::before { animation: ping 1400ms ease-out infinite; }
+    @keyframes ping {
+      0% { box-shadow: 0 0 0 0 rgba(15,118,110,0.5); }
+      70% { box-shadow: 0 0 0 9px rgba(15,118,110,0); }
+      100% { box-shadow: 0 0 0 0 rgba(15,118,110,0); }
+    }
+
+    /* fd label that appears after accept */
+    .fd-label {
+      position: absolute;
+      z-index: 4;
+      top: 56px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: #0f172a;
+      color: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 800;
+      opacity: 0;
+      transition: opacity 300ms ease;
+    }
+    body[data-step="2"] .fd-label,
+    body[data-step="3"] .fd-label,
+    body[data-step="4"] .fd-label { opacity: 1; }
+    body[data-step="5"] .fd-label { opacity: 0.35; text-decoration: line-through; }
+
+    /* controls */
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      min-width: 44px;
+      padding: 8px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .btn:hover { border-color: var(--server); }
+    .btn.primary { border-color: var(--server); background: var(--server); color: #fff; }
+    .btn:focus-visible { outline: 3px solid var(--server-soft); outline-offset: 2px; }
+
+    /* step rail */
+    .rail {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .dot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      width: 110px;
+      padding: 10px 6px;
+      border: 1px solid var(--subtle);
+      border-radius: 12px;
+      background: var(--panel);
+      cursor: pointer;
+      text-align: center;
+    }
+    .dot .num {
+      width: 24px; height: 24px;
+      display: grid; place-items: center;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .dot .nm {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .dot.active { border-color: var(--server); background: var(--server-soft); }
+    .dot.active .num { background: var(--server); color: #fff; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; }
+    }
+
+    @media (max-width: 720px) {
+      .stage { grid-template-columns: 1fr; min-height: auto; gap: 64px; }
+      .node.client { margin-right: 0; }
+      .node.server { margin-left: 0; }
+      .wire, .packets, .fd-label { display: none; }
+      .narration { flex-direction: column; gap: 8px; min-height: 0; }
+      .dot { width: 88px; }
+    }
+  </style>
+</head>
+<body data-step="0">
+  <main class="page">
+    <style>.lnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;padding:8px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;box-shadow:0 6px 16px rgba(15,23,42,.06);font-size:13px}.lnav a{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;text-decoration:none;color:#0f172a;border:1px solid #e2e8f0;background:#fff;white-space:nowrap}.lnav a:hover{border-color:#0f766e;color:#0f766e}.lnav .home{background:#0f172a;color:#fff;border-color:#0f172a;font-weight:700}.lnav .pos{color:#64748b;font-weight:700}.lnav .sp{flex:1 1 auto}.lnav a.off{opacity:.3;pointer-events:none}@media(max-width:600px){.lnav .pos{display:none}}</style>
+    <nav class="lnav">
+      <a class="home" href="index.html">☰ 一覧</a>
+      <span class="pos">Lesson 1 / 7</span>
+      <span class="sp"></span>
+      <a class="off" href="#">‹ 最初</a>
+      <a href="byte_order_animation.html">htons / htonl ›</a>
+    </nav>
+    <div class="top">
+      <h1>socket の一生</h1>
+      <p class="sub">1 本の通信路ができて、読んで、書いて、閉じるまで</p>
+    </div>
+
+    <div class="narration">
+      <span class="syscall" id="syscall">socket()</span>
+      <span class="text" id="narrText"></span>
+    </div>
+
+    <div class="pipeline" id="pipeline">
+      <span class="flow-pulse"></span>
+      <div class="ploop" id="ploop"><span class="loop-tag">poll で繰り返す</span></div>
+
+      <div class="pnode" data-key="socket"><span class="chip">socket</span><span class="tip">fd を作る</span></div>
+      <div class="pconn" data-after="socket"></div>
+      <div class="pnode" data-key="bind"><span class="chip">bind</span><span class="tip">port に付ける</span></div>
+      <div class="pconn" data-after="bind"></div>
+      <div class="pnode" data-key="listen"><span class="chip">listen</span><span class="tip">接続待ち</span></div>
+      <div class="pconn" data-after="listen"></div>
+      <div class="pnode" data-key="accept"><span class="chip">accept</span><span class="tip">fd 7 誕生</span></div>
+      <div class="pconn" data-after="accept"></div>
+      <div class="pnode" data-key="recv"><span class="chip">recv</span><span class="tip">読む</span></div>
+      <div class="pconn" data-after="recv"></div>
+      <div class="pnode" data-key="send"><span class="chip">send</span><span class="tip">書く</span></div>
+      <div class="pconn" data-after="send"></div>
+      <div class="pnode" data-key="close"><span class="chip">close</span><span class="tip">閉じる</span></div>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="wire" id="wire"></div>
+      <div class="fd-label">fd 7</div>
+
+      <div class="packets">
+        <span class="pkt syn p-syn">SYN 接続要求</span>
+        <span class="pkt in p-in1">PRIVMSG #dev :hel</span>
+        <span class="pkt in p-in2">lo\r\n</span>
+        <span class="pkt in p-in3">JOIN #ops\r\n</span>
+        <span class="pkt out p-out1">001 :Welcome</span>
+        <span class="pkt out p-out2">JOIN を配送</span>
+        <span class="pkt fin p-fin">FIN 切断</span>
+      </div>
+
+      <section class="node client">
+        <div class="node-name">IRC client</div>
+        <div class="node-sub">nc localhost 4242</div>
+        <div class="screen" id="clientScreen"></div>
+      </section>
+
+      <section class="node server">
+        <div class="node-name">ircserv</div>
+        <div class="node-sub">あなたが書くサーバ</div>
+        <div class="screen" id="serverScreen"></div>
+        <span class="listen-badge">listening on :4242</span>
+        <div class="buf" id="buf">
+          <div class="buf-label">入力バッファ（client ごと）</div>
+          <div class="buf-content" id="bufContent">—</div>
+        </div>
+      </section>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="prev" aria-label="前へ">‹</button>
+      <button class="btn primary" id="play">Pause</button>
+      <button class="btn" id="next" aria-label="次へ">›</button>
+    </div>
+
+    <div class="rail" id="rail"></div>
+  </main>
+
+  <script>
+    // pipe order for highlighting; `reached` = index reached, `now` = active keys
+    const PIPE = ["socket", "bind", "listen", "accept", "recv", "send", "close"];
+
+    const steps = [
+      {
+        reached: 2, now: ["socket", "bind", "listen"],
+        syscall: "socket / bind / listen",
+        text: "サーバが受け口を用意する。まだ誰も来ていない。",
+        client: '<span class="dim"># まだ接続していない</span>',
+        server: '<span class="dim">$ ./ircserv 4242 pass</span>\n<span class="srv">Server is listening on port 4242</span>\n<span class="dim"># 接続を待っている…</span>',
+        buf: null
+      },
+      {
+        reached: 2, now: ["listen"],
+        syscall: "listen()",
+        text: "受け口（listening socket）は接続が来るのをただ待つ。会話用の通信路はまだ無い。",
+        client: '<span class="you">$ nc localhost 4242</span><span class="caret">_</span>',
+        server: '<span class="srv">Server is listening on port 4242</span>\n<span class="dim"># poll() で待機中</span>',
+        buf: null
+      },
+      {
+        reached: 3, now: ["accept"],
+        syscall: "accept()",
+        text: "client が接続。サーバは会話専用の fd 7 を受け取り、ここが2人の通信路になる。",
+        client: '<span class="you">$ nc localhost 4242</span>\n<span class="dim"># 接続できた</span>',
+        server: '<span class="srv">New client connected! FD: 7</span>\n<span class="dim"># fd 7 で読み書きする</span>',
+        buf: { kind: "empty", text: "（空）" }
+      },
+      {
+        reached: 4, now: ["recv"],
+        syscall: "recv()",
+        text: "client が打った文字が fd 7 に届く。バイトで来るので CRLF まで溜めてから1行にする。",
+        client: '<span class="you">PRIVMSG #dev :hello</span>\n<span class="you">JOIN #ops</span>',
+        server: '<span class="dim"># recv(fd7, ...) でバイトを読む</span>\n<span class="dim"># \\r\\n が来た行だけ処理</span>',
+        buf: { kind: "fill", text: 'PRIVMSG #dev :hel' }
+      },
+      {
+        reached: 5, now: ["send"],
+        syscall: "send()",
+        text: "サーバは返事を fd 7 に書く。同じ通信路を逆向きに流れていく。",
+        client: '<span class="you">PRIVMSG #dev :hello</span>\n<span class="srv">:ft_irc 001 alice :Welcome</span>',
+        server: '<span class="dim"># send(fd7, ":ft_irc 001 ...")</span>\n<span class="srv">> reply 送信</span>',
+        buf: { kind: "done", text: 'PRIVMSG #dev :hello  ← 処理済' }
+      },
+      {
+        reached: 6, now: ["close"],
+        syscall: "close()",
+        text: "client が抜けると fd 7 を閉じる。通信路は消え、サーバ側の状態も片付ける。",
+        client: '<span class="you">QUIT</span>\n<span class="dim"># 切断</span>',
+        server: '<span class="dim">Client FD 7 disconnected.</span>\n<span class="dim"># close(fd7) して掃除</span>',
+        buf: { kind: "empty", text: "（破棄）" }
+      }
+    ];
+
+    const body = document.body;
+    const syscallEl = document.getElementById("syscall");
+    const narrText = document.getElementById("narrText");
+    const clientScreen = document.getElementById("clientScreen");
+    const serverScreen = document.getElementById("serverScreen");
+    const buf = document.getElementById("buf");
+    const bufContent = document.getElementById("bufContent");
+    const wire = document.getElementById("wire");
+    const rail = document.getElementById("rail");
+    const pipeline = document.getElementById("pipeline");
+    const ploop = document.getElementById("ploop");
+    const playBtn = document.getElementById("play");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let current = 0;
+    let timer = null;
+    let playing = !reduceMotion;
+    let visible = true;
+    const DURATION = 3200;
+
+    function renderRail() {
+      rail.innerHTML = steps.map((s, i) => (
+        `<button class="dot" data-i="${i}" type="button" aria-label="${i+1}: ${s.syscall}">
+          <span class="num">${i+1}</span>
+          <span class="nm">${s.syscall.split(" ")[0]}</span>
+        </button>`
+      )).join("");
+      rail.querySelectorAll(".dot").forEach((d) => {
+        d.addEventListener("click", () => { setStep(Number(d.dataset.i)); stop(); });
+      });
+    }
+
+    function positionLoop() {
+      const recvEl = pipeline.querySelector('.pnode[data-key="recv"]');
+      const sendEl = pipeline.querySelector('.pnode[data-key="send"]');
+      if (!recvEl || !sendEl) return;
+      const base = pipeline.getBoundingClientRect();
+      const r = recvEl.getBoundingClientRect();
+      const s = sendEl.getBoundingClientRect();
+      const left = r.left - base.left + pipeline.scrollLeft;
+      const right = s.right - base.left + pipeline.scrollLeft;
+      ploop.style.left = left + "px";
+      ploop.style.width = (right - left) + "px";
+    }
+
+    function setStep(i) {
+      current = (i + steps.length) % steps.length;
+      const s = steps[current];
+      body.dataset.step = String(current);
+      syscallEl.textContent = s.syscall;
+      narrText.textContent = s.text;
+      clientScreen.innerHTML = s.client;
+      serverScreen.innerHTML = s.server;
+
+      // pipeline: mark done up to reached-1, now = active calls
+      const nowSet = new Set(s.now || []);
+      pipeline.querySelectorAll(".pnode").forEach((n) => {
+        const idx = PIPE.indexOf(n.dataset.key);
+        n.classList.toggle("done", idx < s.reached && !nowSet.has(n.dataset.key));
+        n.classList.toggle("now", nowSet.has(n.dataset.key));
+      });
+      pipeline.querySelectorAll(".pconn").forEach((c) => {
+        const idx = PIPE.indexOf(c.dataset.after);
+        c.classList.toggle("done", idx < s.reached - 1 || (idx < s.reached && !nowSet.has(PIPE[idx + 1])));
+      });
+      positionLoop();
+
+      // wire becomes live once connected (step >= 2 and < 5)
+      wire.classList.toggle("live", current >= 2 && current <= 4);
+
+      // buffer
+      if (!s.buf) {
+        buf.style.display = "none";
+      } else {
+        buf.style.display = "";
+        bufContent.className = "buf-content";
+        buf.classList.remove("flash");
+        if (s.buf.kind === "fill") {
+          bufContent.innerHTML = `<span class="partial">${s.buf.text}</span>`;
+        } else if (s.buf.kind === "done") {
+          bufContent.innerHTML = `<span class="done">${s.buf.text}</span>`;
+          // flash to show a complete line landed
+          void buf.offsetWidth;
+          buf.classList.add("flash");
+        } else {
+          bufContent.textContent = s.buf.text;
+        }
+      }
+
+      rail.querySelectorAll(".dot").forEach((d, di) => {
+        d.classList.toggle("active", di === current);
+        d.setAttribute("aria-current", di === current ? "step" : "false");
+      });
+    }
+
+    function schedule() {
+      clearTimeout(timer);
+      if (!playing || !visible) return;
+      timer = setTimeout(() => { setStep(current + 1); schedule(); }, DURATION);
+    }
+    function play() { playing = true; playBtn.textContent = "Pause"; body.classList.add("run"); schedule(); }
+    function stop() { playing = false; playBtn.textContent = "Play"; body.classList.remove("run"); clearTimeout(timer); }
+
+    playBtn.addEventListener("click", () => { playing ? stop() : play(); });
+    prevBtn.addEventListener("click", () => { setStep(current - 1); stop(); });
+    nextBtn.addEventListener("click", () => { setStep(current + 1); stop(); });
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((es) => {
+        visible = es.some((e) => e.isIntersecting);
+        if (visible && playing) { body.classList.add("run"); schedule(); }
+        else { clearTimeout(timer); body.classList.remove("run"); }
+      }).observe(document.getElementById("stage"));
+    }
+    document.addEventListener("visibilitychange", () => {
+      visible = document.visibilityState === "visible";
+      if (visible && playing) { body.classList.add("run"); schedule(); }
+      else { clearTimeout(timer); body.classList.remove("run"); }
+    });
+
+    renderRail();
+    setStep(0);
+    window.addEventListener("resize", positionLoop);
+    requestAnimationFrame(positionLoop);
+    playing ? play() : stop();
+  </script>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>pollfds_ で状態を保つ — events と revents</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --subtle: #e2e8f0;
+      --line: #cbd5e1;
+      --you: #2563eb;        /* events = あなたが書く */
+      --you-soft: #dbeafe;
+      --poll: #ea580c;       /* revents = poll が書く */
+      --poll-soft: #ffedd5;
+      --anchor: #0f766e;     /* listening socket */
+      --anchor-soft: #ccfbf1;
+      --ok: #15803d;
+      --error: #b91c1c;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100dvh; background: radial-gradient(120% 120% at 50% 0%, #fff 0%, var(--bg) 60%); color: var(--ink); }
+    button { font: inherit; }
+    .page { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 36px; }
+
+    .top { text-align: center; margin-bottom: 14px; }
+    h1 { margin: 0 0 6px; font-size: clamp(23px, 3.3vw, 32px); line-height: 1.1; }
+    .sub { margin: 0; color: var(--muted); font-size: 15px; }
+
+    .legend { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin: 14px 0 0; font-size: 12.5px; }
+    .legend span { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); }
+    .legend i { width: 13px; height: 13px; border-radius: 4px; display: inline-block; }
+    .legend i.you { background: var(--you); }
+    .legend i.poll { background: var(--poll); }
+    .legend i.anchor { background: var(--anchor); }
+
+    /* narration */
+    .narration { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 70px; margin: 16px auto; padding: 14px 20px; max-width: 820px; border: 1px solid var(--subtle); border-radius: 14px; background: var(--panel); box-shadow: var(--shadow); text-align: center; }
+    .narration .call { flex: none; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 800; font-size: 14px; padding: 7px 12px; border-radius: 10px; background: var(--anchor-soft); color: var(--anchor); white-space: nowrap; }
+    .narration .text { font-size: 16px; line-height: 1.55; color: var(--ink); text-wrap: balance; }
+
+    /* stage: pollfds_ table + loop counter */
+    .stage { border: 1px solid var(--subtle); border-radius: 16px; background: var(--panel); box-shadow: var(--shadow); padding: 16px; margin-bottom: 18px; }
+
+    .stage-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .stage-head .nm { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 800; font-size: 14px; }
+    .stage-head .nm .ty { color: var(--muted); font-weight: 600; font-size: 12px; margin-left: 6px; }
+    .loopc { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); padding: 5px 11px; border: 1px solid var(--subtle); border-radius: 999px; background: #f8fafc; }
+    .loopc b { font-variant-numeric: tabular-nums; color: var(--ink); font-size: 14px; }
+
+    .fds { border: 1px solid var(--subtle); border-radius: 10px; overflow: hidden; }
+    .fds-head, .fds-row {
+      display: grid; grid-template-columns: 58px 70px 1.4fr 1.4fr 1.5fr; gap: 8px; align-items: center; padding: 10px 12px;
+    }
+    .fds-head { background: #0f172a; color: #e5e7eb; font-family: ui-monospace, monospace; font-size: 12px; font-weight: 700; }
+    .fds-head .cev { color: #93c5fd; }
+    .fds-head .crv { color: #fdba74; }
+    .fds-row { border-top: 1px solid var(--subtle); background: #fff; transition: background 220ms ease, opacity 260ms ease, transform 260ms ease; }
+    .fds-row .idx { font-family: ui-monospace, monospace; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .fds-row .fd { font-family: ui-monospace, monospace; font-weight: 800; }
+    .fds-row .role { color: var(--muted); font-size: 12px; }
+
+    .cell { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; min-height: 28px; }
+    .flag { font-family: ui-monospace, monospace; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; border: 1.5px solid var(--subtle); background: #f1f5f9; color: #94a3b8; transition: all 220ms ease; }
+    .flag.ev { background: var(--you-soft); color: #1e3a8a; border-color: #93c5fd; }
+    .flag.rv { background: var(--poll-soft); color: #7c2d12; border-color: #fdba74; }
+    .flag.zero { background: #f1f5f9; color: #94a3b8; border-color: var(--subtle); }
+    .flag.pop { animation: pop 360ms ease-out; }
+    @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .fds-row.anchor { background: var(--anchor-soft); }
+    .fds-row.anchor .fd { color: var(--anchor); }
+    .fds-row.entering { animation: rowin 380ms ease-out; }
+    @keyframes rowin { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .fds-row.leaving { animation: rowout 520ms ease-in forwards; }
+    @keyframes rowout { to { opacity: 0; transform: translateX(-24px); } }
+    .fds-row.fired { background: #fff7ed; }
+
+    .pin { font-size: 10px; font-weight: 800; color: var(--anchor); border: 1px solid var(--anchor); border-radius: 999px; padding: 1px 7px; margin-left: 6px; }
+
+    /* note under table */
+    .statenote { margin-top: 12px; display: flex; gap: 10px; align-items: flex-start; padding: 11px 13px; border-radius: 10px; background: #f8fafc; border: 1px dashed var(--line); font-size: 13px; color: var(--muted); line-height: 1.5; min-height: 20px; }
+    .statenote b { color: var(--ink); }
+    .statenote code { font-family: ui-monospace, monospace; color: var(--ink); }
+    .statenote.you { border-color: var(--you); background: var(--you-soft); color: #1e3a8a; }
+    .statenote.poll { border-color: var(--poll); background: var(--poll-soft); color: #7c2d12; }
+    .statenote.keep { border-color: var(--anchor); background: var(--anchor-soft); color: #134e4a; }
+
+    /* controls + rail */
+    .controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 16px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; min-width: 44px; padding: 8px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); cursor: pointer; }
+    .btn:hover { border-color: var(--anchor); }
+    .btn.primary { border-color: var(--anchor); background: var(--anchor); color: #fff; }
+    .btn:focus-visible { outline: 3px solid var(--anchor-soft); outline-offset: 2px; }
+    .rail { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .dot { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 118px; padding: 10px 6px; border: 1px solid var(--subtle); border-radius: 12px; background: var(--panel); cursor: pointer; text-align: center; }
+    .dot .num { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 999px; background: #f1f5f9; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .dot .nm { font-size: 11px; font-weight: 700; color: var(--ink); }
+    .dot.active { border-color: var(--anchor); background: var(--anchor-soft); }
+    .dot.active .num { background: var(--anchor); color: #fff; }
+
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; } }
+    @media (max-width: 680px) {
+      .fds-head, .fds-row { grid-template-columns: 38px 56px 1fr 1fr; }
+      .fds-head .crole, .fds-row .role { display: none; }
+      .dot { width: 92px; }
+    }
+  </style>
+</head>
+<body data-step="0">
+  <main class="page">
+    <style>.lnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;padding:8px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;box-shadow:0 6px 16px rgba(15,23,42,.06);font-size:13px}.lnav a{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;text-decoration:none;color:#0f172a;border:1px solid #e2e8f0;background:#fff;white-space:nowrap}.lnav a:hover{border-color:#0f766e;color:#0f766e}.lnav .home{background:#0f172a;color:#fff;border-color:#0f172a;font-weight:700}.lnav .pos{color:#64748b;font-weight:700}.lnav .sp{flex:1 1 auto}.lnav a.off{opacity:.3;pointer-events:none}@media(max-width:600px){.lnav .pos{display:none}}</style>
+    <nav class="lnav">
+      <a class="home" href="index.html">☰ 一覧</a>
+      <span class="pos">Lesson 4 / 7</span>
+      <span class="sp"></span>
+      <a href="poll_loop_animation.html">‹ poll() ループ</a>
+      <a href="recv_send_animation.html">recv / send ›</a>
+    </nav>
+
+    <div class="top">
+      <h1>pollfds_ で状態を保つ</h1>
+      <p class="sub">fork も thread も無い。この1本の配列が「全 client の記憶」。各エントリが events と revents を持つ</p>
+      <div class="legend">
+        <span><i class="anchor"></i> fds[0] = listening socket（常に先頭）</span>
+        <span><i class="you"></i> events = あなたが設定（見たい）</span>
+        <span><i class="poll"></i> revents = poll() が書く（起きた）</span>
+      </div>
+    </div>
+
+    <div class="narration">
+      <span class="call" id="call">pollfds_[0]</span>
+      <span class="text" id="narrText"></span>
+    </div>
+
+    <div class="stage">
+      <div class="stage-head">
+        <span class="nm">pollfds_<span class="ty">std::vector&lt;struct pollfd&gt;</span></span>
+        <span class="loopc">while ループ <b id="loopn">#1</b> 回目</span>
+      </div>
+      <div class="fds">
+        <div class="fds-head">
+          <span>index</span><span>fd</span><span class="cev">events</span><span class="crv">revents</span><span class="crole">role</span>
+        </div>
+        <div id="fdsBody"></div>
+      </div>
+      <div class="statenote" id="stateNote"></div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="prev" aria-label="前へ">‹</button>
+      <button class="btn primary" id="play">Pause</button>
+      <button class="btn" id="next" aria-label="次へ">›</button>
+    </div>
+
+    <div class="rail" id="rail"></div>
+  </main>
+
+  <script>
+    // a pollfd row: { idx, fd, role, events:[...], revents:[...], anchor, enter, leave, fired }
+    // flag kinds: ev (POLLIN/OUT you set), rv (revents poll set), zero
+    function ev(v) { return { v, k: "ev" }; }
+    function rv(v) { return { v, k: "rv" }; }
+    function zero() { return { v: "0", k: "zero" }; }
+
+    const steps = [
+      {
+        loop: 1, call: "pollfds_[0]",
+        head: "配列の [0] は必ず listening socket（起点）",
+        note: ["anchor", "fork も thread も無いので、<b>この vector だけ</b>が「今どの fd を見ているか」の記憶。先頭 <code>[0]</code> は接続を受ける listening socket で、ずっと消えない。"],
+        rows: [
+          { idx: 0, fd: "fd 3", role: "listening socket", anchor: true, pin: "起点", events: [ev("POLLIN")], revents: [zero()] }
+        ]
+      },
+      {
+        loop: 1, call: "push_back",
+        head: "client が来たら末尾に push_back",
+        note: ["keep", "接続するたび <code>pollfds_.push_back</code> で末尾にエントリが増える。ここでは A(fd 7)・B(fd 8) が入って配列が伸びた。<b>配列が伸びる = 覚える client が増える</b>。"],
+        rows: [
+          { idx: 0, fd: "fd 3", role: "listening socket", anchor: true, pin: "起点", events: [ev("POLLIN")], revents: [zero()] },
+          { idx: 1, fd: "fd 7", role: "client A", enter: true, events: [ev("POLLIN")], revents: [zero()] },
+          { idx: 2, fd: "fd 8", role: "client B", enter: true, events: [ev("POLLIN")], revents: [zero()] }
+        ]
+      },
+      {
+        loop: 2, call: "updatePollEvents()",
+        head: "events =「見たい」を あなたが書く",
+        note: ["you", "ループの最初に <code>updatePollEvents</code> が <b>events 列</b>を埋める。client は「読めたら教えて」＝ <code>POLLIN</code>。同時に <b>revents 列を 0 にリセット</b>（前回の結果を消す）。"],
+        rows: [
+          { idx: 0, fd: "fd 3", role: "listening socket", anchor: true, pin: "起点", events: [{ v: "POLLIN", k: "ev", pop: true }], revents: [zero()] },
+          { idx: 1, fd: "fd 7", role: "client A", events: [{ v: "POLLIN", k: "ev", pop: true }], revents: [zero()] },
+          { idx: 2, fd: "fd 8", role: "client B", events: [{ v: "POLLIN", k: "ev", pop: true }], revents: [zero()] }
+        ]
+      },
+      {
+        loop: 2, call: "poll(&pollfds_[0], n, -1)",
+        head: "revents =「起きた」を poll が書く",
+        note: ["poll", "<code>poll()</code> は events を読んで待ち、動いた fd の <b>revents だけ</b>を書き込む。<b>events はあなた、revents は poll</b>。今回 fd 3 と fd 7 に <code>POLLIN</code> が立った（fd 8 は何も無いので 0 のまま）。"],
+        rows: [
+          { idx: 0, fd: "fd 3", role: "listening socket", anchor: true, pin: "起点", fired: true, events: [ev("POLLIN")], revents: [{ v: "POLLIN", k: "rv", pop: true }] },
+          { idx: 1, fd: "fd 7", role: "client A", fired: true, events: [ev("POLLIN")], revents: [{ v: "POLLIN", k: "rv", pop: true }] },
+          { idx: 2, fd: "fd 8", role: "client B", events: [ev("POLLIN")], revents: [zero()] }
+        ]
+      },
+      {
+        loop: 2, call: "revents で分岐",
+        head: "1 行に 2 列 — events と revents",
+        note: ["keep", "同じエントリが「見たい(events・青)」と「起きた(revents・橙)」を並べて持つ。コードは <b>revents だけ</b>を見て分岐：<code>revents & POLLIN</code> なら読む。fd 8 は revents が 0 なので今回は <b>skip</b>。"],
+        rows: [
+          { idx: 0, fd: "fd 3", role: "→ acceptClients()", anchor: true, pin: "起点", fired: true, events: [ev("POLLIN")], revents: [rv("POLLIN")] },
+          { idx: 1, fd: "fd 7", role: "→ handleClientRead()", fired: true, events: [ev("POLLIN")], revents: [rv("POLLIN")] },
+          { idx: 2, fd: "fd 8", role: "revents=0 → skip", events: [ev("POLLIN")], revents: [zero()] }
+        ]
+      },
+      {
+        loop: 3, call: "次の while ループ",
+        head: "次の周: revents は 0 に戻る。配列は残る",
+        note: ["keep", "次の周で <code>updatePollEvents</code> が revents を <b>また全部 0 に</b>戻す。でも <b>どの fd が居るか（配列の中身）はそのまま</b>。これが「状態を保つ」正体 — 再接続でも変数でもなく、この vector が記憶している。"],
+        rows: [
+          { idx: 0, fd: "fd 3", role: "listening socket", anchor: true, pin: "起点", events: [ev("POLLIN")], revents: [{ v: "0", k: "zero", pop: true }] },
+          { idx: 1, fd: "fd 7", role: "client A", events: [ev("POLLIN")], revents: [{ v: "0", k: "zero", pop: true }] },
+          { idx: 2, fd: "fd 8", role: "client B", events: [ev("POLLIN")], revents: [{ v: "0", k: "zero", pop: true }] }
+        ]
+      },
+      {
+        loop: 3, call: "updatePollEvents() ①",
+        head: "① 送信待ち — events に POLLOUT を足す",
+        note: ["you", "fd 7 を読んだ後、返信が出力に溜まった。次の周の <code>updatePollEvents</code> が <code>hasPendingOutput()</code> を見て fd 7 に <b>events |= POLLOUT</b>（＝「書けるようになったら教えて」）。まだ送っていない＝<b>送信待ち</b>。送る物が無い fd 8 は POLLIN のまま。"],
+        rows: [
+          { idx: 0, fd: "fd 3", role: "listening socket", anchor: true, pin: "起点", events: [ev("POLLIN")], revents: [zero()] },
+          { idx: 1, fd: "fd 7", role: "client A (送信待ち)", fired: true, events: [ev("POLLIN"), { v: "POLLOUT", k: "ev", pop: true }], revents: [zero()] },
+          { idx: 2, fd: "fd 8", role: "client B (送る物なし)", events: [ev("POLLIN")], revents: [zero()] }
+        ]
+      },
+      {
+        loop: 3, call: "poll() ②",
+        head: "② poll が「fd 7 は書ける」= revents に POLLOUT",
+        note: ["poll", "<code>poll()</code> は socket の送信バッファに空きがあれば、POLLOUT を見ている fd 7 の <b>revents に POLLOUT</b> を立てて返る。これで「今なら send できる」と分かる（events はあなた、revents は poll）。"],
+        rows: [
+          { idx: 0, fd: "fd 3", role: "listening socket", anchor: true, pin: "起点", events: [ev("POLLIN")], revents: [zero()] },
+          { idx: 1, fd: "fd 7", role: "→ handleClientWrite()", fired: true, events: [ev("POLLIN"), ev("POLLOUT")], revents: [{ v: "POLLOUT", k: "rv", pop: true }] },
+          { idx: 2, fd: "fd 8", role: "client B", events: [ev("POLLIN")], revents: [zero()] }
+        ]
+      },
+      {
+        loop: 3, call: "send() ③",
+        head: "③ send 完了 → POLLOUT は外れて POLLIN だけに",
+        note: ["keep", "<code>handleClientWrite(fd7)</code> が <code>send</code> で出力を書き出し、送れた分を erase。空になると次の <code>updatePollEvents</code> はもう POLLOUT を足さない。＝<b>送信待ち → 送信 → 済んだら POLLOUT は消える</b>。この付け外しで busy-loop を避ける。"],
+        rows: [
+          { idx: 0, fd: "fd 3", role: "listening socket", anchor: true, pin: "起点", events: [ev("POLLIN")], revents: [zero()] },
+          { idx: 1, fd: "fd 7", role: "client A (送信済み)", events: [{ v: "POLLIN", k: "ev", pop: true }], revents: [zero()] },
+          { idx: 2, fd: "fd 8", role: "client B", events: [ev("POLLIN")], revents: [zero()] }
+        ]
+      },
+      {
+        loop: 3, call: "closeClient() → erase",
+        head: "切断したら配列から erase（起点は残る）",
+        note: ["poll", "fd 8 が切断すると revents に <code>POLLHUP</code>。<code>closeClient</code> がその行を配列から削除する。<b>配列が縮む = 記憶が減る</b>。先頭 [0] の listening socket は残り続ける。"],
+        rows: [
+          { idx: 0, fd: "fd 3", role: "listening socket", anchor: true, pin: "起点", events: [ev("POLLIN")], revents: [zero()] },
+          { idx: 1, fd: "fd 7", role: "client A", events: [ev("POLLIN")], revents: [zero()] },
+          { idx: 2, fd: "fd 8", role: "client B (切断)", leave: true, fired: true, events: [ev("POLLIN")], revents: [{ v: "POLLHUP", k: "rv", pop: true }] }
+        ]
+      }
+    ];
+
+    const body = document.body;
+    const call = document.getElementById("call");
+    const narrText = document.getElementById("narrText");
+    const fdsBody = document.getElementById("fdsBody");
+    const stateNote = document.getElementById("stateNote");
+    const loopn = document.getElementById("loopn");
+    const rail = document.getElementById("rail");
+    const playBtn = document.getElementById("play");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let current = 0, timer = null, playing = !reduceMotion, visible = true;
+    const DURATION = 3600;
+
+    function flagsHtml(flags) {
+      return flags.map((f) => `<span class="flag ${f.k}${f.pop ? " pop" : ""}">${f.v}</span>`).join("");
+    }
+
+    function renderRows(rows) {
+      fdsBody.innerHTML = rows.map((r) => {
+        const cls = ["fds-row"];
+        if (r.anchor) cls.push("anchor");
+        if (r.enter) cls.push("entering");
+        if (r.leave) cls.push("leaving");
+        if (r.fired) cls.push("fired");
+        return `<div class="${cls.join(" ")}">
+          <span class="idx">[${r.idx}]</span>
+          <span class="fd">${r.fd}</span>
+          <span class="cell">${flagsHtml(r.events)}</span>
+          <span class="cell">${flagsHtml(r.revents)}</span>
+          <span class="role">${r.role}${r.pin ? `<span class="pin">${r.pin}</span>` : ""}</span>
+        </div>`;
+      }).join("");
+    }
+
+    function renderRail() {
+      const labels = ["最初のfd", "client追加", "events組立", "poll実行", "revで分岐", "次ループ", "①送信待ち", "②revPOLLOUT", "③send完了", "切断erase"];
+      rail.innerHTML = steps.map((s, i) => (
+        `<button class="dot" data-i="${i}" type="button"><span class="num">${i + 1}</span><span class="nm">${labels[i]}</span></button>`
+      )).join("");
+      rail.querySelectorAll(".dot").forEach((d) => d.addEventListener("click", () => { setStep(Number(d.dataset.i)); stop(); }));
+    }
+
+    function setStep(i) {
+      current = (i + steps.length) % steps.length;
+      const s = steps[current];
+      body.dataset.step = String(current);
+      call.textContent = s.call;
+      loopn.textContent = "#" + s.loop;
+      renderRows(s.rows);
+      stateNote.className = "statenote " + s.note[0];
+      stateNote.innerHTML = s.note[1];
+      narrText.textContent = s.head;
+      rail.querySelectorAll(".dot").forEach((d, di) => d.classList.toggle("active", di === current));
+    }
+
+    function schedule() { clearTimeout(timer); if (!playing || !visible) return; timer = setTimeout(() => { setStep(current + 1); schedule(); }, DURATION); }
+    function play() { playing = true; playBtn.textContent = "Pause"; schedule(); }
+    function stop() { playing = false; playBtn.textContent = "Play"; clearTimeout(timer); }
+
+    playBtn.addEventListener("click", () => { playing ? stop() : play(); });
+    prevBtn.addEventListener("click", () => { setStep(current - 1); stop(); });
+    nextBtn.addEventListener("click", () => { setStep(current + 1); stop(); });
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((es) => {
+        visible = es.some((e) => e.isIntersecting);
+        if (visible && playing) schedule(); else clearTimeout(timer);
+      }).observe(document.querySelector(".stage"));
+    }
+    document.addEventListener("visibilitychange", () => {
+      visible = document.visibilityState === "visible";
+      if (visible && playing) schedule(); else clearTimeout(timer);
+    });
+
+    renderRail();
+    setStep(0);
+    playing ? play() : stop();
+  </script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>メッセージ中継 — 受けた fd と送る fd は別</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --subtle: #e2e8f0;
+      --line: #cbd5e1;
+      --a: #2563eb;        /* fd 7 / alice (受信) */
+      --a-soft: #dbeafe;
+      --b: #15803d;        /* fd 8 / bob (送信) */
+      --b-soft: #dcfce7;
+      --look: #7c3aed;     /* lookup */
+      --look-soft: #ede9fe;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100dvh; background: radial-gradient(120% 120% at 50% 0%, #fff 0%, var(--bg) 60%); color: var(--ink); }
+    button { font: inherit; }
+    .page { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 36px; }
+
+    .top { text-align: center; margin-bottom: 12px; }
+    h1 { margin: 0 0 6px; font-size: clamp(22px, 3.2vw, 31px); line-height: 1.1; }
+    .sub { margin: 0; color: var(--muted); font-size: 15px; }
+    .headline { margin: 10px auto 0; max-width: 620px; font-weight: 800; font-size: 14px; color: var(--look); background: var(--look-soft); border: 1px solid #c4b5fd; padding: 8px 14px; border-radius: 999px; display: inline-block; }
+
+    .narration { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 68px; margin: 16px auto; padding: 13px 18px; max-width: 820px; border: 1px solid var(--subtle); border-radius: 14px; background: var(--panel); box-shadow: var(--shadow); text-align: center; }
+    .narration .call { flex: none; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 800; font-size: 13px; padding: 7px 11px; border-radius: 10px; background: var(--a-soft); color: var(--a); white-space: nowrap; }
+    body[data-step="3"] .narration .call, body[data-step="4"] .narration .call, body[data-step="5"] .narration .call { background: var(--b-soft); color: var(--b); }
+    body[data-step="2"] .narration .call { background: var(--look-soft); color: var(--look); }
+    .narration .text { font-size: 15.5px; line-height: 1.5; color: var(--ink); text-wrap: balance; }
+
+    /* board: A (left) -> server (center) -> B (right) */
+    .board {
+      position: relative;
+      border: 1px solid var(--subtle); border-radius: 16px; background: var(--panel); box-shadow: var(--shadow);
+      padding: 18px; margin-bottom: 18px;
+      display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 14px; align-items: stretch;
+      min-height: 420px;
+    }
+    @media (max-width: 820px) { .board { grid-template-columns: 1fr; } }
+
+    .col { display: grid; gap: 10px; align-content: start; }
+
+    .client {
+      border-radius: 14px; padding: 14px; border: 2px solid var(--subtle); background: #f8fafc;
+      transition: border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
+    }
+    .client.a { border-top: 4px solid var(--a); }
+    .client.b { border-top: 4px solid var(--b); }
+    .client .who { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+    .client .who .nm { font-weight: 800; font-size: 14px; }
+    .client .who .fd { font-family: ui-monospace, monospace; font-size: 12px; font-weight: 800; padding: 2px 9px; border-radius: 999px; }
+    .client.a .who .fd { background: var(--a); color: #fff; }
+    .client.b .who .fd { background: var(--b); color: #fff; }
+    .client .screen { border-radius: 8px; background: #0f172a; color: #e5e7eb; padding: 9px 10px; min-height: 70px; font-family: ui-monospace, monospace; font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
+    .client .screen .you { color: #93c5fd; }
+    .client .screen .got { color: #86efac; }
+    .client .screen .dim { color: #64748b; }
+    .client.spot-a { border-color: var(--a); box-shadow: 0 8px 20px rgba(37,99,235,0.16); background: #fff; }
+    .client.spot-b { border-color: var(--b); box-shadow: 0 8px 20px rgba(21,128,61,0.16); background: #fff; }
+
+    /* per-client output queue indicator */
+    .oq { margin-top: 8px; border: 1px dashed var(--line); border-radius: 8px; padding: 7px 9px; background: #fff; }
+    .oq .lbl { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+    .oq .item { font-family: ui-monospace, monospace; font-size: 11px; font-weight: 800; color: var(--b); background: var(--b-soft); border: 1px solid #86efac; border-radius: 6px; padding: 4px 7px; display: inline-block; animation: pop 360ms ease-out; }
+    .oq .empty { font-size: 11px; color: #94a3b8; font-style: italic; }
+    @keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* center server pipeline (vertical) */
+    .server { border: 1px solid var(--subtle); border-radius: 14px; background: #fff; padding: 14px; display: grid; gap: 9px; align-content: start; }
+    .server .sh { text-align: center; font-weight: 800; font-size: 13px; color: var(--muted); margin-bottom: 2px; }
+    .stepbox {
+      border: 1.5px solid var(--subtle); border-radius: 9px; padding: 9px 11px; background: #f8fafc;
+      transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+    }
+    .stepbox .t { font-family: ui-monospace, monospace; font-size: 12px; font-weight: 800; margin-bottom: 2px; }
+    .stepbox .d { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+    .stepbox.on { border-color: var(--look); background: var(--look-soft); box-shadow: 0 6px 16px rgba(124,58,237,0.16); transform: translateX(2px); }
+    .stepbox.on.in { border-color: var(--a); background: var(--a-soft); box-shadow: 0 6px 16px rgba(37,99,235,0.16); }
+    .stepbox.on.out { border-color: var(--b); background: var(--b-soft); box-shadow: 0 6px 16px rgba(21,128,61,0.16); }
+
+    /* the nickToFd_ lookup table inside the "decide" box */
+    .nicktable { margin-top: 8px; display: grid; gap: 5px; }
+    .nrow { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; font-family: ui-monospace, monospace; font-size: 11.5px; padding: 4px 8px; border-radius: 6px; background: #fff; border: 1px solid var(--subtle); }
+    .nrow .nick { font-weight: 800; }
+    .nrow .arr { color: var(--muted); }
+    .nrow .tofd { font-weight: 800; text-align: right; }
+    .nrow.pick { border-color: var(--b); background: var(--b-soft); color: #14532d; }
+    .nrow.exclude { opacity: 0.45; text-decoration: line-through; }
+    .nrow .tag { font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 999px; margin-left: 6px; }
+    .nrow.pick .tag { background: var(--b); color: #fff; }
+    .nrow.exclude .tag { background: #94a3b8; color: #fff; }
+
+    /* flying message packet across the board */
+    .flyer {
+      position: absolute; z-index: 6; top: 0; left: 0;
+      display: inline-flex; align-items: center; height: 28px; padding: 0 11px; border-radius: 999px;
+      font-family: ui-monospace, monospace; font-size: 11.5px; font-weight: 800; color: #fff; white-space: nowrap;
+      box-shadow: 0 8px 18px rgba(15,23,42,0.22); opacity: 0; pointer-events: none;
+      transition: none;
+    }
+    .flyer.show { opacity: 1; }
+    .flyer.a { background: var(--a); }
+    .flyer.b { background: var(--b); }
+    body.run .flyer.anim-in { animation: fly 1.6s ease-in-out infinite; }
+    @keyframes fly { 0% { opacity: 0; transform: scale(.85); } 14% { opacity: 1; transform: scale(1); } 86% { opacity: 1; } 100% { opacity: 0; transform: scale(.9); } }
+
+    .statenote { margin-top: 6px; padding: 10px 13px; border-radius: 10px; background: #f8fafc; border: 1px dashed var(--line); font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .statenote b { color: var(--ink); }
+    .statenote code { font-family: ui-monospace, monospace; color: var(--ink); }
+
+    .controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 16px 0; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; min-width: 44px; padding: 8px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); cursor: pointer; }
+    .btn:hover { border-color: var(--look); }
+    .btn.primary { border-color: var(--look); background: var(--look); color: #fff; }
+    .rail { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .dot { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 120px; padding: 10px 6px; border: 1px solid var(--subtle); border-radius: 12px; background: var(--panel); cursor: pointer; text-align: center; }
+    .dot .num { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 999px; background: #f1f5f9; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .dot .nm { font-size: 11px; font-weight: 700; color: var(--ink); }
+    .dot.active { border-color: var(--look); background: var(--look-soft); }
+    .dot.active .num { background: var(--look); color: #fff; }
+
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; } }
+    @media (max-width: 820px) { .flyer { display: none; } .dot { width: 96px; } }
+  </style>
+</head>
+<body data-step="0">
+  <main class="page">
+    <style>.lnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;padding:8px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;box-shadow:0 6px 16px rgba(15,23,42,.06);font-size:13px}.lnav a{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;text-decoration:none;color:#0f172a;border:1px solid #e2e8f0;background:#fff;white-space:nowrap}.lnav a:hover{border-color:#0f766e;color:#0f766e}.lnav .home{background:#0f172a;color:#fff;border-color:#0f172a;font-weight:700}.lnav .pos{color:#64748b;font-weight:700}.lnav .sp{flex:1 1 auto}.lnav a.off{opacity:.3;pointer-events:none}@media(max-width:600px){.lnav .pos{display:none}}</style>
+    <nav class="lnav">
+      <a class="home" href="index.html">☰ 一覧</a>
+      <span class="pos">Lesson 7 / 7</span>
+      <span class="sp"></span>
+      <a href="client_session_animation.html">‹ ClientSession</a>
+      <a class="off" href="#">完了 ›</a>
+    </nav>
+
+    <div class="top">
+      <h1>メッセージ中継 — fd 7 で受けて fd 8 へ送る</h1>
+      <p class="sub">alice の発言を、なぜ・どうやって bob に届けるか。受信した fd と送信する fd は別物。</p>
+      <div class="headline">受けた fd 7 ＝ 送る fd 8 ではない。橋渡しは nickToFd_ と出力キュー＋POLLOUT</div>
+    </div>
+
+    <div class="narration">
+      <span class="call" id="call">fd 7 POLLIN</span>
+      <span class="text" id="narrText"></span>
+    </div>
+
+    <div class="board" id="board">
+      <span class="flyer" id="flyer"></span>
+
+      <!-- left: client A (sender) -->
+      <div class="col">
+        <div class="client a" id="clientA">
+          <div class="who"><span class="nm">alice</span><span class="fd">fd 7</span></div>
+          <div class="screen" id="screenA"></div>
+        </div>
+      </div>
+
+      <!-- center: server pipeline -->
+      <div class="col">
+        <div class="server">
+          <div class="sh">ircserv（1プロセス）</div>
+          <div class="stepbox in" id="sbRead"><div class="t">① recv(fd7) → parse</div><div class="d">fd 7 の POLLIN を読み、:alice PRIVMSG #dev :hi に解釈</div></div>
+          <div class="stepbox" id="sbLook">
+            <div class="t">② 宛先を引く</div>
+            <div class="d">broadcastToChannel("#dev") → メンバーを nickToFd_ で fd に変換（自分は除外）</div>
+            <div class="nicktable" id="nicktable"></div>
+          </div>
+          <div class="stepbox out" id="sbEnq"><div class="t">③ sendToClient(8) → enqueueReply</div><div class="d">fd 8 の ClientSession の出力キューに積む（受けた fd≠送る fd）</div></div>
+          <div class="stepbox out" id="sbPollout"><div class="t">④ updatePollEvents: fd8 |= POLLOUT</div><div class="d">出力待ちがあるので fd 8 を「書ける時に教えて」に</div></div>
+          <div class="stepbox out" id="sbSend"><div class="t">⑤ poll→POLLOUT→send(fd8)</div><div class="d">fd 8 が書けるようになったら send で bob へ</div></div>
+        </div>
+      </div>
+
+      <!-- right: client B (receiver) -->
+      <div class="col">
+        <div class="client b" id="clientB">
+          <div class="who"><span class="nm">bob</span><span class="fd">fd 8</span></div>
+          <div class="screen" id="screenB"></div>
+          <div class="oq">
+            <div class="lbl">bob の outputQueue_</div>
+            <div id="oqB"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="statenote" id="stateNote"></div>
+
+    <div class="controls">
+      <button class="btn" id="prev" aria-label="前へ">‹</button>
+      <button class="btn primary" id="play">Pause</button>
+      <button class="btn" id="next" aria-label="次へ">›</button>
+    </div>
+
+    <div class="rail" id="rail"></div>
+  </main>
+
+  <script>
+    // flyer path points (relative to board), per step. {x,y} as % of board.
+    const steps = [
+      {
+        call: "fd 7 POLLIN", spot: "a", on: "sbRead",
+        text: "alice が #dev に PRIVMSG。fd 7 が読める状態（POLLIN）になり、recv で受け取る。まず「受信側の fd」。",
+        screenA: '<span class="you">PRIVMSG #dev :hi</span>',
+        screenB: '<span class="dim"># まだ何も来ていない</span>',
+        nick: "base", oqB: [],
+        flyer: { cls: "a", text: "PRIVMSG #dev :hi", from: [22, 30], to: [42, 26] },
+        note: 'recv は <b>fd 7</b> から読む。これは <code>handleClientRead(7)</code>。ここではまだ bob は関係ない。'
+      },
+      {
+        call: "parse", spot: "a", on: "sbRead",
+        text: "受け取ったバイトを1行にして解釈。:alice PRIVMSG #dev :hi という「中継すべきメッセージ」が組み立つ。",
+        screenA: '<span class="you">PRIVMSG #dev :hi</span>',
+        screenB: '<span class="dim"># まだ何も来ていない</span>',
+        nick: "base", oqB: [],
+        flyer: { cls: "a", text: ":alice PRIVMSG #dev :hi", from: [42, 26], to: [42, 26] },
+        note: 'dispatch が <code>handlePRIVMSG</code> を呼ぶ。送る本文 <code>:alice PRIVMSG #dev :hi</code> を作る。'
+      },
+      {
+        call: "broadcastToChannel(\"#dev\")", spot: null, on: "sbLook",
+        text: "ここが転送の核心。チャンネル #dev のメンバー {alice, bob} を取り出し、nickToFd_ で各 nick を fd に変換。送信元 alice(fd7) は除外。残るのは bob → fd 8。",
+        screenA: '<span class="you">PRIVMSG #dev :hi</span>',
+        screenB: '<span class="dim"># まだ何も来ていない</span>',
+        nick: "pick", oqB: [],
+        flyer: { cls: "a", text: "宛先 = fd 8", from: [42, 50], to: [42, 50] },
+        note: '<b>nickToFd_</b> が「どの nick がどの fd か」の地図。<code>excludeFd=7</code> で自分には返さない。→ <b>送り先 fd 8 が決定</b>。'
+      },
+      {
+        call: "sendToClient(8) → enqueueReply", spot: "b", on: "sbEnq",
+        text: "決まった fd 8 の ClientSession の出力キューにメッセージを積む。受けたのは fd 7、積むのは fd 8 — ここで「別の fd」へ橋が架かる。",
+        screenA: '<span class="you">PRIVMSG #dev :hi</span>',
+        screenB: '<span class="dim"># 出力キューに入った（まだ送ってない）</span>',
+        nick: "pick",
+        oqB: [":alice PRIVMSG #dev :hi"],
+        flyer: { cls: "b", text: ":alice PRIVMSG #dev :hi", from: [42, 58], to: [80, 62], anim: true },
+        note: '<code>clients_[8].enqueueReply(msg)</code>。すぐ送らずキューに積むのがポイント。<b>fd 7 → fd 8 へ移った</b>。'
+      },
+      {
+        call: "updatePollEvents", spot: "b", on: "sbPollout",
+        text: "次のループ先頭で、bob は出力待ちがある（hasPendingOutput）。だから fd 8 の events に POLLOUT を足す。「書けるようになったら教えて」。",
+        screenA: '<span class="dim"># 送信完了、待機</span>',
+        screenB: '<span class="dim"># fd 8 events: POLLIN | POLLOUT</span>',
+        nick: "pick",
+        oqB: [":alice PRIVMSG #dev :hi"],
+        flyer: null,
+        note: 'これで Lesson 4 の「fd 8 に POLLOUT」がつながる。<b>出力キューに何か有る fd だけ POLLOUT を立てる。</b>'
+      },
+      {
+        call: "poll → POLLOUT → send(fd8)", spot: "b", on: "sbSend",
+        text: "poll が fd 8 の revents に POLLOUT を返す → handleClientWrite(8) が send。ようやく bob の画面に alice の発言が届く。",
+        screenA: '<span class="dim"># 送信完了</span>',
+        screenB: '<span class="got">:alice PRIVMSG #dev :hi</span>',
+        nick: "pick",
+        oqB: [],
+        flyer: { cls: "b", text: ":alice PRIVMSG #dev :hi", from: [58, 62], to: [80, 30], anim: true },
+        note: 'send 後にキューから消える。<b>受信 fd 7 → 宛先決定(nickToFd_) → 出力キュー → POLLOUT → 送信 fd 8</b>。これが中継の全行程。'
+      }
+    ];
+
+    const body = document.body;
+    const board = document.getElementById("board");
+    const call = document.getElementById("call");
+    const narrText = document.getElementById("narrText");
+    const screenA = document.getElementById("screenA");
+    const screenB = document.getElementById("screenB");
+    const oqB = document.getElementById("oqB");
+    const nicktable = document.getElementById("nicktable");
+    const stateNote = document.getElementById("stateNote");
+    const clientA = document.getElementById("clientA");
+    const clientB = document.getElementById("clientB");
+    const flyer = document.getElementById("flyer");
+    const rail = document.getElementById("rail");
+    const playBtn = document.getElementById("play");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const SB = ["sbRead", "sbLook", "sbEnq", "sbPollout", "sbSend"].map((id) => document.getElementById(id));
+
+    let current = 0, timer = null, playing = !reduceMotion, visible = true;
+    const DURATION = 4000;
+
+    function nickTableHtml(mode) {
+      const pick = mode === "pick";
+      return `
+        <div class="nrow ${pick ? "exclude" : ""}"><span class="nick">alice</span><span class="arr">→</span><span class="tofd">fd 7${pick ? '<span class="tag">送信元 除外</span>' : ''}</span></div>
+        <div class="nrow ${pick ? "pick" : ""}"><span class="nick">bob</span><span class="arr">→</span><span class="tofd">fd 8${pick ? '<span class="tag">送り先</span>' : ''}</span></div>
+      `;
+    }
+
+    function renderRail() {
+      const labels = ["fd7 受信", "parse", "宛先を引く", "fd8 へ積む", "POLLOUT", "fd8 送信"];
+      rail.innerHTML = steps.map((s, i) => (
+        `<button class="dot" data-i="${i}" type="button"><span class="num">${i + 1}</span><span class="nm">${labels[i]}</span></button>`
+      )).join("");
+      rail.querySelectorAll(".dot").forEach((d) => d.addEventListener("click", () => { setStep(Number(d.dataset.i)); stop(); }));
+    }
+
+    function placeFlyer(s) {
+      flyer.className = "flyer";
+      if (!s.flyer) { flyer.style.opacity = "0"; return; }
+      flyer.textContent = s.flyer.text;
+      flyer.classList.add(s.flyer.cls);
+      const [x, y] = s.flyer.to;
+      flyer.style.left = x + "%";
+      flyer.style.top = y + "%";
+      flyer.classList.add("show");
+      if (s.flyer.anim) flyer.classList.add("anim-in");
+    }
+
+    function setStep(i) {
+      current = (i + steps.length) % steps.length;
+      const s = steps[current];
+      body.dataset.step = String(current);
+      call.textContent = s.call;
+      narrText.textContent = s.text;
+      screenA.innerHTML = s.screenA;
+      screenB.innerHTML = s.screenB;
+      oqB.innerHTML = (s.oqB && s.oqB.length)
+        ? s.oqB.map((t) => `<span class="item">${t}</span>`).join("")
+        : `<span class="empty">（空）</span>`;
+      nicktable.innerHTML = nickTableHtml(s.nick);
+      stateNote.innerHTML = s.note;
+
+      clientA.className = "client a" + (s.spot === "a" ? " spot-a" : "");
+      clientB.className = "client b" + (s.spot === "b" ? " spot-b" : "");
+      SB.forEach((el) => { el.classList.remove("on"); });
+      if (s.on) document.getElementById(s.on).classList.add("on");
+
+      placeFlyer(s);
+
+      rail.querySelectorAll(".dot").forEach((d, di) => d.classList.toggle("active", di === current));
+    }
+
+    function schedule() { clearTimeout(timer); if (!playing || !visible) return; timer = setTimeout(() => { setStep(current + 1); schedule(); }, DURATION); }
+    function play() { playing = true; playBtn.textContent = "Pause"; body.classList.add("run"); schedule(); }
+    function stop() { playing = false; playBtn.textContent = "Play"; body.classList.remove("run"); clearTimeout(timer); }
+
+    playBtn.addEventListener("click", () => { playing ? stop() : play(); });
+    prevBtn.addEventListener("click", () => { setStep(current - 1); stop(); });
+    nextBtn.addEventListener("click", () => { setStep(current + 1); stop(); });
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((es) => {
+        visible = es.some((e) => e.isIntersecting);
+        if (visible && playing) { body.classList.add("run"); schedule(); } else { clearTimeout(timer); body.classList.remove("run"); }
+      }).observe(board);
+    }
+    document.addEventListener("visibilitychange", () => {
+      visible = document.visibilityState === "visible";
+      if (visible && playing) { body.classList.add("run"); schedule(); } else { clearTimeout(timer); body.classList.remove("run"); }
+    });
+
+    renderRail();
+    setStep(0);
+    playing ? play() : stop();
+  </script>
+</body>
+</html>

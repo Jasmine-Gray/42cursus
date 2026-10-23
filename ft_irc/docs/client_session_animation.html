@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ClientSession — client 1人分の状態</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --subtle: #e2e8f0;
+      --line: #cbd5e1;
+      --in: #2563eb;
+      --in-soft: #dbeafe;
+      --reg: #7c3aed;
+      --reg-soft: #ede9fe;
+      --out: #15803d;
+      --out-soft: #dcfce7;
+      --amber: #b45309;
+      --amber-soft: #fef3c7;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      background: radial-gradient(120% 120% at 50% 0%, #ffffff 0%, var(--bg) 60%);
+      color: var(--ink);
+    }
+    button { font: inherit; }
+
+    .page { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 36px; }
+
+    .top { text-align: center; margin-bottom: 18px; }
+    h1 { margin: 0 0 6px; font-size: clamp(24px, 3.4vw, 34px); line-height: 1.1; }
+    .sub { margin: 0; color: var(--muted); font-size: 15px; }
+
+    /* method pipeline */
+    .pipeline {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: nowrap;
+      max-width: 880px;
+      margin: 18px auto 22px;
+      padding: 8px 4px 26px;
+      overflow-x: auto;
+    }
+    .pnode { position: relative; z-index: 2; flex: none; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 96px; text-align: center; }
+    .pnode .chip {
+      display: grid; place-items: center; width: 100%; min-height: 38px; padding: 7px 6px;
+      border: 1.5px solid var(--subtle); border-radius: 10px; background: var(--panel); color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11.5px; font-weight: 800;
+      transition: border-color 200ms ease, background 200ms ease, color 200ms ease, transform 200ms ease;
+    }
+    .pnode .tip { font-size: 10px; color: var(--muted); opacity: 0; transition: opacity 200ms ease; line-height: 1.25; }
+    .pconn { flex: none; position: relative; align-self: flex-start; width: 22px; height: 38px; margin: 0 -2px; }
+    .pconn::before { content: ""; position: absolute; top: 50%; left: 0; right: 6px; height: 2px; transform: translateY(-50%); background: var(--line); transition: background 200ms ease; }
+    .pconn::after { content: ""; position: absolute; top: 50%; right: 4px; transform: translateY(-50%); border-left: 6px solid var(--line); border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: border-left-color 200ms ease; }
+    .pnode.done .chip { border-color: var(--reg); color: var(--reg); background: var(--reg-soft); }
+    .pconn.done::before { background: var(--reg); }
+    .pconn.done::after { border-left-color: var(--reg); }
+    .pnode.now .chip { border-color: var(--reg); background: var(--reg); color: #fff; transform: translateY(-2px) scale(1.06); box-shadow: 0 8px 18px rgba(124,58,237,0.28); }
+    .pnode.now .tip { opacity: 1; color: var(--ink); font-weight: 700; }
+    body[data-step="0"] .pnode.now .chip, body[data-step="1"] .pnode.now .chip { border-color: var(--in); background: var(--in); box-shadow: 0 8px 18px rgba(37,99,235,0.28); }
+    body[data-step="5"] .pnode.now .chip, body[data-step="6"] .pnode.now .chip { border-color: var(--out); background: var(--out); box-shadow: 0 8px 18px rgba(21,128,61,0.28); }
+
+    .ploop { position: absolute; bottom: 2px; height: 16px; border: 2px solid var(--line); border-top: none; border-radius: 0 0 10px 10px; opacity: 0.5; transition: border-color 200ms ease, opacity 200ms ease; }
+    .ploop .loop-tag { position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%); padding: 1px 8px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); font-size: 10px; font-weight: 800; color: var(--muted); white-space: nowrap; }
+    body[data-step="1"] .ploop, body[data-step="2"] .ploop, body[data-step="3"] .ploop, body[data-step="4"] .ploop { border-color: var(--reg); opacity: 1; }
+    body[data-step="1"] .ploop .loop-tag, body[data-step="2"] .ploop .loop-tag, body[data-step="3"] .ploop .loop-tag, body[data-step="4"] .ploop .loop-tag { color: var(--reg); border-color: var(--reg); }
+
+    .flow-pulse { position: absolute; top: 24px; left: 0; width: 9px; height: 9px; border-radius: 999px; background: #fbbf24; box-shadow: 0 0 0 4px rgba(251,191,36,0.25); opacity: 0; pointer-events: none; z-index: 3; }
+    body.run .flow-pulse { animation: flow-travel 3.2s linear infinite; }
+    @keyframes flow-travel { 0% { left: 4%; opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { left: 96%; opacity: 0; } }
+
+    /* narration */
+    .narration {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      min-height: 70px; margin: 0 auto 16px; padding: 14px 20px; max-width: 780px;
+      border: 1px solid var(--subtle); border-radius: 14px; background: var(--panel); box-shadow: var(--shadow); text-align: center;
+    }
+    .narration .call {
+      flex: none; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 800; font-size: 14px;
+      padding: 7px 12px; border-radius: 10px; background: var(--reg-soft); color: var(--reg); white-space: nowrap;
+    }
+    body[data-step="0"] .narration .call, body[data-step="1"] .narration .call { background: var(--in-soft); color: var(--in); }
+    body[data-step="5"] .narration .call, body[data-step="6"] .narration .call { background: var(--out-soft); color: var(--out); }
+    .narration .text { font-size: 16px; line-height: 1.55; color: var(--ink); text-wrap: balance; }
+
+    /* the ClientSession object */
+    .session {
+      border: 1px solid var(--subtle); border-radius: 16px; background: var(--panel); box-shadow: var(--shadow);
+      padding: 16px; margin-bottom: 18px;
+    }
+    .session-head {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+      font-weight: 800; font-size: 15px;
+    }
+    .session-head .badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px;
+      padding: 3px 10px; border-radius: 999px; background: #0f172a; color: #fff;
+    }
+    .session-head .obj { color: var(--muted); font-weight: 600; font-size: 13px; }
+
+    .zones { display: grid; grid-template-columns: 1.25fr 1fr; gap: 14px; }
+    @media (max-width: 760px) { .zones { grid-template-columns: 1fr; } }
+
+    .zone { border: 1px solid var(--subtle); border-radius: 12px; padding: 12px; background: #f8fafc; transition: border-color 200ms ease, box-shadow 200ms ease, background 200ms ease; }
+    .zone.spot-in { border-color: var(--in); box-shadow: 0 6px 16px rgba(37,99,235,0.12); background: #fff; }
+    .zone.spot-reg { border-color: var(--reg); box-shadow: 0 6px 16px rgba(124,58,237,0.12); background: #fff; }
+    .zone.spot-out { border-color: var(--out); box-shadow: 0 6px 16px rgba(21,128,61,0.12); background: #fff; }
+
+    .zone-title { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 9px; }
+    .zone-title .nm { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 800; font-size: 13px; }
+    .zone-title .ty { color: var(--muted); font-size: 11px; }
+
+    /* input buffer strip */
+    .byte-strip { display: flex; flex-wrap: wrap; min-height: 42px; padding: 7px; border-radius: 8px; background: #0f172a; align-content: flex-start; }
+    .seg { display: inline-flex; align-items: center; padding: 4px 7px; margin: 2px; border-radius: 5px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; white-space: pre; transition: opacity 240ms ease, transform 240ms ease; }
+    .seg.pending { background: #1e293b; color: #cbd5e1; }
+    .seg.crlf { background: #334155; color: #93c5fd; }
+    .seg.carving { background: var(--out-soft); color: #14532d; }
+    .seg.arriving { animation: seg-in 360ms ease-out; }
+    @keyframes seg-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .empty-mini { color: #64748b; font-size: 12px; font-style: italic; padding: 2px; }
+
+    /* carved line output */
+    .carved { margin-top: 10px; min-height: 30px; display: flex; align-items: center; gap: 8px; }
+    .carved .arrow { color: var(--out); font-weight: 800; font-family: ui-monospace, monospace; }
+    .line-chip {
+      display: inline-flex; align-items: center; gap: 8px; padding: 6px 11px; border-radius: 7px;
+      background: var(--out-soft); color: #14532d; border: 1px solid #86efac;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12.5px; font-weight: 800;
+      animation: pop-in 360ms ease-out;
+    }
+    .line-chip .strip-note { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #14532d; color: #ecfdf5; }
+    @keyframes pop-in { from { opacity: 0; transform: scale(0.85) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .carved .none { color: var(--muted); font-size: 12px; }
+
+    /* registration flags */
+    .flags { display: grid; gap: 8px; }
+    .flag-row {
+      display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px;
+      border: 1px solid var(--subtle); background: #fff; transition: border-color 220ms ease, background 220ms ease;
+    }
+    .flag-box {
+      width: 22px; height: 22px; flex: none; border-radius: 6px; border: 2px solid var(--line);
+      display: grid; place-items: center; color: #fff; font-size: 13px; font-weight: 900;
+      transition: background 240ms ease, border-color 240ms ease, transform 240ms ease;
+    }
+    .flag-row.on { border-color: var(--reg); background: var(--reg-soft); }
+    .flag-row.on .flag-box { background: var(--reg); border-color: var(--reg); transform: scale(1.08); }
+    .flag-name { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12.5px; font-weight: 700; }
+    .flag-val { margin-left: auto; font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); }
+    .flag-row.on .flag-val { color: var(--reg); font-weight: 800; }
+
+    .registered {
+      margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 9px; border-radius: 10px; border: 1px dashed var(--line); background: #f8fafc;
+      font-weight: 800; font-size: 13px; color: var(--muted); transition: all 260ms ease;
+    }
+    .registered.yes {
+      border: 1px solid var(--reg); background: var(--reg); color: #fff; border-style: solid;
+      animation: pop-in 420ms ease-out;
+    }
+
+    /* output queue (deque) */
+    .queue { display: flex; align-items: center; gap: 8px; min-height: 46px; }
+    .queue .front-tag { font-size: 10px; color: var(--out); font-weight: 800; writing-mode: vertical-rl; }
+    .qcell {
+      display: inline-flex; align-items: center; padding: 7px 10px; border-radius: 8px;
+      background: var(--out-soft); color: #14532d; border: 1px solid #86efac;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 800; white-space: nowrap;
+      animation: q-in 360ms ease-out;
+    }
+    @keyframes q-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    .qcell.leaving { animation: q-out 600ms ease-in forwards; }
+    @keyframes q-out { to { opacity: 0; transform: translateX(-26px); } }
+    .q-empty { color: var(--muted); font-size: 12px; font-style: italic; }
+    .q-arrow { color: var(--out); font-weight: 800; font-family: ui-monospace, monospace; }
+
+    /* controls + rail */
+    .controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 16px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; min-width: 44px; padding: 8px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); cursor: pointer; }
+    .btn:hover { border-color: var(--reg); }
+    .btn.primary { border-color: var(--reg); background: var(--reg); color: #fff; }
+    .btn:focus-visible { outline: 3px solid var(--reg-soft); outline-offset: 2px; }
+
+    .rail { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .dot { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 116px; padding: 10px 6px; border: 1px solid var(--subtle); border-radius: 12px; background: var(--panel); cursor: pointer; text-align: center; }
+    .dot .num { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 999px; background: #f1f5f9; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .dot .nm { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; color: var(--ink); }
+    .dot.active { border-color: var(--reg); background: var(--reg-soft); }
+    .dot.active .num { background: var(--reg); color: #fff; }
+
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; } }
+    @media (max-width: 720px) { .dot { width: 96px; } }
+  </style>
+</head>
+<body data-step="0">
+  <main class="page">
+    <style>.lnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px;padding:8px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;box-shadow:0 6px 16px rgba(15,23,42,.06);font-size:13px}.lnav a{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;text-decoration:none;color:#0f172a;border:1px solid #e2e8f0;background:#fff;white-space:nowrap}.lnav a:hover{border-color:#0f766e;color:#0f766e}.lnav .home{background:#0f172a;color:#fff;border-color:#0f172a;font-weight:700}.lnav .pos{color:#64748b;font-weight:700}.lnav .sp{flex:1 1 auto}.lnav a.off{opacity:.3;pointer-events:none}@media(max-width:600px){.lnav .pos{display:none}}</style>
+    <nav class="lnav">
+      <a class="home" href="index.html">☰ 一覧</a>
+      <span class="pos">Lesson 6 / 7</span>
+      <span class="sp"></span>
+      <a href="recv_send_animation.html">‹ recv / send</a>
+      <a href="relay_animation.html">メッセージ中継 ›</a>
+    </nav>
+    <div class="top">
+      <h1>ClientSession</h1>
+      <p class="sub">client 1人分の状態 — 入力を行にし、状態を更新し、返信を貯める</p>
+    </div>
+
+    <div class="pipeline" id="pipeline">
+      <span class="flow-pulse"></span>
+      <div class="ploop" id="ploop"><span class="loop-tag">行があるだけ繰り返す</span></div>
+      <div class="pnode" data-key="append"><span class="chip">appendInput</span><span class="tip">バイトを溜める</span></div>
+      <div class="pconn" data-after="append"></div>
+      <div class="pnode" data-key="pop"><span class="chip">popNextLine</span><span class="tip">行に切る</span></div>
+      <div class="pconn" data-after="pop"></div>
+      <div class="pnode" data-key="set"><span class="chip">set*()</span><span class="tip">状態を入れる</span></div>
+      <div class="pconn" data-after="set"></div>
+      <div class="pnode" data-key="update"><span class="chip">updateReg</span><span class="tip">3つ揃った?</span></div>
+      <div class="pconn" data-after="update"></div>
+      <div class="pnode" data-key="enqueue"><span class="chip">enqueueReply</span><span class="tip">返信を積む</span></div>
+      <div class="pconn" data-after="enqueue"></div>
+      <div class="pnode" data-key="dequeue"><span class="chip">dequeueOutput</span><span class="tip">先頭を出す</span></div>
+    </div>
+
+    <div class="narration">
+      <span class="call" id="call">appendInput()</span>
+      <span class="text" id="narrText"></span>
+    </div>
+
+    <div class="session">
+      <div class="session-head">
+        <span class="badge">fd 7</span>
+        <span>ClientSession</span>
+        <span class="obj">— alice 専用のオブジェクト</span>
+      </div>
+
+      <div class="zones">
+        <!-- input + carved -->
+        <div class="zone" id="zoneIn">
+          <div class="zone-title"><span class="nm">inputBuffer_</span><span class="ty">std::string</span></div>
+          <div class="byte-strip" id="byteStrip"></div>
+          <div class="carved" id="carved"></div>
+        </div>
+
+        <!-- registration -->
+        <div class="zone" id="zoneReg">
+          <div class="zone-title"><span class="nm">registration</span><span class="ty">bool ×3</span></div>
+          <div class="flags">
+            <div class="flag-row" id="fPass"><span class="flag-box">✓</span><span class="flag-name">passwordAccepted_</span><span class="flag-val">false</span></div>
+            <div class="flag-row" id="fNick"><span class="flag-box">✓</span><span class="flag-name">nickname_</span><span class="flag-val">""</span></div>
+            <div class="flag-row" id="fUser"><span class="flag-box">✓</span><span class="flag-name">username_</span><span class="flag-val">""</span></div>
+          </div>
+          <div class="registered" id="registered">registered_ = false</div>
+        </div>
+      </div>
+
+      <!-- output queue spans full width below -->
+      <div class="zone" id="zoneOut" style="margin-top:14px;">
+        <div class="zone-title"><span class="nm">outputQueue_</span><span class="ty">std::deque&lt;std::string&gt; — 先頭から送る</span></div>
+        <div class="queue" id="queue"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="prev" aria-label="前へ">‹</button>
+      <button class="btn primary" id="play">Pause</button>
+      <button class="btn" id="next" aria-label="次へ">›</button>
+    </div>
+
+    <div class="rail" id="rail"></div>
+  </main>
+
+  <script>
+    function seg(t, k) { return { t, k }; }
+    const CRLF = seg("\\r\\n", "crlf");
+
+    const PIPE = ["append", "pop", "set", "update", "enqueue", "dequeue"];
+
+    // zone spotlight: "in" | "reg" | "out"
+    const steps = [
+      {
+        reached: 1, now: ["append"], call: "appendInput()", zone: "in",
+        text: "recv が読んだバイトを inputBuffer_ に「足すだけ」。コマンドの区切りはまだ気にしない。",
+        buffer: [seg("PASS pass", "pending"), CRLF, seg("NICK alice", "pending"), { ...CRLF, arriving: true }, seg("USER al 0 * :Al", "pending"), { ...CRLF, arriving: true }],
+        carved: null,
+        flags: { pass: false, nick: false, user: false },
+        flagVals: { pass: "false", nick: '""', user: '""' },
+        registered: false,
+        queue: []
+      },
+      {
+        reached: 2, now: ["pop"], call: "popNextLine()", zone: "in",
+        text: "先頭から \\n を探し、そこまでを1行に。末尾の \\r を外して、その分をバッファから erase する。",
+        buffer: [seg("NICK alice", "pending"), CRLF, seg("USER al 0 * :Al", "pending"), CRLF],
+        carved: { line: "PASS pass", note: "\\r を除去" },
+        flags: { pass: false, nick: false, user: false },
+        flagVals: { pass: "false", nick: '""', user: '""' },
+        registered: false,
+        queue: []
+      },
+      {
+        reached: 4, now: ["set", "update"], call: "setPasswordAccepted(true)", zone: "reg",
+        text: "PASS 行を処理 → passwordAccepted_ = true。setter が updateRegistration を呼ぶが、nick/user が空なのでまだ false。",
+        buffer: [seg("NICK alice", "pending"), CRLF, seg("USER al 0 * :Al", "pending"), CRLF],
+        carved: null,
+        flags: { pass: true, nick: false, user: false },
+        flagVals: { pass: "true", nick: '""', user: '""' },
+        registered: false,
+        queue: []
+      },
+      {
+        reached: 4, now: ["set", "update"], call: "setNickname(\"alice\")", zone: "reg",
+        text: "次の行 NICK alice を popNextLine で取り出して処理 → nickname_ が入る。まだ username_ が空。",
+        buffer: [seg("USER al 0 * :Al", "pending"), CRLF],
+        carved: { line: "NICK alice", note: "次の1行" },
+        flags: { pass: true, nick: true, user: false },
+        flagVals: { pass: "true", nick: '"alice"', user: '""' },
+        registered: false,
+        queue: []
+      },
+      {
+        reached: 4, now: ["set", "update"], call: "setUsername(...) → updateRegistration()", zone: "reg",
+        text: "USER 行で username_ も埋まる。3つ揃った瞬間 updateRegistration が registered_ = true にする。登録完了！",
+        buffer: [],
+        carved: { line: "USER al 0 * :Al", note: "最後の1行" },
+        flags: { pass: true, nick: true, user: true },
+        flagVals: { pass: "true", nick: '"alice"', user: '"al"' },
+        registered: true,
+        queue: []
+      },
+      {
+        reached: 5, now: ["enqueue"], call: "enqueueReply(\"001 ...\")", zone: "out",
+        text: "歓迎の返信 001 を作る。末尾に \\r\\n が無ければ付けて framing し、outputQueue_ の末尾に push する。",
+        buffer: [],
+        carved: null,
+        flags: { pass: true, nick: true, user: true },
+        flagVals: { pass: "true", nick: '"alice"', user: '"al"' },
+        registered: true,
+        queue: [{ t: ":ft_irc 001 alice :Welcome\\r\\n", enter: true }]
+      },
+      {
+        reached: 6, now: ["dequeue"], call: "dequeueOutput()", zone: "out",
+        text: "Server が送れる状態になったら、キューの先頭を取り出して send する。FIFO（先に積んだものから送る）。",
+        buffer: [],
+        carved: null,
+        flags: { pass: true, nick: true, user: true },
+        flagVals: { pass: "true", nick: '"alice"', user: '"al"' },
+        registered: true,
+        queue: [{ t: ":ft_irc 001 alice :Welcome\\r\\n", leaving: true }]
+      }
+    ];
+
+    const body = document.body;
+    const pipeline = document.getElementById("pipeline");
+    const ploop = document.getElementById("ploop");
+    const call = document.getElementById("call");
+    const narrText = document.getElementById("narrText");
+    const byteStrip = document.getElementById("byteStrip");
+    const carved = document.getElementById("carved");
+    const fPass = document.getElementById("fPass");
+    const fNick = document.getElementById("fNick");
+    const fUser = document.getElementById("fUser");
+    const registered = document.getElementById("registered");
+    const queue = document.getElementById("queue");
+    const zoneIn = document.getElementById("zoneIn");
+    const zoneReg = document.getElementById("zoneReg");
+    const zoneOut = document.getElementById("zoneOut");
+    const rail = document.getElementById("rail");
+    const playBtn = document.getElementById("play");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let current = 0, timer = null, playing = !reduceMotion, visible = true;
+    const DURATION = 3400;
+
+    function escapeHtml(v) {
+      return v.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
+    }
+
+    function renderStrip(segs) {
+      byteStrip.innerHTML = (!segs || segs.length === 0)
+        ? `<span class="empty-mini">（空 — 全部 erase 済み）</span>`
+        : segs.map((s) => `<span class="seg ${s.k}${s.arriving ? " arriving" : ""}">${escapeHtml(s.t)}</span>`).join("");
+    }
+
+    function renderCarved(c) {
+      if (!c) { carved.innerHTML = `<span class="none">— popNextLine の戻り値なし</span>`; return; }
+      carved.innerHTML = `<span class="arrow">→ line =</span><span class="line-chip">${escapeHtml(c.line)}<span class="strip-note">${escapeHtml(c.note)}</span></span>`;
+    }
+
+    function setFlag(el, on, name, val) {
+      el.classList.toggle("on", on);
+      el.querySelector(".flag-val").textContent = val;
+    }
+
+    function renderQueue(items) {
+      if (!items || items.length === 0) { queue.innerHTML = `<span class="q-empty">（空）</span>`; return; }
+      queue.innerHTML = `<span class="front-tag">front → send</span><span class="q-arrow">▸</span>` +
+        items.map((q) => `<span class="qcell${q.leaving ? " leaving" : ""}">${escapeHtml(q.t)}</span>`).join("");
+    }
+
+    function positionLoop() {
+      const a = pipeline.querySelector('.pnode[data-key="pop"]');
+      const b = pipeline.querySelector('.pnode[data-key="update"]');
+      if (!a || !b) return;
+      const base = pipeline.getBoundingClientRect();
+      const left = a.getBoundingClientRect().left - base.left + pipeline.scrollLeft;
+      const right = b.getBoundingClientRect().right - base.left + pipeline.scrollLeft;
+      ploop.style.left = left + "px";
+      ploop.style.width = (right - left) + "px";
+    }
+
+    function renderRail() {
+      rail.innerHTML = steps.map((s, i) => (
+        `<button class="dot" data-i="${i}" type="button">
+          <span class="num">${i + 1}</span>
+          <span class="nm">${escapeHtml(s.call.split("(")[0])}</span>
+        </button>`
+      )).join("");
+      rail.querySelectorAll(".dot").forEach((d) => d.addEventListener("click", () => { setStep(Number(d.dataset.i)); stop(); }));
+    }
+
+    function setStep(i) {
+      current = (i + steps.length) % steps.length;
+      const s = steps[current];
+      body.dataset.step = String(current);
+      call.textContent = s.call;
+      narrText.textContent = s.text;
+
+      // pipeline
+      const nowSet = new Set(s.now);
+      pipeline.querySelectorAll(".pnode").forEach((n) => {
+        const idx = PIPE.indexOf(n.dataset.key);
+        n.classList.toggle("done", idx < s.reached && !nowSet.has(n.dataset.key));
+        n.classList.toggle("now", nowSet.has(n.dataset.key));
+      });
+      pipeline.querySelectorAll(".pconn").forEach((c) => {
+        const idx = PIPE.indexOf(c.dataset.after);
+        c.classList.toggle("done", idx < s.reached - 1 || (idx < s.reached && !nowSet.has(PIPE[idx + 1])));
+      });
+
+      renderStrip(s.buffer);
+      renderCarved(s.carved);
+      setFlag(fPass, s.flags.pass, "pass", s.flagVals.pass);
+      setFlag(fNick, s.flags.nick, "nick", s.flagVals.nick);
+      setFlag(fUser, s.flags.user, "user", s.flagVals.user);
+      registered.className = "registered" + (s.registered ? " yes" : "");
+      registered.textContent = s.registered ? "registered_ = true ✓ 登録完了" : "registered_ = false";
+      renderQueue(s.queue);
+
+      zoneIn.className = "zone" + (s.zone === "in" ? " spot-in" : "");
+      zoneReg.className = "zone" + (s.zone === "reg" ? " spot-reg" : "");
+      zoneOut.className = "zone" + (s.zone === "out" ? " spot-out" : "");
+
+      rail.querySelectorAll(".dot").forEach((d, di) => d.classList.toggle("active", di === current));
+    }
+
+    function schedule() { clearTimeout(timer); if (!playing || !visible) return; timer = setTimeout(() => { setStep(current + 1); schedule(); }, DURATION); }
+    function play() { playing = true; playBtn.textContent = "Pause"; body.classList.add("run"); schedule(); }
+    function stop() { playing = false; playBtn.textContent = "Play"; body.classList.remove("run"); clearTimeout(timer); }
+
+    playBtn.addEventListener("click", () => { playing ? stop() : play(); });
+    prevBtn.addEventListener("click", () => { setStep(current - 1); stop(); });
+    nextBtn.addEventListener("click", () => { setStep(current + 1); stop(); });
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((es) => {
+        visible = es.some((e) => e.isIntersecting);
+        if (visible && playing) { body.classList.add("run"); schedule(); } else { clearTimeout(timer); body.classList.remove("run"); }
+      }).observe(document.querySelector(".session"));
+    }
+    document.addEventListener("visibilitychange", () => {
+      visible = document.visibilityState === "visible";
+      if (visible && playing) { body.classList.add("run"); schedule(); } else { clearTimeout(timer); body.classList.remove("run"); }
+    });
+
+    renderRail();
+    setStep(0);
+    window.addEventListener("resize", positionLoop);
+    requestAnimationFrame(positionLoop);
+    playing ? play() : stop();
+  </script>
+</body>
+</html>
