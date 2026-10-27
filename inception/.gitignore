@@ -1,0 +1,3 @@
+# Docker Secrets and Local Confidential Files
+secrets/
+srcs/.env
