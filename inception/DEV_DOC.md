@@ -332,7 +332,7 @@ This setup has passed these persistence and restart checks, as well as an NGINX 
 
 ## 11. Submission and portability notes
 
-- The VM working copy at `/home/mishimod/inception` was initialized as its **own local Git repository**. It is separate from the original school-PC `42cursus` repository. Copy or commit the relevant changes into the actual **42 submission repository** before evaluation.
+- The **official 42 Inception Git repository** is the submission source of truth. Clone it into a fresh directory for the final evaluation and deploy from that clone. Do not rely on uncommitted changes or files that exist only in a VM working copy.
 - Only source/configuration/documentation files belong in Git; keep `srcs/.env` and `secrets/` local. Recreate them during setup.
 - Replace the login name, domain, paths, and network addresses when using another account or environment.
 - The Docker persistent data directory is **inside the Debian VM**, even when the VM's virtual disk is stored on the school's shared `sgoinfre` storage.
@@ -353,7 +353,7 @@ See `USER_DOC.md` for day-to-day use and `README.md` for project goals and desig
 
 **Purpose:** A rehearsal/reference guide. The actual evaluator decides which checks and configuration changes to request. This document does not guarantee a passing grade.
 
-> **Important source-code warning:** The reviewed MariaDB entrypoint contains `mariadbd --user=mysql --skip-networking --console &` during initialization. EVALHUB's General Instructions prohibit background-running programs inside entrypoint scripts. Even though the server is temporary, this may fail the evaluation. **Fix and clean-test this before submitting.** Also verify fresh WordPress account creation and its passwords in a clean environment. The earlier mock defense used an already-initialized VM and included manual password recovery; this does **not** establish that a fresh clone boots correctly.
+> **Verified MariaDB initialization:** The current entrypoint uses `mariadb-install-db --extra-file` for a new data directory and `mariadbd --bootstrap` to retry an incomplete initialization. It does not start a background server. A clean-volume test succeeded for first boot, `root` and `wpuser` authentication, and container restart. Repeat the full stack test from the actual submitted clone before evaluation.
 
 ### How to use this guide
 Unless marked **school host**, commands run in the **Debian VM**, from the Inception project root:
@@ -427,6 +427,14 @@ git check-ignore secrets/db_password.txt srcs/.env
 **Never print secret values** during the defense. Keep the actual passwords available to the student without exposing them on screen.
 
 ### 3. General Instructions (pp. 3–4)
+```
+git archive --format=tar HEAD | \
+ssh -p 2222 mishimod@127.0.0.1 '
+    set -eu
+    mkdir "$HOME/inception"
+    tar -xf - -C "$HOME/inception"
+'
+```
 **What the evaluator checks:** `Makefile` at repository root; configuration files under `srcs/`; no host networking, `links:`, or `--link`; no keep-alive hacks, infinite loops, or background-running entrypoint programs; valid Debian/Alpine base; all services start with the Makefile.
 
 **Model answer:**
@@ -446,7 +454,7 @@ sudo docker compose -p inception -f srcs/docker-compose.yml config --quiet
 make
 ```
 
-**Known blocker:** The current MariaDB entrypoint temporarily runs `mariadbd ... &` in the background. Fix this before the official evaluation and demonstrate a clean first-time initialization; do not describe the project as fully compliant until verified.
+**Verification note:** The MariaDB entrypoint now initializes synchronously without a background server. Verify that the submitted clone includes this version and demonstrate first-time initialization using an empty test volume.
 
 **Evaluator's global Docker cleanup step (destructive):**
 
@@ -461,6 +469,52 @@ docker network rm $(docker network ls -q) 2>/dev/null
 ```
 
 This can delete databases, WordPress uploads, and resources from unrelated Docker projects. Use an intentionally disposable VM for a full clean evaluation. `make down` is a normal non-volume-deleting shutdown; avoid `docker compose down -v` unless deleting all application data is intended.
+
+```
+cd ~/inception
+
+if [ ! -e srcs/.env ]; then
+    cp srcs/.env.example srcs/.env
+fi
+
+cat srcs/.env
+```
+```
+cd ~/inception
+
+(
+    set -eu
+    umask 077
+
+    mkdir -p secrets
+    chmod 700 secrets
+
+    for name in \
+        db_password.txt \
+        db_root_password.txt \
+        credentials.txt \
+        wp_user_password.txt
+    do
+        if [ -e "secrets/$name" ]; then
+            echo "Secret already exists: $name" >&2
+            exit 1
+        fi
+    done
+
+    openssl rand -hex 24 > secrets/db_password.txt
+    openssl rand -hex 24 > secrets/db_root_password.txt
+    openssl rand -hex 24 > secrets/credentials.txt
+    openssl rand -hex 24 > secrets/wp_user_password.txt
+
+    chmod 600 secrets/*.txt
+)
+```
+check up
+```
+sudo docker compose -p inception \
+    -f srcs/docker-compose.yml ps -a
+```
+
 
 ### 4. Mandatory Part — Activity Overview (p. 4)
 #### Q: How do Docker and Docker Compose work?
@@ -556,6 +610,38 @@ sudo docker exec nginx openssl x509 -in /etc/nginx/ssl/inception.crt -noout -sub
 
 Expected: HTTPS responds with the installed WordPress site, and HTTP is not available. `curl -k` bypasses certificate-chain verification for the self-signed certificate; it does **not** prove certificate trust.
 
+TLS
+```
+sudo docker exec nginx nginx -T 2>/dev/null \
+  | grep -E 'listen .*443|ssl_certificate|ssl_protocols'
+```
+
+check up
+```
+cd ~/inception
+
+sudo docker compose -p inception \
+  -f srcs/docker-compose.yml ps -a
+
+ip -br addr show enp0s8
+```
+
+HTTP connect
+```
+curl -kI --noproxy '*' \
+  --resolve mishimod.42.fr:443:192.168.56.10 \
+  https://mishimod.42.fr/
+```
+
+google
+```
+google-chrome \
+  --user-data-dir=/tmp/inception-review \
+  --no-proxy-server \
+  --host-resolver-rules="MAP mishimod.42.fr 192.168.56.10" \
+  "https://mishimod.42.fr/"
+  ```
+
 ### 8. Docker Basics (pp. 5–6)
 **What the evaluator checks:** One nonempty, self-written Dockerfile per service. No prebuilt application images. The permitted Debian/Alpine base is used. Built image names match service names; the Makefile uses Compose and services do not crash.
 
@@ -605,6 +691,35 @@ openssl s_client -connect 127.0.0.1:443 -servername mishimod.42.fr -tls1_3 -brie
 
 A self-signed certificate can trigger a trust warning without preventing TLS negotiation. Old protocol tests may also fail due to the local OpenSSL client's policy; interpret the output carefully.
 
+docker compose ps
+```
+sudo docker compose -p inception \
+  -f srcs/docker-compose.yml ps -a
+```
+
+port 80
+```curl -I --connect-timeout 3 \
+  --noproxy '*' \
+  --resolve mishimod.42.fr:80:127.0.0.1 \
+  http://mishimod.42.fr/
+```
+
+google
+```
+google-chrome \
+  --user-data-dir=/tmp/inception-review \
+  --no-proxy-server \
+  --host-resolver-rules="MAP mishimod.42.fr 192.168.56.10" \
+  "https://mishimod.42.fr/"
+  ```
+
+TLS v1.2
+```
+openssl s_client   -connect 127.0.0.1:443   -servername mishimod.42.fr   -tls1_2 -brief </dev/null
+
+```
+
+
 ### 11. WordPress with PHP-FPM and Its Volume (p. 7)
 **What the evaluator checks:** A self-written WordPress Dockerfile without NGINX; running container; persistent named volume mounted under `/home/mishimod/data/`; ability to add a comment as an available WordPress user; administrator username does not contain `admin` or `Admin`; administrator can edit a page and show the result on the website.
 
@@ -623,6 +738,16 @@ sudo docker exec wordpress wp user list --fields=user_login,roles --allow-root
 ```
 
 **Browser demonstration:** Open `https://mishimod.42.fr`, submit a comment as `writer` where permitted, approve it in the dashboard if it is **Pending**, and verify it appears on its original post. Log in as `siteowner` at `https://mishimod.42.fr/wp-admin/`, edit an existing page, and verify the published change.
+
+check NGINX
+```
+grep -in nginx srcs/requirements/wordpress/Dockerfile
+```
+
+```
+sudo docker compose -p inception \
+  -f srcs/docker-compose.yml ps -a wordpress
+```
 
 ### 12. MariaDB and Its Volume (pp. 7–8)
 **What the evaluator checks:** Self-written MariaDB Dockerfile without NGINX, running container, named volume under `/home/mishimod/data/`, a demonstrable DB login, and nonempty tables.
@@ -651,6 +776,36 @@ sudo docker exec mariadb sh -ec '
 ```
 
 During the mock defense, there were 12 tables, 2 users, and 14 posts. **Use the real counts observed at evaluation time**, not hard-coded historic values.
+
+in container /var/lib/mysql
+
+login mariadb with password
+```
+sudo docker exec -it mariadb sh -c '
+  MYSQL_PWD="$(cat /run/secrets/db_root_password)"
+  export MYSQL_PWD
+
+  exec mariadb --protocol=socket -u root
+'
+```
+```
+SHOW DATABASES;
+```
+```
+USE wordpress;
+```
+```
+SHOW TABLES;
+```
+```
+SELECT COUNT(*) AS users FROM wp_users;
+
+SELECT COUNT(*) AS posts FROM wp_posts;
+```
+```
+SELECT user_login
+FROM wp_users;
+```
 
 ### 13. Persistence! (p. 8)
 **What the evaluator checks:** Reboot the VM, start/check Compose again, verify services are running, and demonstrate that earlier WordPress changes remain.
@@ -683,6 +838,19 @@ ssh -N -D 127.0.0.1:1080 -p 2223 mishimod@127.0.0.1
 ```
 
 Keep that terminal open and use the browser configured with the SOCKS5 proxy. `ERR_PROXY_CONNECTION_FAILED` after reboot does not, by itself, mean WordPress data was lost.
+
+```
+cd ~/inception
+
+sudo docker compose -p inception \
+  -f srcs/docker-compose.yml up -d
+```
+
+```
+sudo docker compose -p inception \
+  -f srcs/docker-compose.yml ps -a
+```
+
 
 ### 14. Configuration Modification (p. 8)
 **What the evaluator checks:** The evaluator chooses one service and requests a configuration change, **for example a port change**. The new port must be available. The evaluated student must rebuild and restart the project, and the service must still be accessible and functional.
@@ -943,30 +1111,80 @@ For MariaDB, the source files use port `3306` in **several places**, including W
 
 ---
 
-### 15. Bonus (p. 9)
-**Evaluation rule:** Bonus is graded only if every mandatory requirement has been fully and correctly completed. Additional services require their own Dockerfiles, and any required volumes.
+backup
+```
+cd ~/inception
 
-The sheet lists: (1) WordPress Redis cache, (2) an FTP server connected to the WordPress volume, (3) a static site built in a language other than PHP, (4) Adminer, and (5) another useful service with an explanation of its purpose.
+mkdir -p /tmp/inception-port-review
 
-**Project snapshot:** Only the three mandatory services were present; the bonus tasks should not be claimed as implemented.
+cp srcs/requirements/nginx/conf/nginx.conf \
+  /tmp/inception-port-review/nginx.conf
 
----
+cp srcs/docker-compose.yml \
+  /tmp/inception-port-review/docker-compose.yml
 
-### Final Pre-Submission Checklist
-- [ ] **Resolve the MariaDB entrypoint background-process concern** (`mariadbd ... &`) and retest a truly clean initialization.
-- [ ] Confirm a fresh clone can build from `Makefile` with `srcs/.env` and freshly created secrets, without manual account-password fixes.
-- [ ] **Do not regenerate existing passwords.** `openssl rand ... > secrets/...` overwrites an existing secret but does not change the corresponding saved MariaDB or WordPress account password.
-- [ ] Verify that credentials are untracked: `git ls-files secrets srcs/.env` prints nothing.
-- [ ] Verify `README.md`, `USER_DOC.md`, and `DEV_DOC.md` meet the evaluation requirements.
-- [ ] Ensure `nginx.conf` and Compose publish **port 443 only** again after any port-change exercise. Remove temporary headers if they were added only for testing.
-- [ ] Verify TLS 1.2/1.3, login, comments, page edits, database access, and persistence on the actual submitted version.
-- [ ] Use `-p inception -f srcs/docker-compose.yml` when calling Compose from the project root. Bare `docker compose ps` there does not find `srcs/docker-compose.yml`.
-- [ ] Preserve named volumes when testing persistence; never confuse the evaluator's initial clean-state reset with a persistence test.
-- [ ] Run `git status --short` and inspect the final submitted diff. The official evaluation grades **submitted repository content**, not local fixes in a different VM.
+cp srcs/requirements/nginx/Dockerfile \
+  /tmp/inception-port-review/Dockerfile
+```
 
-### 30-Second Architecture Explanation
-> "Inception deploys three custom Docker services inside a Debian virtual machine using Docker Compose. NGINX exposes HTTPS on port 443 and forwards PHP requests to WordPress PHP-FPM on port 9000 inside a Docker bridge network. WordPress connects to MariaDB on port 3306. All three images are built from custom Dockerfiles based on Debian 12. Named volumes under `/home/mishimod/data` preserve WordPress files and database content, while passwords are provided through local Docker secrets that are excluded from Git."
+check port 
+```
+sudo ss -ltn | grep ':8443 ' || echo "8443 is not listening"
+```
 
----
+edit file
+```
+nano srcs/requirements/nginx/conf/nginx.conf
+```
+before
+```
+listen 443 ssl;
+listen [::]:443 ssl;
+```
+after
+```
+listen 8443 ssl;
+listen [::]:8443 ssl;
+```
+edit yml
+```
+nano srcs/docker-compose.yml
+```
+before
+```
+ports:
+  - "443:443"
+```
+after
+```
+ports:
+  - "8443:8443"
+```
+edit ngin dockerfile 
+```
+nano srcs/requirements/nginx/Dockerfile
+```
+before 
+```
+EXPOSE 443
+```
+after
+```
+EXPOSE 8443
+```
+re build
+```
+sudo docker compose -p inception \
+  -f srcs/docker-compose.yml config --quiet
+```
+make re
+```
+make re
+```
+check
+```
+sudo docker compose -p inception \
+  -f srcs/docker-compose.yml ps -a
 
-**References:** User-provided `42 EvalHub.pdf`, `inception.pdf`, and `inception-review.tar.gz` project snapshot. Source paths, names, and default ports above were checked against that archive. Modify the example port to match the evaluator's instructions, and verify it against the submitted repository and live VM.
+sudo docker exec nginx nginx -t
+```
