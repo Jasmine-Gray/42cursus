@@ -1,9 +1,12 @@
-FROM debian:bullseye
+FROM debian:12
 
 # パッケージ更新とNGINX、OpenSSLのインストール
 RUN apt-get update -y && \
     apt-get install -y nginx openssl && \
     rm -rf /var/lib/apt/lists/*
+
+# Remove the default HTTP server configuration
+RUN rm -f /etc/nginx/sites-enabled/default
 
 # SSL自己署名証明書および秘密鍵の生成
 RUN mkdir -p /etc/nginx/ssl && \

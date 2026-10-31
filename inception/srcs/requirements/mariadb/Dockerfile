@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:12
 
 # パッケージの更新とMariaDBのインストール
 RUN apt-get update -y && \

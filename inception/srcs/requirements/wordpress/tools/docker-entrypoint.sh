@@ -1,50 +1,82 @@
 #!/bin/sh
-set -e
+set -eu
 
-# Docker secretsからパスワードを読み込み
+: "${MYSQL_DATABASE:?}"
+: "${MYSQL_USER:?}"
+: "${DOMAIN_NAME:?}"
+: "${WORDPRESS_TITLE:?}"
+: "${WORDPRESS_ADMIN_USER:?}"
+: "${WORDPRESS_ADMIN_EMAIL:?}"
+: "${WORDPRESS_USER:?}"
+: "${WORDPRESS_EMAIL:?}"
+
 DB_PASSWORD=$(cat /run/secrets/db_password)
-WP_ADMIN_PASSWORD=$(cat /run/secrets/credentials)
 
-# MariaDBの起動確認（ポート3306への接続チェック）
-until mysqladmin ping -h"mariadb" -u"${MYSQL_USER}" -p"${DB_PASSWORD}" --silent; do
+# Make the password readable by PHP-FPM without changing host permissions
+install -m 0640 -o root -g www-data /run/secrets/db_password /run/wp-db-password
+
+# MariaDBへの接続と認証を確認する
+attempts=0
+until MYSQL_PWD="$DB_PASSWORD" mariadb \
+    --host=mariadb \
+    --user="$MYSQL_USER" \
+    --database="$MYSQL_DATABASE" \
+    --execute='SELECT 1' >/dev/null 2>&1; do
+
+    attempts=$((attempts + 1))
+
+    if [ "$attempts" -ge 60 ]; then
+        echo "MariaDB did not become ready" >&2
+        exit 1
+    fi
+
     sleep 2
 done
 
-# WordPressが未インストールの場合は初期化を実行
-if [ ! -f /var/www/wordpress/wp-config.php ]; then
+cd /var/www/wordpress
 
-    # WordPressコアファイルのダウンロード
-    wp core download --allow-root
-
-    # wp-config.php の作成
-    wp config create \
-        --dbname="${MYSQL_DATABASE}" \
-        --dbuser="${MYSQL_USER}" \
-        --dbpass="${DB_PASSWORD}" \
-        --dbhost="mariadb:3306" \
-        --allow-root
-
-    # WordPressのインストールと管理者ユーザー作成（adminの文字列を含めない）
-    wp core install \
-        --url="https://${DOMAIN_NAME}" \
-        --title="${WORDPRESS_TITLE}" \
-        --admin_user="${WORDPRESS_ADMIN_USER}" \
-        --admin_password="${WP_ADMIN_PASSWORD}" \
-        --admin_email="${WORDPRESS_ADMIN_EMAIL}" \
-        --skip-email \
-        --allow-root
-
-    # 2人目の一般ユーザー作成
-    wp user create \
-        "${WORDPRESS_USER}" \
-        "${WORDPRESS_EMAIL}" \
-        --role=author \
-        --user_pass="UserPass123!" \
-        --allow-root
+# WordPressの本体ファイルを配置
+if [ ! -f wp-settings.php ]; then
+    wp core download --allow-root --force
 fi
 
-# php-fpm用実行ディレクトリの作成
+# WordPressのDB接続設定を作成
+if [ ! -f wp-config.php ]; then
+    wp config create \
+        --dbname="$MYSQL_DATABASE" \
+        --dbuser="$MYSQL_USER" \
+        --dbhost=mariadb:3306 \
+        --allow-root \
+        --dbpass=placeholder --skip-check --quiet
+fi
+
+# Apply the same secret-based configuration on every startup
+wp config set DB_PASSWORD 'trim(file_get_contents("/run/wp-db-password"))' --raw --allow-root --quiet
+
+# WordPressがDBにインストールされていなければ実行
+if ! wp core is-installed --allow-root >/dev/null 2>&1; then
+    wp core install \
+        --url="https://${DOMAIN_NAME}" \
+        --title="$WORDPRESS_TITLE" \
+        --admin_user="$WORDPRESS_ADMIN_USER" \
+        --admin_email="$WORDPRESS_ADMIN_EMAIL" \
+        --skip-email \
+        --allow-root \
+        --prompt=admin_password < /run/secrets/credentials >/dev/null 2>&1
+fi
+
+# 2人目のユーザーを作成
+if ! wp user get "$WORDPRESS_USER" --allow-root >/dev/null 2>&1; then
+    wp user create \
+        "$WORDPRESS_USER" "$WORDPRESS_EMAIL" \
+        --role=author \
+        --allow-root \
+        --prompt=user_pass < /run/secrets/wp_user_password >/dev/null 2>&1
+fi
+
+chown -R www-data:www-data /var/www/wordpress
+
 mkdir -p /run/php
 
-# フォアグラウンドでphp-fpmを起動（PID 1で実行し、infinite loop等のハック手法を使わない）
-exec php-fpm7.4 -F
+# PHP-FPMをフォアグラウンドで起動
+exec php-fpm8.2 -F
