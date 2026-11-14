@@ -1,0 +1,274 @@
+/*
+ * =============================================================================
+ *  frontend/src/styles/auth.css
+ * -----------------------------------------------------------------------------
+ *  Created : 2026-09-12  yayoi111 (d/character-ui-cleanup) CSSを役割ごとに分割
+ *  Authors : 2026-08-29  hanabanana111 (d/home-page) 元のホームUI
+ *            2026-08-31  otnk666 (b/login-register) 元の共通UI
+ *            2026-09-02  Jasmine-Gray (d/layered-bg-animation) 元の背景レイヤー
+ *  Updated : 2026-09-12  yayoi111 (d/character-ui-cleanup) 重複・未使用CSS整理
+ * -----------------------------------------------------------------------------
+ *  同期元は _docs/mock/src/。make ui-styles で更新する。
+ *  モック : _docs/mock/src/styles/auth.css
+ *  関連   : _tools/sync-ui-styles.py
+ *  所有   : レーンD
+ * =============================================================================
+ */
+
+/* 認証フォーム・規約。正本: _docs/mock/src/styles/auth.css */
+
+@layer components {
+  .case-login {
+    padding: 0 1.5rem max(1.5rem, env(safe-area-inset-bottom));
+  }
+  .case-login-hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    min-height: 17rem;
+    flex-direction: column;
+    margin: 0 -1.5rem;
+    padding: 1.5rem;
+    overflow: hidden;
+    color: #f7eedf;
+    background: #171c20;
+  }
+  .case-login-hero h1 {
+    margin-top: 0.5rem;
+    font-size: clamp(1.875rem, 6vw, 2.25rem);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .case-login-description {
+    margin-top: 0.5rem;
+    color: #d6cebf;
+    font-size: 0.75rem;
+    line-height: 1.8;
+  }
+  .case-login-form {
+    margin-top: 1.75rem;
+  }
+  .case-register-link {
+    margin-top: 1.5rem;
+    padding: 1rem 0;
+    line-height: 2;
+  }
+  .case-register-link a {
+    display: inline-block;
+  }
+  .case-legal {
+    padding-top: 1.5rem;
+    line-height: 2;
+  }
+  .case-login {
+    display: flex;
+    flex-direction: column;
+    background: rgb(242 239 230 / 97%);
+  }
+  .case-login-form,
+  .case-register-link,
+  .case-legal {
+    width: 100%;
+    max-width: 30rem;
+    margin-inline: auto;
+  }
+  @media (min-width: 900px) {
+    .case-login {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(25rem, 32rem);
+      grid-template-rows: 1fr auto auto auto 1fr;
+      column-gap: clamp(3rem, 6vw, 7rem);
+      padding: 0 clamp(3rem, 6vw, 7rem) 0 0;
+      min-height: 100%;
+      align-items: start;
+    }
+    .case-login-hero {
+      grid-column: 1;
+      grid-row: 1 / 6;
+      align-self: stretch;
+      height: 100%;
+      min-height: 38rem;
+      margin: 0;
+      padding: clamp(2.5rem, 5vw, 5rem);
+      border-bottom: 0;
+    }
+    .case-login-hero h1 {
+      font-size: clamp(2.5rem, 4vw, 4rem);
+    }
+    .case-login-description {
+      font-size: 1rem;
+    }
+    .case-login-form {
+      grid-column: 2;
+      grid-row: 2;
+      margin-top: 2rem;
+    }
+    .case-register-link {
+      grid-column: 2;
+      grid-row: 3;
+    }
+    .case-legal {
+      grid-column: 2;
+      grid-row: 4;
+      padding-bottom: 2rem;
+    }
+  }
+  .case-login-hero {
+    justify-content: flex-start;
+  }
+  .case-registration {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(25rem, 32rem);
+    gap: clamp(3rem, 6vw, 7rem);
+    padding-right: clamp(3rem, 6vw, 7rem);
+    background: #f2efe6;
+    min-height: 100%;
+  }
+  .case-scroll > main.case-registration {
+    width: 100%;
+  }
+  .case-registration .case-login-hero {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .case-registration-form {
+    width: 100%;
+    max-width: 30rem;
+    margin: auto;
+    padding-block: 2.5rem;
+  }
+  .case-registration .case-login-hero h1 {
+    font-size: clamp(2.25rem, 3.5vw, 3.5rem);
+  }
+  .case-register-link {
+    border-top: 0;
+  }
+  .case-login-hero {
+    border-bottom: 0;
+  }
+  .case-login input,
+  .case-registration input {
+    border-color: transparent;
+    background: #fffdf7;
+    box-shadow: none;
+  }
+  .case-login input[aria-invalid="true"],
+  .case-registration input[aria-invalid="true"] {
+    border-color: var(--destructive);
+  }
+  .case-login input:focus-visible,
+  .case-registration input:focus-visible {
+    border-color: var(--ring);
+  }
+  @media (max-width: 899px) {
+    .case-registration {
+      grid-template-columns: 1fr;
+      padding: 0 1.5rem;
+      gap: 2rem;
+    }
+    .case-registration-form {
+      padding-block: 0 2.5rem;
+    }
+  }
+}
+.case-login input:not(:focus-visible):not([aria-invalid="true"]),
+.case-registration input:not(:focus-visible):not([aria-invalid="true"]) {
+  border-color: transparent;
+  background: #fffdf7;
+  box-shadow: none;
+}
+.mystery-scene .case-login input:not(:focus-visible):not([aria-invalid="true"]),
+.mystery-scene
+  .case-registration
+  input:not(:focus-visible):not([aria-invalid="true"]) {
+  background: #211a13;
+  border-color: #5c4b35;
+  box-shadow: inset 0 2px 4px #0003;
+}
+.mystery-scene .case-login,
+.mystery-scene .case-registration {
+  gap: 4rem;
+  padding: 2rem 5vw;
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) minmax(25rem, 29rem);
+  background: rgb(10 18 23 / 45%);
+}
+.mystery-scene .case-login {
+  grid-template-rows: 1fr auto auto auto 1fr;
+  column-gap: 5rem;
+  row-gap: 0;
+}
+.mystery-scene .case-login-hero {
+  padding: 1rem 1rem 2rem;
+  background: transparent;
+  overflow: visible;
+  justify-content: center;
+  border: 0;
+}
+.mystery-scene .case-login-hero h1 {
+  font-size: clamp(2.5rem, 3.6vw, 3.75rem);
+  line-height: 1.4;
+  text-shadow: 0 4px 20px #0008;
+}
+.mystery-scene .case-login-description {
+  font-size: 0.875rem;
+}
+.mystery-scene .case-login-form,
+.mystery-scene .case-registration-form {
+  position: relative;
+  padding: 2rem;
+  background: rgb(29 24 18 / 82%);
+}
+.mystery-scene .case-registration-form {
+  margin-block: 2rem;
+}
+.mystery-scene .case-registration-form h2 {
+  color: #f3e8d3;
+}
+.mystery-scene .case-register-link,
+.mystery-scene .case-legal {
+  position: relative;
+}
+@media (max-width: 899px) {
+  .mystery-scene .case-login,
+  .mystery-scene .case-registration {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    gap: 1rem;
+  }
+  .mystery-scene .case-login-hero {
+    width: 100%;
+    min-height: auto;
+  }
+}
+.mystery-scene .case-login-hero {
+  min-height: 38rem;
+}
+
+.form-field-message {
+  min-height: 1.25rem;
+  line-height: 1.25rem;
+}
+.mystery-scene .case-legal a,
+.mystery-scene .case-registration-form a[href="/terms"],
+.mystery-scene .case-registration-form a[href="/privacy"] {
+  color: #f0d19d;
+  text-decoration-color: #bba17a;
+  text-underline-offset: 4px;
+}
+.mystery-scene .case-legal a:hover,
+.mystery-scene .case-registration-form a[href="/terms"]:hover,
+.mystery-scene .case-registration-form a[href="/privacy"]:hover {
+  color: #fff4de;
+}
+.mystery-scene .case-login-form,
+.mystery-scene .case-registration-form {
+  border-radius: 10px;
+  border: 0;
+  box-shadow: 0 12px 32px #0003;
+  border-radius: 8px;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}

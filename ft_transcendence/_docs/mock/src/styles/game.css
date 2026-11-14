@@ -1,0 +1,432 @@
+/* 入場・お題・議論・タイマー・チャット。正本: _docs/mock/src/styles/game.css */
+
+@layer components {
+  .door-stage {
+    position: relative;
+    isolation: isolate;
+    height: 100%;
+    min-height: 28rem;
+    overflow: hidden;
+    color: #f2e6d0;
+    background: #171c20;
+  }
+  .door-stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(
+      ellipse at 50% 45%,
+      transparent 30%,
+      rgb(3 7 11 / 65%) 100%
+    );
+  }
+}
+
+@media (min-width: 1000px) {
+  .mystery-scene .discussion-board {
+    display: grid;
+    grid-template-columns: 17rem minmax(0, 1fr);
+    gap: 1.25rem 1.75rem;
+    align-items: start;
+  }
+  .discussion-board > * {
+    margin: 0;
+  }
+  .discussion-board > [data-slot="card"] {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .discussion-players {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .discussion-chat {
+    background: rgb(43 32 21 / 92%);
+    border-radius: 8px;
+  }
+  .discussion-chat [role="log"] {
+    padding-right: 0.5rem;
+  }
+  .mystery-scene .case-scroll > main.discussion-board {
+    min-height: 0;
+    margin-block: 1rem;
+    padding: 1rem;
+    grid-template-columns: 18rem minmax(0, 1fr);
+    gap: 1rem 1.5rem;
+  }
+  .discussion-sidebar {
+    grid-column: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .discussion-sidebar .discussion-players {
+    min-height: 0;
+  }
+  .discussion-sidebar .discussion-players > div:last-child {
+    margin-top: 0.5rem;
+  }
+  .discussion-sidebar .discussion-players [data-slot="avatar"] {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .discussion-chat {
+    grid-column: 2;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.25rem;
+  }
+  .discussion-chat [role="log"] {
+    min-height: 0;
+    max-height: none;
+    flex: 1;
+    overflow-y: auto;
+  }
+  .discussion-chat > form {
+    flex-shrink: 0;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border: 0;
+  }
+  .discussion-chat textarea {
+    min-height: 4rem;
+  }
+  .discussion-next {
+    grid-column: 2;
+  }
+}
+.game-timer {
+  color: #f0d7a9;
+}
+.game-timer-label {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #d4c19d;
+}
+.game-timer-value {
+  font-family: "Barlow Condensed", monospace;
+  font-size: 3rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.game-timer[data-urgent="true"] {
+  color: #ffb49b;
+}
+.mystery-scene .case-page-header:has(.game-timer) {
+  position: relative;
+  min-height: 6rem;
+  display: flex;
+  align-items: center;
+}
+.case-page-header:has(.game-timer) > div {
+  width: 100%;
+}
+.case-page-header .game-timer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+@media (min-width: 1000px) {
+  .mystery-scene .case-scroll > main.discussion-board {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .discussion-sidebar {
+    grid-row: 1 / 3;
+  }
+  .discussion-chat {
+    grid-row: 1;
+  }
+  .discussion-next {
+    grid-row: 2;
+  }
+}
+.mystery-scene .discussion-chat {
+  border: 1px solid rgb(186 147 89 / 28%);
+  border-radius: 4px;
+  box-shadow: inset 0 2px 0 rgb(218 180 116 / 32%);
+  background: rgb(31 23 15 / 88%);
+}
+.mystery-scene .discussion-chat > .chat-composer {
+  padding: 0.75rem;
+  border: 1px solid #8d70484d;
+  border-radius: 4px;
+  background: #2d2116;
+  box-shadow: inset 3px 0 0 #a28355;
+}
+.mystery-scene .chat-composer:focus-within {
+  border-color: #d8b67a;
+  box-shadow: inset 3px 0 0 #d8b67a;
+}
+.mystery-scene .chat-composer textarea {
+  border: 0;
+  background: #21180f;
+  box-shadow: none;
+  min-height: 3.5rem;
+}
+.chat-message {
+  animation: message-arrive 180ms ease-out both;
+}
+.mystery-scene .game-button.chat-send {
+  min-width: 6.5rem;
+  border-radius: 4px;
+}
+.chat-send svg {
+  transition: transform 140ms ease-out;
+}
+.chat-send:not(:disabled):hover svg {
+  transform: translateX(3px);
+}
+.chat-send:not(:disabled):active svg {
+  transform: translate(5px, -2px);
+}
+@media (min-width: 1000px) {
+  .mystery-scene .case-scroll > main.discussion-board {
+    height: calc(100dvh - 9rem);
+  }
+}
+
+.game-timer-value {
+  display: flex;
+  align-items: baseline;
+  text-shadow: 0 3px 12px #0007;
+}
+.timer-digit {
+  display: block;
+  animation: timer-tick 170ms ease-out both;
+}
+.game-timer[data-urgent="true"]:not([data-finished="true"]) .game-timer-label {
+  color: #ffc09a;
+  animation: timer-warning 1.5s ease-in-out infinite;
+}
+.game-timer[data-finished="true"] .game-timer-value {
+  color: #f0aa85;
+}
+[data-motion-paused="true"] .game-timer * {
+  animation-play-state: paused;
+}
+.word-reveal-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+.word-reveal-screen > .mt-7 {
+  width: min(100%, 26rem);
+  margin-top: 0;
+}
+.word-reveal-screen h2 {
+  font-size: 1rem;
+}
+.word-reveal-action .game-button {
+  width: auto;
+  min-width: 8rem;
+  min-height: 2.5rem;
+}
+.word-flip-card {
+  position: relative;
+  width: 100%;
+  height: 13rem;
+  perspective: 1100px;
+}
+.mystery-scene .word-flip-handle {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 3rem;
+  height: 100%;
+  padding: 0;
+  color: #b49662;
+  background: transparent;
+  border: 0;
+  touch-action: none;
+  cursor: grab;
+}
+.word-flip-handle:active {
+  cursor: grabbing;
+}
+.word-flip-handle span {
+  font-size: 2rem;
+}
+.game-timer {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.timer-hourglass {
+  width: 2.2rem;
+  height: 3.2rem;
+  color: #dfbc7c;
+}
+.game-timer[data-urgent="true"] .timer-hourglass,
+.game-timer[data-urgent="true"] .game-timer-value {
+  color: #ff7970;
+}
+.game-timer[data-urgent="true"] .game-timer-label {
+  animation: none;
+}
+
+.game-timer {
+  flex-direction: row;
+}
+.word-card-seal {
+  width: 4rem;
+  height: 4rem;
+  background: currentColor;
+  mask: url("/icons/wolf-head.svg") center / contain no-repeat;
+}
+.word-corner-card {
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border: 1px solid #b39358;
+}
+.word-corner-content {
+  position: absolute;
+  inset: 0;
+  place-items: center;
+  background: #e9ddc1;
+  color: #302519;
+  font-size: 2rem;
+}
+.word-corner-paper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.word-corner-seal {
+  position: absolute;
+  left: calc(50% - 2rem);
+  top: calc(50% - 2rem);
+  color: #c8a86a;
+  pointer-events: none;
+}
+.mystery-scene .word-corner-card .word-flip-handle {
+  inset: auto 0 0 auto;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 0;
+  color: #d7b577;
+}
+.word-corner-arrow {
+  width: 1.5rem;
+  height: 1.5rem;
+  animation: corner-invitation 1.8s ease-in-out infinite;
+}
+.word-corner-card[data-dragging="true"] .word-corner-arrow {
+  animation: none;
+  opacity: 0;
+}
+[data-motion-paused="true"] .word-corner-arrow {
+  animation-play-state: paused;
+}
+
+.mystery-scene .word-corner-card .word-flip-handle:hover,
+.mystery-scene .word-corner-card .word-flip-handle:active {
+  background: transparent;
+  color: #f1d6a0;
+}
+
+.word-corner-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+}
+.word-theme {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #69543b;
+}
+.mystery-scene .game-timer-value {
+  font-family: "Barlow Condensed", "Noto Sans JP Variable", sans-serif;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.mystery-scene .word-corner-content {
+  font-family: "Noto Sans JP Variable", sans-serif;
+}
+.mystery-scene .game-timer-value {
+  min-width: 5ch;
+  font-size: 3rem;
+  line-height: 1;
+}
+.mystery-scene .door-stage.game-entry {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  min-height: 100dvh;
+  width: 100%;
+  height: 100dvh;
+  padding: 0;
+  overflow: hidden;
+  background: #000;
+  isolation: isolate;
+  border: 0;
+  border-radius: 0;
+}
+.door-stage.game-entry::after {
+  display: none;
+}
+.entry-film,
+.entry-video,
+.entry-blackout {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.entry-video {
+  object-fit: cover;
+}
+.entry-blackout {
+  background: #000;
+  pointer-events: none;
+}
+.entry-copy {
+  position: absolute;
+  inset: auto 0 max(3rem, 7dvh);
+  display: grid;
+  place-items: center;
+  color: #f0e7d2;
+}
+.entry-count {
+  display: grid;
+  place-items: center;
+  width: 8rem;
+  height: 8rem;
+}
+.entry-number {
+  display: block;
+  font:
+    700 7rem/1 "Barlow Condensed",
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: #f0e7d2;
+  mask-image: url("/ui/countdown-ink.svg");
+  mask-size: 256px 256px;
+}
+.mystery-scene:has(.word-reveal-screen, .discussion-board) .victorian-scene {
+  filter: saturate(0.65) brightness(0.78);
+}
+
+/* スマホ幅: 中央寄せ（absolute）の残り時間がフェーズ名の札に重なるので、右側に並べる */
+@media (max-width: 639px) {
+  .case-page-header .game-timer {
+    position: static;
+    transform: none;
+  }
+  .case-header-parts:has(.game-timer) > :last-child {
+    margin-left: auto;
+  }
+  .case-page-header .game-timer-value {
+    font-size: 2.25rem;
+  }
+}

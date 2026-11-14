@@ -1,0 +1,45 @@
+# ==============================================================================
+#  _tools/caddy/Caddyfile
+# ------------------------------------------------------------------------------
+#  Created : 2026-08-21  yayoi111                                   開発用リバースプロキシ設定を新規作成
+#  Updated : 2026-09-02  yayoi111      (d/socket-auth-lan)          LAN_HOST（同一 Wi-Fi の別端末）を site address に追加
+#            2026-09-06  yayoi111      (d/creative-tooling)         部屋・フレンド画面とAPIをAcceptで振り分け
+#            2026-09-09  otnk666       (c/friends-invite)           /invites を @backend マッチャに追加
+#            2026-09-12  yayoi111      (d/creative-tooling)         保存画像の配信（/uploads/*）
+#            2026-09-16  otnk666       (c/friends-invite)           Accept: text/html を除外して SPA 画面のリロード（/friends 等）を frontend にフォールバック
+#            2026-09-16  yayoi111      (d/integrate-logout-friends-design) c の not Accept 方式に統一し /uploads/* を維持
+# ------------------------------------------------------------------------------
+#  役割    : 開発用リバースプロキシ。契約のトップレベルパス（/health /auth/* /users/* /invites/* /rooms/* /games/* /friends/* /socket/* /uploads/*）を backend:4000、
+#            それ以外（と Accept: text/html の画面リロード）を frontend:5173 へ
+#  契約    : _docs/spec/api/openapi.yaml にパスを足したら @backend マッチャと frontend/vite.config.ts の proxy を両方更新
+#  関連    : compose.yaml（proxy サービス）
+# ==============================================================================
+
+# 開発用リバースプロキシ（https://localhost:8443 → compose.yaml の proxy サービス）
+#
+# 契約（_docs/spec/api/openapi.yaml）のパスに /api prefix は無いため、
+# バックエンド行きは契約のトップレベルパスで振り分ける。
+# 契約にパスを追加したら、この @backend マッチャにも追記する。
+# 同じ Wi-Fi の別端末から入るときは .env に LAN_HOST=<この PC の IP> を書く（compose.yaml が proxy に渡す）。
+# tls internal は IP にも証明書を出す。端末側は初回に警告を許可するか、make ca-cert の root.crt を信頼させる。
+{
+	# ブラウザが IP 直打ちで来ると SNI を送らない。Docker NAT で Caddy から見た宛先はコンテナ IP なので、
+	# SNI なしの接続に使う証明書を LAN_HOST のものに固定する（無いと TLS "internal error" で落ちる）。
+	default_sni {$LAN_HOST:127.0.0.1}
+}
+
+localhost, {$LAN_HOST:127.0.0.1} {
+	tls internal
+
+	@backend {
+		path /health /auth/* /users /users/* /invites /invites/* /rooms /rooms/* /games/* /friends /friends/* /socket /socket/* /uploads/*
+		not header Accept *text/html*
+	}
+	handle @backend {
+		reverse_proxy backend:4000
+	}
+
+	handle {
+		reverse_proxy frontend:5173
+	}
+}

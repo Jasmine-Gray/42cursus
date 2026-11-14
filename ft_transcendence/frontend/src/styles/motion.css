@@ -1,0 +1,118 @@
+/*
+ * =============================================================================
+ *  frontend/src/styles/motion.css
+ * -----------------------------------------------------------------------------
+ *  Created : 2026-09-12  yayoi111 (d/character-ui-cleanup) CSSを役割ごとに分割
+ *  Authors : 2026-08-29  hanabanana111 (d/home-page) 元のホームUI
+ *            2026-08-31  otnk666 (b/login-register) 元の共通UI
+ *            2026-09-02  Jasmine-Gray (d/layered-bg-animation) 元の背景レイヤー
+ *  Updated : 2026-09-12  yayoi111 (d/character-ui-cleanup) 重複・未使用CSS整理
+ * -----------------------------------------------------------------------------
+ *  同期元は _docs/mock/src/。make ui-styles で更新する。
+ *  モック : _docs/mock/src/styles/motion.css
+ *  関連   : _tools/sync-ui-styles.py
+ *  所有   : レーンD
+ * =============================================================================
+ */
+
+/* 演出のkeyframes。正本: _docs/mock/src/styles/motion.css */
+
+@keyframes alley-fog {
+  0% {
+    transform: translate3d(-4%, 3%, 0) scale(1.04) rotate(-1deg);
+  }
+  35% {
+    transform: translate3d(-1%, -1%, 0) scale(1.08) rotate(0.4deg);
+  }
+  70% {
+    transform: translate3d(3%, 1%, 0) scale(1.12) rotate(1deg);
+  }
+  100% {
+    transform: translate3d(5%, -2%, 0) scale(1.14) rotate(0.2deg);
+  }
+}
+@keyframes case-scene-drift {
+  from {
+    transform: scale(1.02) translateX(-0.4%);
+  }
+  to {
+    transform: scale(1.055) translateX(0.4%);
+  }
+}
+@keyframes flame-frames {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(var(--flame-strip-end));
+  }
+}
+@keyframes message-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes timer-tick {
+  from {
+    transform: translateY(-0.3em);
+    opacity: 0.3;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes timer-warning {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes street-forward {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.24);
+  }
+}
+@keyframes corner-invitation {
+  0%,
+  100% {
+    transform: translate(3px, 3px);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate(-4px, -4px);
+    opacity: 1;
+  }
+}
+
+/* 招待通知ポップアップの20秒タイマー（frontend/src/components/layout/mobile-shell.tsx） */
+@keyframes shrink-width {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}

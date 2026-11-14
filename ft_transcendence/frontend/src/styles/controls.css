@@ -1,0 +1,484 @@
+/*
+ * =============================================================================
+ *  frontend/src/styles/controls.css
+ * -----------------------------------------------------------------------------
+ *  Created : 2026-09-12  yayoi111 (d/character-ui-cleanup) CSSを役割ごとに分割
+ *  Authors : 2026-08-29  hanabanana111 (d/home-page) 元のホームUI
+ *            2026-08-31  otnk666 (b/login-register) 元の共通UI
+ *            2026-09-02  Jasmine-Gray (d/layered-bg-animation) 元の背景レイヤー
+ *  Updated : 2026-09-13  yayoi111 (d/character-ui-cleanup) ホーム基準の共通ボタン
+ * -----------------------------------------------------------------------------
+ *  同期元は _docs/mock/src/。make ui-styles で更新する。
+ *  モック : _docs/mock/src/styles/controls.css
+ *  関連   : _tools/sync-ui-styles.py
+ *  所有   : レーンD
+ * =============================================================================
+ */
+
+/* ボタン・入力・タグ・共通カード。正本: _docs/mock/src/styles/controls.css */
+
+@layer components {
+  .mystery-scene {
+    position: relative;
+    isolation: isolate;
+    height: 100dvh;
+    overflow: hidden;
+    background: var(--color-night);
+  }
+  .case-hero-scene {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(180deg, rgb(12 17 21 / 30%), rgb(12 17 21 / 90%)),
+      url("/scenes/victorian-alley.png");
+    background-position:
+      center,
+      63% 42%;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  .case-hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .case-document-label {
+    padding: 0.25rem 0.5rem;
+    color: #d4b98e;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+  }
+  .case-hero-copy {
+    padding-top: 3rem;
+  }
+  .case-kicker {
+    color: #dbc8aa;
+    font-size: 0.625rem;
+  }
+
+  @media (min-width: 640px) {
+    .mystery-scene {
+      padding: 0;
+    }
+  }
+  @media (min-width: 900px) {
+    .case-hero-copy {
+      padding-bottom: 4rem;
+    }
+    .case-kicker {
+      font-size: 0.75rem;
+    }
+  }
+  .case-hero-copy {
+    margin-block: auto;
+    padding-block: 3rem;
+  }
+  .case-hero-scene {
+    transform-origin: center;
+    animation: case-scene-drift 24s ease-in-out infinite alternate;
+  }
+  [data-motion-paused="true"] .case-hero-scene {
+    animation-play-state: paused;
+  }
+  button,
+  a[data-slot="button"] {
+    transition:
+      transform 140ms ease,
+      background-color 140ms ease;
+  }
+  button:active:not(:disabled),
+  a[data-slot="button"]:active {
+    transform: translateY(1px);
+  }
+  .case-document-label {
+    border: 0;
+  }
+}
+.mystery-scene {
+  --background: #1d1914;
+  --card: #2c251d;
+  --popover: #2c251d;
+  --primary: #d6af71;
+  --primary-foreground: #241d14;
+  --secondary: #41372b;
+  --muted: #30291f;
+  --accent: #40372c;
+  --accent-foreground: #fff4e1;
+  --border: #554937;
+  --input: #655642;
+  --ring: #dfbd83;
+  --destructive: #ef9990;
+  color: var(--foreground);
+}
+.mystery-scene .game-button {
+  border-radius: 8px;
+  font-weight: 600;
+}
+.mystery-scene .game-button-primary {
+  background: #d6af71;
+  border: 0;
+  min-height: 2.75rem;
+  box-shadow:
+    0 4px 0 #82613b,
+    0 8px 18px #0003;
+}
+.mystery-scene .game-button-primary:hover {
+  background: #e6c38c;
+  transform: translateY(-1px);
+}
+.mystery-scene .game-button-primary:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #82613b;
+}
+.mystery-scene .game-button-outline,
+.mystery-scene .game-button-secondary {
+  background: #473b2c;
+  color: #f0e7d6;
+  border: 0;
+  box-shadow: 0 3px 0 #1c160f;
+}
+.mystery-scene [data-slot="card"] {
+  color: #eee7d9;
+}
+.mystery-scene .bg-white {
+  background-color: #3b3024;
+}
+.mystery-scene .text-stone-950,
+.mystery-scene .text-stone-900 {
+  color: #f4ead8;
+}
+.mystery-scene .text-stone-600,
+.mystery-scene .text-stone-500 {
+  color: #c0bbae;
+}
+.mystery-scene [data-slot="input"],
+.mystery-scene textarea {
+  background: #211a13;
+  color: #f3e9d9;
+  border: 1px solid #5c4b35;
+  border-radius: 8px;
+}
+.mystery-scene [data-slot="input"]::placeholder {
+  color: #9da9ac;
+}
+.mystery-scene .case-hero-scene {
+  inset: -3rem -34rem -3rem -8rem;
+  opacity: 0.4;
+  background-position: center;
+  pointer-events: none;
+}
+.mystery-scene .case-hero-top {
+  justify-content: flex-start;
+  gap: 2rem;
+}
+.mystery-scene .case-document-label {
+  display: none;
+}
+.mystery-scene .case-hero-copy {
+  margin: 0;
+  padding: 2.5rem 0 0;
+}
+.mystery-hand {
+  position: relative;
+  height: 15rem;
+  width: min(100%, 31rem);
+  margin: 1.5rem auto 2rem;
+}
+.mystery-hand-card {
+  position: absolute;
+  width: 11rem;
+  height: 14rem;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  box-shadow: 0 14px 28px #0007;
+}
+.mystery-hand-card > span {
+  font-size: 0.625rem;
+}
+.mystery-hand-card > svg {
+  width: 2rem;
+  height: 2rem;
+}
+.mystery-hand-card strong {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+}
+.mystery-hand-card small {
+  max-width: 8rem;
+  text-align: center;
+  font-size: 0.625rem;
+  line-height: 1.7;
+}
+.mystery-hand-back {
+  left: 7%;
+  top: 1rem;
+  transform: rotate(-15deg);
+  background: #493f31;
+  color: #bca787;
+}
+.mystery-hand-back > svg {
+  width: 4rem;
+  height: 4rem;
+}
+.mystery-hand-word {
+  left: 26%;
+  top: 0;
+  transform: rotate(-5deg);
+  background: #e5d7b9;
+  color: #372b1f;
+}
+.mystery-hand-secret {
+  top: 1rem;
+  transform: rotate(12deg);
+  background: #775a38;
+  color: #ffedce;
+}
+.game-stats > div {
+  padding: 1rem;
+  background: #392e22;
+  border-radius: 12px;
+}
+
+.mystery-scene .game-button-primary.bg-white {
+  background: #d6af71;
+  color: #241d14;
+}
+.mystery-hand-word {
+  z-index: 2;
+}
+.mystery-hand-secret {
+  left: 60%;
+  z-index: 1;
+}
+.mystery-scene .case-hero-scene {
+  display: none;
+}
+.mystery-scene .mystery-hand {
+  margin-top: 2rem;
+  margin-bottom: 0;
+}
+.mystery-scene [data-slot="card"] {
+  border: 1px solid rgb(168 137 88 / 24%);
+  border-radius: 8px;
+  background: rgb(45 34 23 / 76%);
+  box-shadow:
+    inset 0 1px 0 rgb(229 199 148 / 8%),
+    0 6px 16px #0003;
+}
+.mystery-scene {
+  line-height: 1.65;
+}
+.mystery-scene h1,
+.mystery-scene h2,
+.mystery-scene h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+.mystery-scene .game-button,
+.mystery-scene label,
+.mystery-scene nav {
+  font-family: var(--font-sans);
+}
+.wolf-mark {
+  display: block;
+  width: 44px;
+  height: 44px;
+  background: #dfbc7d;
+  mask: url("/icons/wolf-head.svg") center / contain no-repeat;
+}
+.mystery-scene .game-stats > div {
+  background: rgb(47 36 23 / 74%);
+}
+.mystery-scene .game-button:not(:disabled):not([aria-disabled="true"]):hover {
+  background-color: #645039;
+  color: #fff2d8;
+}
+.mystery-scene
+  .game-button-primary:not(:disabled):not([aria-disabled="true"]):hover {
+  background-color: #f0cc91;
+  color: #20170e;
+}
+.mystery-scene
+  .game-button-outline:not(:disabled):not([aria-disabled="true"]):hover,
+.mystery-scene
+  .game-button-secondary:not(:disabled):not([aria-disabled="true"]):hover {
+  background-color: #715639;
+  color: #fff2d8;
+}
+.mystery-scene button:not(.game-button):not(:disabled):hover {
+  background-color: #60492f;
+}
+.mystery-scene .game-button:disabled {
+  box-shadow: none;
+}
+.mystery-scene {
+  --foreground: #ead9b9;
+  --card-foreground: #ead9b9;
+  --muted-foreground: #c7b89c;
+  --secondary-foreground: #ead9b9;
+  --popover-foreground: #ead9b9;
+  font-family:
+    "Noto Sans JP Variable", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo,
+    sans-serif;
+  font-weight: 500;
+}
+.mystery-scene h2,
+.mystery-scene h3,
+.mystery-scene label,
+.mystery-scene dt,
+.mystery-scene dd,
+.mystery-scene nav,
+.mystery-scene .game-button {
+  font-family:
+    "Noto Sans JP Variable", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo,
+    sans-serif;
+}
+.mystery-scene .text-white,
+.mystery-scene .text-stone-950 {
+  color: #ead9b9;
+}
+.mystery-scene dt,
+.mystery-scene dd {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+.mystery-scene .game-button-primary {
+  color: #25190d;
+}
+
+.revealed-votes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.75rem;
+}
+.revealed-votes > li {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid rgb(179 147 88 / 35%);
+  border-radius: 0.25rem;
+  background: rgb(42 29 17 / 76%);
+}
+.vote-direction {
+  color: #e2bf7c;
+}
+@media (max-width: 700px) {
+  .revealed-votes {
+    grid-template-columns: 1fr;
+  }
+}
+.ballot-card-voter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.ballot-card-voter > div {
+  min-width: 0;
+}
+.ballot-card-voter strong {
+  display: block;
+  font-size: 0.875rem;
+}
+.ballot-card-voter span {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  color: #d3c2a5;
+}
+.ballot-card-target {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #b3935833;
+  font-size: 0.8125rem;
+}
+.ballot-card-target > span:nth-child(2) {
+  font-size: 0.6875rem;
+  color: #c7b89c;
+  margin-right: auto;
+}
+.ballot-card-target {
+  margin-top: auto;
+}
+.ballot-card-voter {
+  min-height: 2.5rem;
+  margin-bottom: 0.625rem;
+}
+.mystery-scene .hunt-play-menu .hunt-menu-eyebrow {
+  font:
+    700 clamp(4rem, 6vw, 6rem)/1 "Barlow Condensed",
+    sans-serif;
+  color: #f0e7d2;
+  margin-bottom: 1.5rem;
+}
+/* Shared home menu and room actions: dark plate, red primary, upper-right arrow. */
+.mystery-scene :is(.hunt-play-menu, .room-menu-actions) .hunt-play-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  height: 4rem;
+  min-height: 4rem;
+  padding: 0.75rem;
+  color: #f0e7d2;
+  background: #29251fd9;
+  border: 1px solid #9f876377;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition:
+    background-color 160ms ease-out,
+    border-color 160ms ease-out;
+}
+.mystery-scene
+  :is(.hunt-play-menu, .room-menu-actions)
+  .hunt-play-action:not(:disabled):not([aria-disabled="true"]):hover {
+  background: #4d4234;
+  border-color: #d5c2a1;
+  color: #f0e7d2;
+  transform: none;
+}
+.mystery-scene
+  :is(.hunt-play-menu, .room-menu-actions)
+  .hunt-play-action[data-tone="accent"] {
+  background: #682d2b;
+  border-color: #8c5149;
+}
+.mystery-scene
+  :is(.hunt-play-menu, .room-menu-actions)
+  .hunt-play-action[data-tone="accent"]:not(:disabled):not(
+    [aria-disabled="true"]
+  ):hover {
+  background: #89433c;
+}
+.mystery-scene
+  :is(.hunt-play-menu, .room-menu-actions)
+  .hunt-play-action[aria-current="page"] {
+  border-color: #e2bf7c;
+}
+.mystery-scene
+  :is(.hunt-play-menu, .room-menu-actions)
+  .hunt-play-action:active {
+  transform: none;
+  box-shadow: none;
+}
+.hunt-play-action > svg {
+  width: 20px;
+  height: 20px;
+}
+.hunt-play-action:focus-visible {
+  outline: 2px solid #e2bf7c;
+  outline-offset: 4px;
+}

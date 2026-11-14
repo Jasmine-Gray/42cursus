@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>型生成ベースの実装フロー — ワードウルフ開発ガイド</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">ft_transcendence / word wolf — development guide</p>
+  <h1>型生成ベースの実装フロー</h1>
+  <p class="lede">
+    API契約（OpenAPI / AsyncAPI）を唯一の正本とし、型は<strong>すべてツールで生成</strong>して、
+    フロントエンドとバックエンドの実装はその生成物の上に載せる。この文書はその手順書。
+  </p>
+  <nav class="pagenav">
+    <a href="index.html" aria-current="page">実装フロー</a>
+    <a href="data-first.html">データ前提の画面設計</a>
+    <a href="tools.html">使用ツール</a>
+    <a href="conventions.html">分担と規約</a>
+  </nav>
+  <div class="meta">
+    <span>最終更新: 2026-08-20</span>
+    <span>ステータス: Draft 0.1</span>
+    <span>この文書が正本（生成物ではないので直接編集する）</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <p>目次</p>
+  <ol>
+    <li><a href="#principles">3つの原則</a></li>
+    <li><a href="#overview">全体像</a></li>
+    <li><a href="#boundary">手で書くもの / 書かないもの</a></li>
+    <li><a href="#setup">初期セットアップ（W1で1回）</a></li>
+    <li><a href="#cycle">日々の開発サイクル</a></li>
+    <li><a href="#lanes">レーン別の使い方</a></li>
+    <li><a href="#websocket">WebSocket（Channel）の扱い</a></li>
+    <li><a href="#change">契約を変えたくなったとき</a></li>
+    <li><a href="#tools">ツール一覧</a></li>
+    <li><a href="#blockers">着手前に決めること</a></li>
+    <li><a href="#health-example">実例: /health で一周する</a></li>
+  </ol>
+</nav>
+
+<h2 id="principles"><span class="num">01</span>3つの原則</h2>
+
+<ol>
+  <li><strong>契約が唯一の正</strong> — <code>_docs/spec/api/openapi.yaml</code> と <code>asyncapi.yaml</code>。
+      実装を先に書いて契約を後追いさせない。</li>
+  <li><strong>型は生成物</strong> — レスポンス型・リクエスト型・入力検証スキーマ・Channelのpayload型を手で書かない。</li>
+  <li><strong>実装は生成物を経由する</strong> — 生の <code>fetch</code> と手書きの <code>interface</code> を使わない。
+      バックエンドも契約から読み込んだスキーマで入出力を検証する。</li>
+</ol>
+
+<p>
+  この3つが守られていれば、フロントとバックが同じ形を別々に推測する事故が構造的に起きない。
+  「フロント/バックで役割が被らない」ための土台もここにある。
+</p>
+
+<h2 id="overview"><span class="num">02</span>全体像</h2>
+
+<div class="figure">
+<svg viewBox="0 0 860 452" role="img" aria-label="契約から生成物・実装・CIへの流れ図">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/>
+    </marker>
+  </defs>
+  <style>
+    .bx { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; rx: 8; }
+    .bx-c { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; rx: 8; }
+    .bx-g { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 5 3; rx: 8; }
+    .bt { fill: var(--ink); font: 600 13px var(--mono); }
+    .bs { fill: var(--ink-2); font: 11px -apple-system, sans-serif; }
+    .bandt { fill: var(--ink-3); font: 600 11.5px var(--mono); letter-spacing: .08em; }
+    .fl { stroke: var(--ink-3); stroke-width: 1.4; fill: none; marker-end: url(#ar); }
+    .fll { fill: var(--accent); font: 600 11px var(--mono); }
+  </style>
+
+  <text class="bandt" x="20" y="18">(1) 契約 — 唯一の正本 / 変更は契約PRのみ</text>
+  <rect class="bx-c" x="180" y="28" width="500" height="52"/>
+  <text class="bt" x="200" y="50">openapi.yaml + asyncapi.yaml</text>
+  <text class="bs" x="200" y="68">REST 26オペレーション / 23パス（3.1.1）· Channel 15イベント（3.1.0）</text>
+
+  <path class="fl" d="M320,84 L232,124"/>
+  <text class="fll" x="150" y="106">make gen</text>
+  <path class="fl" d="M540,84 L628,124"/>
+  <text class="fll" x="646" y="106">make gen ＋ 実行時読み込み</text>
+
+  <text class="bandt" x="20" y="120">(2) 型の入手</text>
+  <rect class="bx-g" x="60" y="130" width="340" height="66"/>
+  <text class="bt" x="78" y="152">api.d.ts · ws/events.ts</text>
+  <text class="bs" x="78" y="169">openapi-typescript / gen-contract-types.py</text>
+  <text class="bs" x="78" y="185">手編集禁止・コミットする</text>
+  <rect class="bx" x="460" y="130" width="340" height="66"/>
+  <text class="bt" x="478" y="152">contract/*.ex ＋ %OpenApi{}</text>
+  <text class="bs" x="478" y="169">typespecとイベント名定数を make gen で生成</text>
+  <text class="bs" x="478" y="185">検証用に契約YAMLを実行時にも読み込む</text>
+
+  <path class="fl" d="M230,200 L230,234"/>
+  <path class="fl" d="M630,200 L630,234"/>
+
+  <text class="bandt" x="20" y="226">(3) 実装 — 型の上に載せる</text>
+  <rect class="bx" x="60" y="240" width="340" height="80"/>
+  <text class="bt" x="78" y="262">frontend</text>
+  <text class="bs" x="78" y="279">openapi-fetch で型付き呼び出し</text>
+  <text class="bs" x="78" y="295">契約schema + ajv → React Hook Form</text>
+  <text class="bs" x="78" y="311">phoenix クライアント + 生成ws型</text>
+  <rect class="bx" x="460" y="240" width="340" height="80"/>
+  <text class="bt" x="478" y="262">backend</text>
+  <text class="bs" x="478" y="279">Plug.CastAndValidate で入力検証</text>
+  <text class="bs" x="478" y="295">assert_operation_response で出力検証</text>
+  <text class="bs" x="478" y="311">GameServerの内部状態は契約外</text>
+
+  <rect class="bx" x="250" y="344" width="360" height="52"/>
+  <text class="bt" x="268" y="366">contracts/fixtures/*.json</text>
+  <text class="bs" x="268" y="383">契約PRで手書き。vitest(FE) と ExUnit(BE) が同じ期待値を読む</text>
+  <path class="fl" d="M330,344 L268,324"/>
+  <path class="fl" d="M530,344 L592,324"/>
+
+  <path class="fl" d="M150,320 L150,412"/>
+  <path class="fl" d="M710,320 L710,412"/>
+
+  <text class="bandt" x="20" y="410">(4) CIゲート</text>
+  <rect class="bx" x="100" y="414" width="660" height="32"/>
+  <text class="bs" x="150" y="435">redocly lint · asyncapi validate · make gen 差分 · prism proxy · schemathesis</text>
+</svg>
+  <p class="figcap">
+    契約 → 生成物 → 実装 → CI の一方向。逆流（実装から契約を直す）は必ず (1) の契約PRを経由する。
+  </p>
+</div>
+
+<h2 id="boundary"><span class="num">03</span>手で書くもの / 書かないもの</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>対象</th><th>扱い</th><th>置き場所 / 根拠</th></tr></thead>
+  <tbody>
+    <tr><td>レスポンス・リクエストのTS型</td><td><span class="tag gen">生成</span></td><td><code>frontend/src/types/api.d.ts</code></td></tr>
+    <tr><td>APIクライアント</td><td><span class="tag gen">生成</span></td><td><code>openapi-fetch</code> が契約の型を読む。ラッパは認証とベースURLのみ</td></tr>
+    <tr><td>フォーム入力の検証</td><td><span class="tag gen">契約を直読み</span></td><td>契約の <code>components.schemas</code> を ajv + <code>@hookform/resolvers/ajv</code> へ渡す。<code>minLength</code> 等を手で写さない</td></tr>
+    <tr><td>Channel payloadの型</td><td><span class="tag gen">生成</span></td><td><code>frontend/src/types/ws/events.ts</code> と <code>contract/events.ex</code></td></tr>
+    <tr><td>イベント名 → payload型の対応</td><td><span class="tag gen">生成</span></td><td><code>ws/events.ts</code> の <code>RoomEventPayloads</code> / <code>UserEventPayloads</code> と <code>Contract.Events</code></td></tr>
+    <tr><td>fixtures（期待JSON）</td><td><span class="tag hand">手書き</span></td><td><code>contracts/fixtures/</code>。契約PRで更新し、FE/BE両方のテストが読む</td></tr>
+    <tr><td>エラー文言（UI日本語）</td><td><span class="tag hand">手書き / FE</span></td><td>BEは <code>ErrorCode</code> の18値を返すだけ</td></tr>
+    <tr><td>Ectoスキーマ・Changeset</td><td><span class="tag hand">手書き / BE</span></td><td>DBの制約が主。API形は契約側で検証する</td></tr>
+    <tr><td>ゲームルール（GameServer）</td><td><span class="tag hand">手書き / BE</span></td><td>契約に出ない内部状態。<code>backend-spec.md</code> が正</td></tr>
+    <tr><td>生成物の中身の修正</td><td><span class="tag no">禁止</span></td><td>直したいときは契約を直して再生成する</td></tr>
+    <tr><td>手書きの <code>interface User</code> 等</td><td><span class="tag no">禁止</span></td><td>生成物からimportする</td></tr>
+    <tr><td>生の <code>fetch("/api/...")</code></td><td><span class="tag no">禁止</span></td><td>パス文字列の打ち間違いが型で落ちなくなる</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="setup"><span class="num">04</span>初期セットアップ（W1で1回）</h2>
+
+<h3>フロントエンド</h3>
+<pre><code>cd frontend
+npm i openapi-fetch react-hook-form @hookform/resolvers ajv ajv-formats phoenix
+npm i -D openapi-typescript @types/phoenix
+npm i -D oxlint prettier prettier-plugin-tailwindcss typescript vitest @vitest/coverage-v8</code></pre>
+
+<h3>バックエンド（mix.exs）</h3>
+<pre><code>{:open_api_spex, "~&gt; 3.22"},
+{:yaml_elixir, "~&gt; 2.12"}</code></pre>
+
+<p>契約YAMLを読み込んで <code>%OpenApiSpex.OpenApi{}</code> にする。<strong>コードから仕様を生成する向きには使わない</strong>（正本がElixirコードへ移ってしまう）。</p>
+
+<pre><code><span class="c"># lib/word_wolf_web/api_spec.ex</span>
+defmodule WordWolfWeb.ApiSpec do
+  @behaviour OpenApiSpex.OpenApi
+
+  @spec_path "../_docs/spec/api/openapi.yaml"
+
+  @impl true
+  def spec do
+    @spec_path
+    |&gt; Path.expand(__DIR__)
+    |&gt; YamlElixir.read_from_file!()
+    |&gt; OpenApiSpex.OpenApi.Decode.decode()
+  end
+end</code></pre>
+
+<h3>生成コマンドをMakefileに集約</h3>
+<pre><code><span class="c"># 実物はリポジトリ直下の Makefile（make help で一覧）</span>
+gen: gen-frontend gen-backend
+
+gen-frontend:
+	npx --yes openapi-typescript@7.13.0 _docs/spec/api/openapi.yaml \
+	  -o frontend/src/types/api.d.ts
+	python3 _tools/gen-contract-types.py --only frontend
+
+gen-backend:
+	python3 _tools/gen-contract-types.py --only backend
+
+spec-lint:
+	npx --yes @redocly/cli@2.46.1 lint _docs/spec/api/openapi.yaml
+	npx --yes @asyncapi/cli@6.0.2 validate _docs/spec/api/asyncapi.yaml</code></pre>
+
+<h3>CIで「手編集」を機械的に禁止する</h3>
+<pre><code>- run: make spec-lint
+- run: make gen-check    <span class="c"># 生成物の手編集と未コミットで落ちる</span></code></pre>
+
+<p>
+  lint・整形・静的解析・テストのツールとCIの実行順は
+  <a href="tools.html#quality">使用ツール §03</a> にまとめた。すべて2026-08-19時点の最新に揃え、
+  4週間の期間中はバージョンを上げない。
+</p>
+
+<div class="callout">
+  <span class="label">なぜ生成物をコミットするか</span>
+  <p>生成コマンドが通らない環境でもビルドでき、レビューで型の変化が差分として見える。
+  代わりに上のCIチェックで「手編集された生成物」を落とす。</p>
+</div>
+
+<h2 id="cycle"><span class="num">05</span>日々の開発サイクル</h2>
+
+<ol class="cycle">
+  <li>
+    <h4>契約PR（実装を1行も含めない）</h4>
+    <p class="who">起案者 → FE/BE両担当のApprove必須</p>
+    <p><code>openapi.yaml</code> / <code>asyncapi.yaml</code> と <code>contracts/fixtures/</code> だけを変更する。
+    <code>make spec-lint</code> と <code>build-docs.sh</code> を通してHTMLも一緒にコミットする。</p>
+  </li>
+  <li>
+    <h4>make gen</h4>
+    <p class="who">全員（各自の作業開始時）</p>
+    <p>生成物を更新する。型エラーが出た箇所が、契約変更の影響範囲そのものになる。</p>
+  </li>
+  <li>
+    <h4>BE: スタブ → 実装</h4>
+    <p class="who">BE担当（進行中=A / 永続=C）</p>
+    <p>まず契約どおりの固定値を返すスタブを置き、<code>CastAndValidate</code> を通す。
+    FEはこの時点で実サーバーを叩ける。以降スタブの中身を実装に差し替えるだけで、<strong>FEのコードは変更不要</strong>が正しい状態。</p>
+  </li>
+  <li>
+    <h4>FE: 生成物で実装</h4>
+    <p class="who">FE担当（リアルタイム=B / REST=D）</p>
+    <p><code>openapi-fetch</code> でエンドポイントを呼び、フォームは契約のschemaを
+    <code>@hookform/resolvers/ajv</code> 経由でRHFに挿す。
+    BEが未実装なら <code>prism mock</code> を向ける。</p>
+  </li>
+  <li>
+    <h4>検証</h4>
+    <p class="who">CI</p>
+    <p>BEはExUnitで <code>assert_operation_response(conn, "operationId")</code>。
+    FEはvitestでfixtureを検証。CIで <code>prism proxy</code> を実BEに当てて契約逸脱を落とす。</p>
+  </li>
+  <li>
+    <h4>マージ</h4>
+    <p class="who">対向ペアがレビュー（A↔B / C↔D）</p>
+    <p>BE実装PRとFE実装PRは分ける。履歴に分担が残り、Subjectの「作業分担が見えること」も満たす。</p>
+  </li>
+</ol>
+
+<h2 id="lanes"><span class="num">06</span>レーン別の使い方</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>レーン</th><th>使うもの</th><th>やらないこと</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>A</strong> 進行中BE<br><span class="who">GameServer / Channel</span></td>
+      <td>fixturesでChannel payloadのテスト。<code>ErrorCode</code> を返す</td>
+      <td>UI向けの文言を組み立てない。契約を単独で変更しない</td>
+    </tr>
+    <tr>
+      <td><strong>C</strong> 永続BE<br><span class="who">auth / users / rooms</span></td>
+      <td><code>CastAndValidate</code> + <code>assert_operation_response</code></td>
+      <td>Ecto Changesetに契約の文字数制限を書き写さない（契約が正）</td>
+    </tr>
+    <tr>
+      <td><strong>B</strong> リアルタイムFE<br><span class="who">画面08〜20</span></td>
+      <td>生成ws型 + <code>phoenix</code> クライアント + fixtures</td>
+      <td>payload型を手書きしない。カウントダウンをクライアント時刻で判定しない</td>
+    </tr>
+    <tr>
+      <td><strong>D</strong> RESTFE + 基盤<br><span class="who">画面01〜07 / 21〜24</span></td>
+      <td><code>openapi-fetch</code> + ajv resolver。<code>make gen</code>・CI・lint設定の管理</td>
+      <td>生の <code>fetch</code> を書かない</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="websocket"><span class="num">07</span>WebSocket（Channel）の扱い</h2>
+
+<p>
+  AsyncAPI 3.1.0 を扱えるコードジェネレータは存在しない（<code>@asyncapi/modelina</code> は 3.0.0 まで対応で、
+  3.0.0 に落としてもpayloadが <code>AnonymousSchema_16</code> のような名前になる）。
+  契約をツールに合わせて曲げる代わりに、<code>_tools/gen-contract-types.py</code> で両言語分を生成する。
+</p>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>生成されるもの</th><th>出力</th></tr></thead>
+  <tbody>
+    <tr><td>payload型（15イベント + 6スキーマ）</td>
+        <td><code>frontend/src/types/ws/events.ts</code> / <code>contract/events.ex</code></td></tr>
+    <tr><td>イベント名の定数（方向・チャンネル別）</td>
+        <td><code>CLIENT_EVENTS</code> / <code>SERVER_ROOM_EVENTS</code> / <code>SERVER_USER_EVENTS</code>、
+            <code>Events.client_events/0</code> ほか</td></tr>
+    <tr><td>イベント名 → payload型の対応表</td>
+        <td><code>ClientEventPayloads</code> / <code>RoomEventPayloads</code> / <code>UserEventPayloads</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  手書きで残るのは<strong>fixturesだけ</strong>。<code>contracts/fixtures/ws/phase.changed.json</code> のように
+  1イベント1ファイルにし、FEはvitest + ajv、BEはExUnitで同じファイルを読む。
+</p>
+
+<pre><code><span class="c">// 生成された対応表を使う。イベント名もpayload型も手書きしない</span>
+import type { RoomEventPayloads } from "@/types/ws/events";
+
+function onRoom&lt;E extends keyof RoomEventPayloads&gt;(
+  channel: Channel,
+  event: E,
+  handler: (payload: RoomEventPayloads[E]) =&gt; void,
+) {
+  channel.on(event, handler);
+}</code></pre>
+
+<pre><code><span class="c"># Elixir側も生成された型と定数を使う</span>
+alias WordWolf.Contract.Events
+
+@spec broadcast_phase(String.t(), Events.phase_changed()) :: :ok
+def broadcast_phase(room_id, payload) do
+  Endpoint.broadcast!("room:" &lt;&gt; room_id, "phase.changed", payload)
+end</code></pre>
+
+<div class="callout warn">
+  <span class="label">秘密情報の原則</span>
+  <p><code>user:{userId}</code> のpayload型を <code>room:{roomId}</code> のハンドラで参照していないか、
+  レビューで必ず確認する。<code>RoomEventPayloads</code> と <code>UserEventPayloads</code> が別のマップとして
+  生成されるので、型が通らないこと自体がチェック機構になる。</p>
+</div>
+
+<h2 id="change"><span class="num">08</span>契約を変えたくなったとき</h2>
+
+<ol>
+  <li>実装を止めて、変更内容をSlack等で共有する（黙って実装を進めない）</li>
+  <li>契約PRを立てる — YAML + fixtures + 生成HTML（<code>build-docs.sh</code>）のみ</li>
+  <li>FE/BE両担当がApprove。ここで「どちらが持つか」も同時に決める</li>
+  <li>マージ後、各自 <code>make gen</code>。型エラーの出た箇所が対応すべき範囲</li>
+  <li>同じスプリント内でFE・BE双方のテストを更新する</li>
+</ol>
+
+<p>「実装が先に進んでしまったので契約を後から合わせる」は禁止。契約が実装の追認になると、生成物を信頼できなくなる。</p>
+
+<h2 id="tools"><span class="num">09</span>ツール</h2>
+
+<div class="callout">
+  <span class="label">選定の原則</span>
+  <p><strong>生成するのは型まで。実行時コードは生成しない。</strong>
+  42の評価では自分が説明できないコードは失格になり得るため、生成物は<em>型と検証スキーマ</em>に留め、
+  クライアント処理・hooks・状態管理は手で書く。この一線を引くと、必要なツールは下表で足りる。</p>
+</div>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>用途</th><th>ツール（版は2026-08-19時点）</th></tr></thead>
+  <tbody>
+    <tr><td>REST型の生成</td><td><code>openapi-typescript</code> 7.13.0</td></tr>
+    <tr><td>型付きAPIクライアント</td><td><code>openapi-fetch</code> 0.17.0</td></tr>
+    <tr><td>フォーム検証</td><td><code>ajv</code> 8.20.0 + <code>@hookform/resolvers/ajv</code> 5.9.1（契約schemaを直読み・生成しない）</td></tr>
+    <tr><td>Channel payload型・イベント名</td><td><code>_tools/gen-contract-types.py</code>（自作 / python3 + PyYAML）</td></tr>
+    <tr><td>fixtures検証</td><td><code>ajv</code> 8.20.0</td></tr>
+    <tr><td>BEの型（typespec・イベント名）</td><td><code>_tools/gen-contract-types.py</code>（自作）</td></tr>
+    <tr><td>BEの入出力検証</td><td><code>open_api_spex</code> 3.22.3 + <code>yaml_elixir</code> 2.12.2</td></tr>
+    <tr><td>モック / 契約適合検証</td><td><code>@stoplight/prism-cli</code> 5.16.0</td></tr>
+    <tr><td>契約のlint / validate</td><td><code>@redocly/cli</code> 2.46.1 · <code>@asyncapi/cli</code> 6.0.2（継続）</td></tr>
+    <tr><td>W3の総点検（単発）</td><td><code>schemathesis</code> 4.24.3</td></tr>
+    <tr><td>lint / 整形（FE）</td><td><code>oxlint</code> 1.79.0 · <code>prettier</code> 3.9.6 + <code>prettier-plugin-tailwindcss</code> 0.8.1</td></tr>
+    <tr><td>lint / 静的解析（BE）</td><td><code>credo</code> 1.7.19 · <code>sobelow</code> 0.15.0 · <code>mix_audit</code> 2.1.5 · <code>dialyxir</code> 1.4.7</td></tr>
+    <tr><td>テスト / カバレッジ</td><td><code>vitest</code> 4.1.11 + <code>@vitest/coverage-v8</code> · <code>excoveralls</code> 0.18.5</td></tr>
+    <tr><td>pre-commitフック</td><td><code>lefthook</code> 2.1.10</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  導入コマンド、担当レーンと時期、入力と出力の対応、<strong>採用しないツールとその理由</strong>は
+  <a href="tools.html">使用ツール</a>にまとめた。
+</p>
+
+<h2 id="blockers"><span class="num">10</span>着手前に決めること</h2>
+
+<div class="callout stop">
+  <span class="label">未決 — 型生成の導入より先に決める</span>
+  <p><strong>1. 認証方式。</strong> <code>openapi.yaml</code> は <code>bearerAuth</code>（セッショントークン）だが、
+  <code>architecture/tech-stack.md</code> §4 は「HttpOnly Cookie / トークンをLocalStorageに置かない」。
+  Bearerならクライアントラッパがトークンを保持し、Cookieなら何も持たない。生成後に直すと作り直しになる。</p>
+  <p><strong>2. ゲーム中操作の経路。</strong> <code>tech-stack.md</code> §3 は「原則Channel」だが、契約と
+  <code>backend-spec.md</code> では start / vote は HTTP POST（配信のみChannel）。契約が正なので §3 を修正する。</p>
+</div>
+
+<h2 id="health-example"><span class="num">11</span>実例: /health で一周する</h2>
+
+<p>
+  <code>GET /health</code> は<strong>実用とexampleの2役</strong>を持つ。
+  実用としてはdocker-composeの <code>healthcheck</code>・監視・疎通確認に使う本物のエンドポイント。
+  exampleとしては「契約 → 型生成 → 実装 → 検証」を最小構成で一周した<strong>リファレンス実装</strong>で、
+  新しいエンドポイントを足すときは<strong>この節の差分をそのまま真似る</strong>。
+</p>
+
+<h3>1. 契約に書く（openapi.yaml だけを編集）</h3>
+<pre><code><span class="c"># paths: に追加。認証不要なので security: [] を明示</span>
+/health:
+  get:
+    tags: [system]
+    operationId: getHealth
+    security: []
+    summary: 死活監視
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              allOf: [{$ref: OkEnvelope}, {data: {$ref: Health}}]  <span class="c"># 実物は省略なし</span>
+
+<span class="c"># components/schemas: に追加</span>
+Health:
+  type: object
+  required: [service, version, time]
+  properties:
+    service: {type: string, const: wordwolf-api}
+    version: {type: string}
+    time: {type: string, format: date-time}</code></pre>
+
+<h3>2. lint → 生成 → モック確認</h3>
+<pre><code>make spec-lint   <span class="c"># 契約の検証（Redocly + AsyncAPI CLI）</span>
+make gen         <span class="c"># frontend/src/types/ と backend/.../contract/ が更新される</span>
+make spec-docs   <span class="c"># HTML版仕様書も追随させる</span>
+make mock        <span class="c"># :4010 で契約どおりの偽サーバーが立つ</span>
+
+curl -s localhost:4010/health
+<span class="c"># {"status":"ok","data":{"service":"wordwolf-api","version":"0.1.0","time":"2026-08-20T00:00:00Z"}}</span></code></pre>
+
+<p>生成された型（抜粋）。<strong>どちらも手で書いていない</strong>。</p>
+<pre><code><span class="c">// frontend/src/types/api.d.ts（openapi-typescript が生成）</span>
+"/health": { get: operations["getHealth"]; ... };
+
+<span class="c"># backend/lib/word_wolf/contract/types.ex（_tools/gen-contract-types.py が生成）</span>
+@type health :: %{
+        required(:service) =&gt; String.t(),
+        required(:version) =&gt; String.t(),
+        required(:time) =&gt; String.t()
+      }</code></pre>
+
+<h3>3. FE: 生成型で呼ぶ</h3>
+<pre><code>import createClient from "openapi-fetch";
+import type { paths } from "@/types/api";
+
+const client = createClient&lt;paths&gt;({ baseUrl: "/api" });  <span class="c">// BE未実装なら :4010 に向ける</span>
+
+const { data, error } = await client.GET("/health");
+<span class="c">// data の型は契約から推論される。パスのtypoはコンパイルエラー</span></code></pre>
+
+<h3>4. BE: 生成型を @spec に使う</h3>
+<pre><code>defmodule WordWolfWeb.HealthController do
+  use WordWolfWeb, :controller
+  alias WordWolf.Contract.Types
+
+  @spec health_payload() :: Types.health()   <span class="c"># 契約とのズレをDialyzerが検出</span>
+  defp health_payload do
+    %{service: "wordwolf-api", version: "0.1.0",
+      time: DateTime.utc_now() |&gt; DateTime.to_iso8601()}
+  end
+
+  def show(conn, _params), do: json(conn, %{status: "ok", data: health_payload()})
+end</code></pre>
+
+<h3>5. 検証</h3>
+<pre><code>make gen-check   <span class="c"># CIで生成物の再生成忘れ・手編集を落とす</span>
+make proxy       <span class="c"># :4011 経由で実BEを叩き、契約逸脱をエラーにする</span></code></pre>
+
+<div class="callout">
+  <span class="label">この節の使い方</span>
+  <p>エンドポイント追加のPRは、必ずこの1〜5と同じ順で進める。
+  1が契約PR、2〜4が実装PR（<a href="#cycle">§05</a> の分割どおり）。
+  /health の契約差分は <code>git log -- _docs/spec/api/openapi.yaml</code> で参照できる。</p>
+</div>
+
+<footer>
+  <p>
+    関連文書:
+    <a href="../spec/api/README.md">API契約</a> ·
+    <a href="../spec/api/index.html">REST仕様書(HTML)</a> ·
+    <a href="../spec/api/realtime.html">Realtime仕様書(HTML)</a> ·
+    <a href="../spec/backend/backend-spec.md">バックエンド仕様</a> ·
+    <a href="../requirements/module-plan.md">モジュール構成</a>
+  </p>
+  <p>この文書は手書きの正本。<code>_docs/spec/api/*.html</code> は生成物なので直接編集しない。</p>
+</footer>
+
+</div>
+</body>
+</html>

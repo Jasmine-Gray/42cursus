@@ -1,0 +1,99 @@
+# ==============================================================================
+#  compose.yaml
+# ------------------------------------------------------------------------------
+#  Created : 2026-08-21  yayoi111                                   開発用 docker compose を新規作成
+#  Updated : 2026-09-02  yayoi111      (develop)                    backend の healthcheck を 127.0.0.1 に（localhost が ::1 に解決され常に unhealthy だった）
+#            2026-09-02  yayoi111      (d/socket-auth-lan)          proxy に LAN_HOST を渡す（同一 Wi-Fi の別端末からのアクセス）
+#            2026-09-12  yayoi111      (d/creative-tooling)         透過画像の永続化
+#            2026-09-16  otnk666       (c/friends-invite)           backend の healthcheck 間隔を短縮し起動待機を高速化
+#            2026-09-16  yayoi111      (d/integrate-logout-friends-design) healthcheck の start_period を 5 分に（初回はコンテナ内で deps をコンパイルするため、45 秒では unhealthy になり make up の --wait が落ちる）
+#  Authors : 2026-08-26  Jasmine-Gray  (c/user-avatar)              add user avatar update API, avatar-picker component, and profile
+#            2026-09-02  yayoi111      (d/integrate-screens-01-04)  DB のホスト側ポートを POSTGRES_HOST_PORT で変更可能にする
+# ------------------------------------------------------------------------------
+#  役割    : 開発用 docker compose（db / pgweb / backend / frontend / proxy）。外部からのアクセスは proxy（Caddy https://localhost:8443）に統一
+#  備考    : backend / frontend はソースを COPY するので、コード変更後は make up（--build）で再ビルド。db の公開ポートは .env の POSTGRES_HOST_PORT
+#  関連    : _tools/caddy/Caddyfile, backend/Dockerfile, frontend/Dockerfile, .env.example, Makefile（up / urls / db-seed / db-shell）
+# ==============================================================================
+
+# ワードウルフ — 開発用 compose
+#
+# 初回: make setup → make up（= docker compose up -d --build）
+# 外部からのアクセスは proxy（Caddy, https://localhost:8443）に統一する。
+name: word_wolf
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-word_wolf}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?cp .env.example .env してから起動してください}
+      POSTGRES_DB: ${POSTGRES_DB:-word_wolf_dev}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432" # 手元に別の Postgres がある場合は .env で変える
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  pgweb:
+    image: sosedoff/pgweb:0.16.2
+    ports:
+      - "8081:8081"
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-word_wolf}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-word_wolf_dev}?sslmode=disable
+    depends_on:
+      db:
+        condition: service_healthy
+
+  backend:
+    build: ./backend
+    volumes:
+      - avatar_uploads:/app/priv/static/uploads
+    command: sh -c "mix ecto.create --quiet && mix ecto.migrate --quiet && mix run priv/repo/seeds.exs && mix phx.server"
+    ports:
+      - "4000:4000" # make proxy（契約適合検証）とFE先行開発の直叩き用
+    environment:
+      PGHOST: db
+      POSTGRES_USER: ${POSTGRES_USER:-word_wolf}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?cp .env.example .env してから起動してください}
+      POSTGRES_DB: ${POSTGRES_DB:-word_wolf_dev}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-dev_only_secret}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      # 契約の GET /health（_docs/spec/api/openapi.yaml）を使う。
+      # localhost は alpine 内で ::1 に解決され、Bandit は 0.0.0.0（IPv4）で待つため常に失敗する → 127.0.0.1 を使う
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:4000/health"]
+      # interval 2s で起動を素早く検知しつつ、start_period 中の失敗は retries に数えない（初回起動は deps のコンパイルで数分かかる）
+      interval: 2s
+      timeout: 3s
+      retries: 5
+      start_period: 300s
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+
+  proxy:
+    image: caddy:2-alpine
+    ports:
+      - "8443:443"
+    environment:
+      # 同じ Wi-Fi の別端末から https://<LAN_HOST>:8443 で入る用。未設定なら localhost だけ（Caddyfile 参照）
+      LAN_HOST: ${LAN_HOST:-127.0.0.1}
+    volumes:
+      - ./_tools/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  pgdata:
+  caddy_data:
+  avatar_uploads:

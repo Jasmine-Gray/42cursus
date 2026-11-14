@@ -1,0 +1,638 @@
+/* 開票・退場・勝敗演出・結果。正本: _docs/mock/src/styles/results.css */
+
+.mystery-scene .case-scroll > main.result-screen {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.8fr) minmax(32rem, 1.6fr);
+  grid-template-rows: auto 1fr auto;
+  gap: 1.25rem 2.5rem;
+  max-width: 78rem;
+  margin: 1rem auto;
+  padding: 1rem;
+}
+.result-personal {
+  grid-row: 1 / 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #e2bf7c;
+}
+.faction-mark {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  color: #e2bf7c;
+}
+.faction-wolf {
+  background: currentColor;
+  mask: url("/icons/wolf-head.svg") center / contain no-repeat;
+}
+.result-personal .result-emblem {
+  width: 7rem;
+  height: 7rem;
+  margin-bottom: 1rem;
+  stroke-width: 1;
+}
+.result-personal h1 {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+.result-faction,
+.result-verdict {
+  font-size: 0.875rem;
+}
+.result-personal[data-won="false"],
+.result-personal[data-won="false"] .faction-mark {
+  color: #d89685;
+}
+.result-self {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 0.625rem 1rem;
+  background: #604627;
+  border: 1px solid #b39358;
+  border-radius: 0.25rem;
+  color: #eee2c9;
+}
+.result-words {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.result-words > div {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border: 1px solid #8b704466;
+  background: #2a1d11bb;
+  border-radius: 0.25rem;
+}
+.result-words p {
+  font-size: 0.75rem;
+  color: #c7b89c;
+}
+.result-words strong {
+  font-size: 1.25rem;
+  color: #eee2c9;
+}
+.result-winner-tag {
+  margin-left: auto;
+  padding: 0.2rem 0.5rem;
+  background: #e2bf7c;
+  color: #291e10;
+  border-radius: 0.2rem;
+  font-size: 0.75rem;
+}
+.result-ballots h2 {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+.result-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.result-actions .game-button {
+  min-width: 9rem;
+}
+.result-actions > span {
+  font-size: 0.75rem;
+  color: #c7b89c;
+}
+@media (max-width: 999px) {
+  .mystery-scene .case-scroll > main.result-screen {
+    grid-template-columns: 1fr;
+  }
+  .result-personal {
+    grid-row: auto;
+  }
+}
+.result-ballot-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+.result-ballot-card {
+  padding: 0.75rem;
+  border: 1px solid #b3935866;
+  border-radius: 0.375rem;
+  background: #2a1d11e6;
+  color: #eee2c9;
+}
+.result-ballot-card[data-current-player="true"] {
+  background: #604627;
+  border-color: #e2bf7c;
+}
+.ballot-card-voter .faction-mark {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+@media (max-width: 700px) {
+  .result-ballot-cards {
+    grid-template-columns: 1fr;
+  }
+}
+.mystery-scene .result-actions > .game-button {
+  height: 2.75rem;
+  min-height: 2.75rem;
+  box-sizing: border-box;
+  box-shadow: 0 3px 0 #1d140ccc;
+}
+.result-ballot-cards {
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+}
+.result-ballot-card {
+  display: flex;
+  flex-direction: column;
+}
+.mystery-scene .result-personal h1 {
+  font-family: "Barlow Condensed", "Noto Sans JP Variable", sans-serif;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.mystery-scene .case-scroll > main.result-cinematic {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: calc(100dvh - 6rem);
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  padding: 1rem 2rem 3.2rem;
+  overflow: hidden;
+  max-width: none;
+  border: 0;
+  background: #080a0ac9;
+  box-shadow: none;
+  color: #e8dcc4;
+  isolation: isolate;
+}
+.result-cinematic::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse at 50% 42%, #79664d29, transparent 62%);
+}
+.cinematic-eyebrow {
+  color: #c3a97e;
+  font:
+    500 0.9rem "Barlow Condensed",
+    sans-serif;
+  letter-spacing: 0.2em;
+  text-align: center;
+}
+.cinematic-votes {
+  width: min(100%, 1180px);
+  align-self: center;
+}
+.cinematic-votes h1 {
+  text-align: center;
+  font:
+    600 2rem "Shippori Mincho",
+    serif;
+  margin: 0.5rem 0 1.7rem;
+  color: #f0e3cd;
+}
+/* One column per recipient; the newest ballot lands above the existing stack. */
+.ballot-board {
+  display: grid;
+  grid-template-columns: repeat(var(--players), minmax(0, 1fr));
+  gap: 1rem;
+  height: min(450px, calc(100dvh - 17rem));
+}
+.ballot-column {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-width: 0;
+  isolation: isolate;
+}
+.ballot-column::before {
+  content: "";
+  position: absolute;
+  inset: -1rem -0.35rem 0;
+  z-index: -1;
+  opacity: 0;
+  background: linear-gradient(0deg, #c6a15b28, #b88d3920 48%, transparent);
+  transition: opacity 700ms ease;
+}
+.ballot-column[data-leading]::before {
+  opacity: 1;
+}
+.ballot-stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  min-height: 0;
+  padding: 0 0.2rem 1rem;
+}
+.ballot-ticket {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.55rem;
+  height: min(
+    46px,
+    calc((100% - (var(--max-votes) - 1) * 6px) / var(--max-votes))
+  );
+  min-height: 30px;
+  padding: 0.35rem 0.65rem;
+  color: #dfd6c3;
+  background: #282924ee;
+  border: 1px solid #73694e66;
+  border-radius: 2px;
+  box-shadow: 0 3px 5px #0005;
+  transition:
+    background-color 600ms ease,
+    border-color 600ms ease;
+}
+.ballot-ticket > span:last-child {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.ballot-ticket .player-avatar {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.ballot-ticket[data-current-player] {
+  border-left: 3px solid #d2b175;
+}
+.ballot-column[data-leading] .ballot-ticket {
+  background: #59452ddd;
+  border-color: #c6a16488;
+  color: #f5e9cc;
+}
+.ballot-candidate {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 0.35rem 0.6rem;
+  border-top: 1px solid #685d4255;
+  color: #a99f8c;
+  transition:
+    color 700ms ease,
+    border-color 700ms ease;
+}
+.ballot-candidate > .player-avatar {
+  width: 56px;
+  height: 56px;
+  box-shadow: 0 0 0 1px #86765a55;
+  transition: box-shadow 700ms ease;
+}
+.ballot-candidate > strong {
+  font-size: 0.85rem;
+  font-weight: 500;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ballot-column[data-current-player] .ballot-candidate {
+  background: #ac854f12;
+}
+.ballot-column[data-leading] .ballot-candidate {
+  color: #edd197;
+  border-color: #dfbc78;
+}
+.ballot-column[data-leading] .ballot-candidate > .player-avatar {
+  box-shadow:
+    0 0 0 2px #d4b47b,
+    0 0 25px #c9a25870;
+}
+.ballot-column[data-leading] .ballot-candidate > strong {
+  text-shadow: 0 0 14px #c3a16075;
+}
+.ballot-count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+.ballot-count b {
+  font:
+    600 2rem/1 "Barlow Condensed",
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.ballot-count > span {
+  font-size: 0.65rem;
+}
+.cinematic-selection {
+  display: grid;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: center;
+  width: min(100%, 1000px);
+  height: 100%;
+}
+.cinematic-selected-copy {
+  text-align: center;
+  z-index: 2;
+}
+.cinematic-selected-copy p {
+  font:
+    500 1.3rem "Shippori Mincho",
+    serif;
+  color: #c8b99c;
+}
+.cinematic-selected-copy h1 {
+  font:
+    600 clamp(2rem, 4vw, 3.5rem) "Shippori Mincho",
+    serif;
+  margin: 1rem 0;
+  color: #f1e2c8;
+}
+.cinematic-selected-copy > span {
+  color: #ae9877;
+}
+.cinematic-selection[data-selected-self] .cinematic-selected-copy h1 {
+  color: #ce7b66;
+}
+.cinematic-selected-art {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+.cinematic-selected-figure {
+  height: 100%;
+  padding: 1rem 0;
+}
+.cinematic-selected-figure .player-avatar {
+  width: 100%;
+  height: 100%;
+}
+.cinematic-character-shadow {
+  position: absolute;
+  inset: 20% -20% 0;
+  background: radial-gradient(ellipse, #baa57933, transparent 62%);
+}
+.mystery-scene
+  .case-scroll
+  > main.result-cinematic:is(
+    [data-phase="elimination"],
+    [data-phase="resolution"],
+    [data-phase="outcome"]
+  ) {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  background: #040607;
+}
+.elimination-film {
+  position: absolute;
+  inset: 0;
+  background: #040607;
+}
+.mystery-scene:has(
+    .result-cinematic:is(
+      [data-phase="elimination"],
+      [data-phase="resolution"],
+      [data-phase="outcome"]
+    )
+  )
+  :is(.game-menu-header, .case-page-header) {
+  visibility: hidden;
+}
+.elimination-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.elimination-still {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  height: 100%;
+  gap: 0.8rem;
+}
+.elimination-still > .player-avatar {
+  width: 300px;
+  height: min(60dvh, 520px);
+  filter: grayscale(1) brightness(0.6);
+}
+.elimination-still > p {
+  font:
+    600 1.4rem "Shippori Mincho",
+    serif;
+  color: #d7cbb6;
+}
+.elimination-still > span {
+  color: #9d8e77;
+  font-size: 0.85rem;
+}
+.cinematic-skip {
+  z-index: 2;
+  position: absolute;
+  right: max(2rem, env(safe-area-inset-right));
+  bottom: max(1.2rem, env(safe-area-inset-bottom));
+  color: #b6a68d;
+}
+.result-cinematic[data-outcome] {
+  --outcome-accent: #adf3d5;
+  --outcome-light: #e6fff0;
+  --outcome-edge: #459b8066;
+  --outcome-edge-bright: #93ebcc;
+}
+.result-cinematic[data-outcome="loss"] {
+  --outcome-accent: #ff727b;
+  --outcome-light: #ffe4de;
+  --outcome-edge: #b51d3666;
+  --outcome-edge-bright: #ed4657;
+}
+.result-cinematic[data-outcome]::before {
+  content: none;
+}
+.outcome-atmosphere,
+.outcome-city,
+.outcome-film,
+.outcome-perimeter,
+.outcome-shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.outcome-atmosphere {
+  z-index: -1;
+  overflow: hidden;
+  background: #050908;
+}
+.outcome-city,
+.outcome-film {
+  object-fit: cover;
+}
+.outcome-film {
+  background: #040607;
+}
+.outcome-perimeter {
+  background:
+    linear-gradient(
+      180deg,
+      var(--outcome-edge),
+      transparent 24%,
+      transparent 76%,
+      var(--outcome-edge)
+    ),
+    linear-gradient(
+      90deg,
+      var(--outcome-edge),
+      transparent 30%,
+      transparent 70%,
+      var(--outcome-edge)
+    );
+  box-shadow:
+    inset 0 3px var(--outcome-edge-bright),
+    inset 0 -3px var(--outcome-edge-bright);
+}
+.outcome-shade {
+  background: linear-gradient(
+    180deg,
+    #02060533,
+    #030a0966 28%,
+    #020806dd 48%,
+    #030a09aa 65%,
+    #02060544
+  );
+}
+[data-outcome="loss"] .outcome-shade {
+  background: linear-gradient(
+    180deg,
+    #08020466,
+    #10030677 28%,
+    #100205ee 48%,
+    #100306bb 65%,
+    #08020477
+  );
+}
+.cinematic-resolution {
+  position: absolute;
+  inset: 0;
+}
+.cinematic-outcome {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: max(2rem, env(safe-area-inset-top))
+    max(2rem, env(safe-area-inset-right)) max(2rem, env(safe-area-inset-bottom))
+    max(2rem, env(safe-area-inset-left));
+  text-align: center;
+}
+.outcome-title {
+  perspective: 1000px;
+  padding: 0 1rem 0.5rem;
+}
+.mystery-scene .cinematic-outcome h1 {
+  font:
+    700 clamp(6rem, min(18vw, 28dvh), 18rem)/1.05 "Barlow Condensed",
+    sans-serif;
+  color: var(--outcome-accent);
+  text-shadow: 0 4px 24px #0006;
+  text-wrap: balance;
+  margin: 0;
+}
+.outcome-player {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0.8rem 0 0;
+  color: var(--outcome-light);
+  font-size: 1rem;
+  text-wrap: pretty;
+}
+.outcome-player strong {
+  color: var(--outcome-accent);
+  padding-left: 1rem;
+  border-left: 1px solid currentColor;
+  font-weight: 600;
+}
+.outcome-action {
+  margin-top: clamp(2rem, 7dvh, 5rem);
+}
+.mystery-scene .outcome-action > button {
+  min-height: 48px;
+  min-width: 200px;
+  padding: 0.7rem 2.5rem;
+  border-radius: 1px;
+  background: var(--outcome-accent);
+  border: 1px solid var(--outcome-accent);
+  color: #101816;
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: 0 3px 10px #0004;
+  transition:
+    background-color 160ms ease-out,
+    border-color 160ms ease-out,
+    transform 160ms ease-out;
+}
+.mystery-scene .outcome-action > button:hover {
+  background: var(--outcome-light);
+  border-color: var(--outcome-light);
+  transform: translateY(-2px);
+}
+.mystery-scene .outcome-action > button:active {
+  transform: translateY(0);
+}
+.mystery-scene .outcome-action > button:focus-visible {
+  outline: 2px solid var(--outcome-light);
+  outline-offset: 5px;
+}
+
+/* スマホ幅: 最大8人の列が1画面に収まるよう、列の間隔と候補者の顔・票数を縮める */
+@media (max-width: 639px) {
+  .ballot-board {
+    gap: 0.3rem;
+  }
+  .ballot-stack {
+    min-width: 0;
+    padding-inline: 0;
+  }
+  /* 票は投票者の顔だけにする（名前は読み上げ用の文で伝わる） */
+  .ballot-ticket {
+    justify-content: center;
+    min-width: 0;
+    padding: 0.2rem;
+  }
+  .ballot-ticket > span:last-child {
+    display: none;
+  }
+  .ballot-candidate {
+    gap: 0.4rem;
+    padding: 0.7rem 0.1rem 0.5rem;
+  }
+  .ballot-candidate > .player-avatar {
+    width: min(40px, 100%);
+    height: auto;
+    aspect-ratio: 1;
+  }
+  .ballot-candidate > strong {
+    font-size: 0.7rem;
+  }
+  .ballot-count b {
+    font-size: 1.5rem;
+  }
+}

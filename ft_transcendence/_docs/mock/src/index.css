@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@import "shadcn/tailwind.css";
+@import "@fontsource/barlow-condensed/latin-600.css";
+@import "@fontsource/barlow-condensed/latin-700.css";
+@import "@fontsource-variable/noto-sans-jp";
+@import "@fontsource/shippori-mincho/600.css";
+
+@import "./styles/foundation.css";
+@import "./styles/shell.css";
+@import "./styles/scene.css";
+@import "./styles/controls.css";
+@import "./styles/characters.css";
+@import "./styles/home.css";
+@import "./styles/rooms.css";
+@import "./styles/auth.css";
+@import "./styles/social.css";
+@import "./styles/game.css";
+@import "./styles/results.css";
+@import "./styles/motion.css";
+@import "./styles/accessibility.css";

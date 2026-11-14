@@ -1,0 +1,27 @@
+{
+  "name": "word-wolf-media-tools",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "remotion": "remotion",
+    "check": "remotion versions",
+    "render:elimination": "node render-elimination.mjs",
+    "render:outcomes": "node render-outcomes.mjs",
+    "render:entrance": "node render-entrance.mjs"
+  },
+  "devDependencies": {
+    "@remotion/bundler": "4.0.520",
+    "@remotion/cli": "4.0.520",
+    "@remotion/renderer": "4.0.520",
+    "@remotion/transitions": "4.0.520",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "remotion": "4.0.520",
+    "sharp": "0.35.4",
+    "typescript": "6.0.2",
+    "zod": "4.4.3"
+  }
+}

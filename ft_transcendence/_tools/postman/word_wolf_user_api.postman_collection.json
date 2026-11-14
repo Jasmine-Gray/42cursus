@@ -1,0 +1,365 @@
+{
+  "info": {
+    "name": "WordWolf User & Avatar API",
+    "_postman_id": "wordwolf-user-avatar-api-collection",
+    "description": "WordWolf 探偵ワードウルフのユーザー・アバター更新 API 検証用 Postman Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "bearerToken",
+      "value": "dev-token-yu",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01. GET /health (ヘルスチェック)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Response envelope status is ok', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql('ok');",
+              "    pm.expect(jsonData.data.service).to.eql('wordwolf-api');",
+              "    pm.expect(jsonData.data.version).to.be.a('string');",
+              "    pm.expect(jsonData.data.time).to.be.a('string');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. GET /users/me (プロフィール・戦績取得)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{bearerToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "me"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Contains UserPrivate, stats, and friendCount', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql('ok');",
+              "    pm.expect(jsonData.data.user.userId).to.eql('user_yu');",
+              "    pm.expect(jsonData.data.user.displayName).to.be.a('string');",
+              "    pm.expect(jsonData.data.user.avatarUrl).to.be.a('string');",
+              "    pm.expect(jsonData.data.user.email).to.eql('player@example.com');",
+              "    pm.expect(jsonData.data.stats).to.have.property('gamesPlayed');",
+              "    pm.expect(jsonData.data.stats).to.have.property('wins');",
+              "    pm.expect(jsonData.data.stats).to.have.property('losses');",
+              "    pm.expect(jsonData.data.friendCount).to.be.a('number');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. PUT /users/me/avatar (プリセット指定: cat)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{bearerToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"presetId\": \"cat\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/me/avatar",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "me", "avatar"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Avatar updated to /avatars/cat.webp', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql('ok');",
+              "    pm.expect(jsonData.data.userId).to.eql('user_yu');",
+              "    pm.expect(jsonData.data.avatarUrl).to.eql('/avatars/cat.webp');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. PUT /users/me/avatar (プリセット指定: shiba)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{bearerToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"presetId\": \"shiba\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/me/avatar",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "me", "avatar"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Avatar updated to /avatars/shiba.webp', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql('ok');",
+              "    pm.expect(jsonData.data.avatarUrl).to.eql('/avatars/shiba.webp');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. PUT /users/me/avatar (不正なプリセット -> 400)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{bearerToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"presetId\": \"unknown_preset_dragon\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/me/avatar",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "me", "avatar"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 400', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Error code is INVALID_PAYLOAD', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql('error');",
+              "    pm.expect(jsonData.error.code).to.eql('INVALID_PAYLOAD');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. PUT /users/me/avatar (未認証 -> 401)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"presetId\": \"cat\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/me/avatar",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "me", "avatar"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 401', function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "pm.test('Error code is UNAUTHENTICATED', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql('error');",
+              "    pm.expect(jsonData.error.code).to.eql('UNAUTHENTICATED');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "07. PUT /users/me (プロフィール更新)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{bearerToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"displayName\": \"名探偵ユウ\",\n  \"bio\": \"どんな難事件も解決します！\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "me"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Profile updated successfully', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql('ok');",
+              "    pm.expect(jsonData.data.displayName).to.eql('名探偵ユウ');",
+              "    pm.expect(jsonData.data.bio).to.eql('どんな難事件も解決します！');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "08. PUT /users/me (不正な表示名長 -> 400)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{bearerToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"displayName\": \"A\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "me"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 400', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Error code is INVALID_PAYLOAD', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql('error');",
+              "    pm.expect(jsonData.error.code).to.eql('INVALID_PAYLOAD');",
+              "    pm.expect(jsonData.error.details).to.have.property('display_name');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ]
+}

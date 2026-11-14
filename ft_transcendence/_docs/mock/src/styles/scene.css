@@ -1,0 +1,63 @@
+/* 街路・霧・炎の背景レイヤー。正本: _docs/mock/src/styles/scene.css */
+
+@layer components {
+  .scene-environment {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .scene-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at 50% 40%,
+      transparent 30%,
+      rgb(6 12 18 / 55%) 100%
+    );
+  }
+  [data-motion-paused="true"] .scene-environment * {
+    animation-play-state: paused;
+  }
+}
+.scene-drifting-mist {
+  position: absolute;
+  inset: 30% -12% -12%;
+  background: url("/scenes/mist.webp") center / cover no-repeat;
+  mask-image: linear-gradient(transparent, #000 45%);
+  opacity: 0.14;
+  animation: alley-fog 32s ease-in-out infinite alternate;
+}
+[data-motion-paused="true"] .scene-drifting-mist {
+  animation-play-state: paused;
+}
+
+.victorian-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+[data-motion-paused="true"] .victorian-scene *,
+[data-motion-paused="true"] .scene-drifting-mist {
+  animation-play-state: paused;
+}
+.flame-frame-strip {
+  animation: flame-frames 1.28s steps(16, end) infinite;
+}
+.mystery-scene .scene-vignette {
+  background: rgb(12 9 6 / 44%);
+}
+
+.street-travel-layer {
+  transform-origin: 1000px 560px;
+  animation: street-forward 48s linear infinite;
+}
+.street-travel-layer[data-layer="1"] {
+  animation-delay: -24s;
+}
+.victorian-scene[data-animated="false"] .street-travel-layer {
+  animation: none;
+  opacity: 0;
+}

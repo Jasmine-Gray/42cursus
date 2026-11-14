@@ -1,0 +1,194 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title description">
+  <title id="title">ReactとPhoenixによるワードウルフ型ゲームの技術構成</title>
+  <desc id="description">ReactクライアントがCaddyを通じてPhoenixのREST APIとChannelsへ接続し、ゲームごとのGameServerが状態を管理してPostgreSQLへ永続化する構成図。</desc>
+
+  <defs>
+    <linearGradient id="header-gradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head"/>
+    </marker>
+    <marker id="arrow-secondary" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-head-secondary"/>
+    </marker>
+  </defs>
+
+  <style>
+    text { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", sans-serif; fill: #172033; }
+    .canvas { fill: #f8fafc; }
+    .surface { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+    .title { font-size: 31px; font-weight: 700; fill: #ffffff; }
+    .subtitle { font-size: 15px; font-weight: 500; fill: #e0e7ff; letter-spacing: 0.04em; }
+    .section-title { font-size: 18px; font-weight: 700; }
+    .box-title { font-size: 16px; font-weight: 700; }
+    .label { font-size: 14px; font-weight: 600; }
+    .detail { font-size: 12.5px; fill: #5f6b7e; }
+    .small { font-size: 11.5px; fill: #5f6b7e; }
+    .pill-text { font-size: 11.5px; font-weight: 700; }
+    .react-box { fill: #e0f2fe; stroke: #0284c7; stroke-width: 1.7; }
+    .edge-box { fill: #ecfeff; stroke: #0e7490; stroke-width: 1.7; }
+    .phoenix-box { fill: #f3e8ff; stroke: #7e22ce; stroke-width: 1.7; }
+    .domain-box { fill: #fff7ed; stroke: #c2410c; stroke-width: 1.7; }
+    .data-box { fill: #ecfdf5; stroke: #047857; stroke-width: 1.7; }
+    .contract-box { fill: #fefce8; stroke: #a16207; stroke-width: 1.7; }
+    .inner-box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.2; }
+    .arrow { fill: none; stroke: #4f46e5; stroke-width: 2.3; marker-end: url(#arrow); }
+    .arrow-secondary { fill: none; stroke: #64748b; stroke-width: 1.8; marker-end: url(#arrow-secondary); }
+    .arrow-dashed { fill: none; stroke: #64748b; stroke-width: 1.7; stroke-dasharray: 6 6; marker-end: url(#arrow-secondary); }
+    .arrow-head { fill: #4f46e5; }
+    .arrow-head-secondary { fill: #64748b; }
+    .separator { stroke: #cbd5e1; stroke-width: 1; }
+  </style>
+
+  <rect class="canvas" x="0" y="0" width="1400" height="900"/>
+  <rect x="0" y="0" width="1400" height="92" fill="url(#header-gradient)"/>
+  <text class="title" x="54" y="43">React × Phoenix アーキテクチャ</text>
+  <text class="subtitle" x="55" y="69">WORD-WOLF STYLE · SERVER-AUTHORITATIVE REALTIME GAME</text>
+  <rect x="1168" y="27" width="176" height="38" rx="19" fill="#ffffff" fill-opacity="0.15" stroke="#ffffff" stroke-opacity="0.35"/>
+  <text x="1256" y="51" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">準確定 · PoC待ち</text>
+
+  <!-- Client layer -->
+  <g filter="url(#shadow)">
+    <rect class="surface" x="46" y="126" width="1308" height="145" rx="18"/>
+  </g>
+  <text class="section-title" x="70" y="158">CLIENTS</text>
+  <text class="detail" x="154" y="158">ブラウザごとに公開状態と本人用秘密情報だけを保持</text>
+
+  <g>
+    <rect class="react-box" x="70" y="178" width="292" height="68" rx="12"/>
+    <circle cx="98" cy="203" r="10" fill="none" stroke="#0284c7" stroke-width="2"/>
+    <circle cx="91" cy="213" r="10" fill="none" stroke="#0284c7" stroke-width="2"/>
+    <circle cx="105" cy="213" r="10" fill="none" stroke="#0284c7" stroke-width="2"/>
+    <text class="box-title" x="126" y="205">React Player Client</text>
+    <text class="detail" x="126" y="227">Vite · TypeScript · TanStack Query</text>
+  </g>
+  <g>
+    <rect class="react-box" x="382" y="178" width="292" height="68" rx="12"/>
+    <circle cx="410" cy="203" r="10" fill="none" stroke="#0284c7" stroke-width="2"/>
+    <circle cx="403" cy="213" r="10" fill="none" stroke="#0284c7" stroke-width="2"/>
+    <circle cx="417" cy="213" r="10" fill="none" stroke="#0284c7" stroke-width="2"/>
+    <text class="box-title" x="438" y="205">React Player Client</text>
+    <text class="detail" x="438" y="227">Phoenix JS Client · Zod</text>
+  </g>
+  <g>
+    <rect class="react-box" x="694" y="178" width="292" height="68" rx="12"/>
+    <circle cx="722" cy="203" r="10" fill="none" stroke="#0284c7" stroke-width="2"/>
+    <circle cx="715" cy="213" r="10" fill="none" stroke="#0284c7" stroke-width="2"/>
+    <circle cx="729" cy="213" r="10" fill="none" stroke="#0284c7" stroke-width="2"/>
+    <text class="box-title" x="750" y="205">React Player Client</text>
+    <text class="detail" x="750" y="227">Nクライアント同時参加</text>
+  </g>
+  <g>
+    <rect class="react-box" x="1006" y="178" width="324" height="68" rx="12"/>
+    <path d="M1033 210 C1045 194, 1061 194, 1073 210 C1061 226, 1045 226, 1033 210 Z" fill="none" stroke="#0284c7" stroke-width="2"/>
+    <circle cx="1053" cy="210" r="5" fill="#0284c7"/>
+    <text class="box-title" x="1090" y="205">Spectator Client</text>
+    <text class="detail" x="1090" y="227">公開情報だけを購読</text>
+  </g>
+
+  <!-- Edge -->
+  <path class="arrow" d="M 425 271 L 425 303"/>
+  <path class="arrow" d="M 860 271 L 860 303"/>
+  <rect class="edge-box" x="296" y="304" width="808" height="62" rx="14" filter="url(#shadow)"/>
+  <text class="box-title" x="370" y="331">Caddy</text>
+  <text class="detail" x="370" y="351">同一オリジン · TLS終端 · HTTPS / WSS</text>
+  <line class="separator" x1="700" y1="316" x2="700" y2="354"/>
+  <text class="label" x="744" y="331">/api/*</text>
+  <text class="small" x="744" y="349">REST</text>
+  <text class="label" x="913" y="331">/socket</text>
+  <text class="small" x="913" y="349">WebSocket</text>
+
+  <!-- Phoenix boundary -->
+  <g filter="url(#shadow)">
+    <rect class="surface" x="46" y="399" width="1060" height="385" rx="18"/>
+  </g>
+  <text class="section-title" x="70" y="432">PHOENIX / ELIXIR</text>
+  <text class="detail" x="242" y="432">通信境界とゲームの正しい状態を管理</text>
+
+  <path class="arrow" d="M 552 366 L 552 464"/>
+  <path class="arrow" d="M 860 366 L 860 464"/>
+  <text class="small" x="478" y="398">HTTPS</text>
+  <text class="small" x="882" y="398">WSS</text>
+
+  <!-- HTTP lane -->
+  <rect class="phoenix-box" x="70" y="465" width="390" height="134" rx="14"/>
+  <text class="box-title" x="92" y="493">HTTP / REST Boundary</text>
+  <rect class="inner-box" x="91" y="510" width="165" height="66" rx="9"/>
+  <text class="label" x="108" y="536">Router / Controllers</text>
+  <text class="small" x="108" y="558">JSON API · CSRF</text>
+  <rect class="inner-box" x="273" y="510" width="165" height="66" rx="9"/>
+  <text class="label" x="290" y="536">Authentication</text>
+  <text class="small" x="290" y="558">Cookie · phx.gen.auth</text>
+
+  <!-- Realtime lane -->
+  <rect class="phoenix-box" x="480" y="465" width="602" height="134" rx="14"/>
+  <text class="box-title" x="502" y="493">Realtime Boundary</text>
+  <rect class="inner-box" x="501" y="510" width="174" height="66" rx="9"/>
+  <text class="label" x="518" y="536">Socket / Channels</text>
+  <text class="small" x="518" y="558">Join認可 · Payload検証</text>
+  <rect class="inner-box" x="694" y="510" width="174" height="66" rx="9"/>
+  <text class="label" x="711" y="536">Presence</text>
+  <text class="small" x="711" y="558">参加 · 切断 · 複数タブ</text>
+  <rect class="inner-box" x="887" y="510" width="174" height="66" rx="9"/>
+  <text class="label" x="904" y="536">PubSub</text>
+  <text class="small" x="904" y="558">Topic単位Broadcast</text>
+
+  <!-- Domain lane -->
+  <path class="arrow-secondary" d="M 265 599 L 265 632"/>
+  <path class="arrow" d="M 780 599 L 780 632"/>
+  <rect class="domain-box" x="70" y="633" width="1012" height="126" rx="14"/>
+  <text class="box-title" x="92" y="661">Domain Layer</text>
+  <rect class="inner-box" x="91" y="679" width="218" height="57" rx="9"/>
+  <text class="label" x="108" y="703">Accounts / Friends</text>
+  <text class="small" x="108" y="721">Contexts · Ecto Changesets</text>
+  <rect class="inner-box" x="331" y="679" width="184" height="57" rx="9"/>
+  <text class="label" x="348" y="703">Game Rules</text>
+  <text class="small" x="348" y="721">純粋な状態遷移</text>
+  <rect class="inner-box" x="537" y="671" width="523" height="73" rx="10"/>
+  <text class="label" x="554" y="694">DynamicSupervisor + Registry</text>
+  <rect class="domain-box" x="554" y="704" width="142" height="27" rx="7"/>
+  <text class="pill-text" x="625" y="722" text-anchor="middle">GameServer #1</text>
+  <rect class="domain-box" x="710" y="704" width="142" height="27" rx="7"/>
+  <text class="pill-text" x="781" y="722" text-anchor="middle">GameServer #2</text>
+  <rect class="domain-box" x="866" y="704" width="174" height="27" rx="7"/>
+  <text class="pill-text" x="953" y="722" text-anchor="middle">1ゲーム = 1プロセス</text>
+
+  <!-- Contracts -->
+  <g filter="url(#shadow)">
+    <rect class="contract-box" x="1134" y="399" width="220" height="385" rx="18"/>
+  </g>
+  <text class="section-title" x="1158" y="432">CONTRACTS</text>
+  <text class="detail" x="1158" y="455">Elixir ↔ TypeScript</text>
+  <rect class="inner-box" x="1158" y="482" width="172" height="82" rx="10"/>
+  <text class="label" x="1176" y="511">OpenAPI</text>
+  <text class="small" x="1176" y="533">REST Request / Response</text>
+  <text class="small" x="1176" y="550">TypeScript型生成</text>
+  <rect class="inner-box" x="1158" y="586" width="172" height="99" rx="10"/>
+  <text class="label" x="1176" y="615">Realtime Events</text>
+  <text class="small" x="1176" y="637">Topic · Event · Payload</text>
+  <text class="small" x="1176" y="654">Error · 公開範囲</text>
+  <text class="small" x="1176" y="671">同じPRで両側を更新</text>
+  <rect class="inner-box" x="1158" y="707" width="172" height="51" rx="10"/>
+  <text class="label" x="1176" y="730">境界検証</text>
+  <text class="small" x="1176" y="748">Zod / Pattern Match</text>
+  <path class="arrow-dashed" d="M 1134 532 L 1083 532"/>
+  <path class="arrow-dashed" d="M 1134 636 L 1083 636"/>
+
+  <!-- Persistence -->
+  <path class="arrow-secondary" d="M 205 759 L 205 812"/>
+  <path class="arrow-secondary" d="M 780 759 L 780 812"/>
+  <g filter="url(#shadow)">
+    <rect class="data-box" x="168" y="813" width="1064" height="62" rx="15"/>
+  </g>
+  <ellipse cx="216" cy="835" rx="20" ry="8" fill="none" stroke="#047857" stroke-width="2"/>
+  <path d="M196 835 L196 853 C196 864 236 864 236 853 L236 835" fill="none" stroke="#047857" stroke-width="2"/>
+  <text class="box-title" x="258" y="841">PostgreSQL + Ecto</text>
+  <text class="detail" x="258" y="861">Users · Friendships · Games · Votes · Chat history · Event log / Snapshot</text>
+  <rect x="999" y="829" width="205" height="30" rx="15" fill="#ffffff" stroke="#047857"/>
+  <text class="pill-text" x="1101" y="849" text-anchor="middle">UNIQUE: 1人1票を保証</text>
+</svg>

@@ -1,0 +1,75 @@
+/* 動きを減らす設定への対応。正本: _docs/mock/src/styles/accessibility.css */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .scene-environment * {
+    animation: none !important;
+  }
+  .case-hero-scene {
+    animation: none;
+  }
+  button,
+  a[data-slot="button"] {
+    transition: none;
+    transform: none;
+  }
+  .mystery-scene .game-button:hover,
+  .mystery-scene .game-button:active,
+  .mystery-scene .player-roster > button:hover {
+    transform: none;
+  }
+  .scene-drifting-mist {
+    animation: none;
+  }
+  .victorian-scene *,
+  .scene-drifting-mist {
+    animation: none;
+  }
+  .flame-frame-strip {
+    animation: none;
+    display: none;
+  }
+  .quick-play-actions > a,
+  .case-navigation a {
+    transition: none;
+  }
+  .chat-message {
+    animation: none;
+  }
+  .chat-send svg {
+    transition: none;
+    transform: none;
+  }
+  .timer-digit,
+  .game-timer[data-urgent="true"] .game-timer-label {
+    animation: none;
+  }
+  .street-travel-layer {
+    animation: none;
+  }
+  .street-travel-layer[data-layer="1"] {
+    display: none;
+  }
+  .word-corner-arrow {
+    animation: none;
+  }
+  .result-ballot-card {
+    animation: none;
+  }
+  .result-cinematic *,
+  .result-cinematic *::before,
+  .result-cinematic *::after {
+    animation: none !important;
+  }
+  .ballot-ticket,
+  .cinematic-selected-figure {
+    transform: none !important;
+  }
+}

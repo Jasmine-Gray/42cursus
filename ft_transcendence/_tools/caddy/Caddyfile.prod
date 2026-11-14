@@ -1,0 +1,29 @@
+# ==============================================================================
+#  _tools/caddy/Caddyfile.prod
+# ------------------------------------------------------------------------------
+#  Created : 2026-09-28  yayoi111      (d/production-startup) 本番入口を設定
+# ------------------------------------------------------------------------------
+#  役割    : HTTPS の入口。契約 API と WebSocket を Phoenix に、画面を静的 FE に送る
+#  契約    : _docs/spec/api/openapi.yaml のパスに合わせる
+#  関連    : compose.prod.yaml, frontend/Caddyfile.prod
+# ==============================================================================
+
+{
+	default_sni {$LAN_HOST:127.0.0.1}
+}
+
+localhost, {$LAN_HOST:127.0.0.1} {
+	tls internal
+
+	@backend {
+		path /health /auth/* /users /users/* /invites /invites/* /rooms /rooms/* /games/* /friends /friends/* /socket /socket/* /uploads/*
+		not header Accept *text/html*
+	}
+	handle @backend {
+		reverse_proxy backend:4000
+	}
+
+	handle {
+		reverse_proxy frontend:80
+	}
+}

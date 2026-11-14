@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>作業分担と実装規約 — ワードウルフ開発ガイド</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">ft_transcendence / word wolf — development guide</p>
+  <h1>作業分担と実装規約</h1>
+  <p class="lede">
+    4人で並走するための<strong>分割の仕方・命名・関数定義・ファイル分割</strong>のルール。
+    迷ったらこの文書に従い、この文書に無いものは既存コード（<code>_docs/mock/src/</code>）の流儀に合わせる。
+  </p>
+  <nav class="pagenav">
+    <a href="index.html">実装フロー</a>
+    <a href="data-first.html">データ前提の画面設計</a>
+    <a href="tools.html">使用ツール</a>
+    <a href="conventions.html" aria-current="page">分担と規約</a>
+  </nav>
+  <div class="meta">
+    <span>最終更新: 2026-08-21</span>
+    <span>ステータス: Draft 0.1</span>
+    <span>この文書が正本（生成物ではないので直接編集する）</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <p>目次</p>
+  <ol>
+    <li><a href="#split">4分割の原則</a></li>
+    <li><a href="#ownership">ディレクトリ所有マップ</a></li>
+    <li><a href="#naming">ファイル命名ルール</a></li>
+    <li><a href="#functions">関数定義のルール</a></li>
+    <li><a href="#files">ファイル分割のルール</a></li>
+    <li><a href="#conflicts">競合を避ける運用</a></li>
+    <li><a href="#skills">AIツールの使い分け（AGENTS.md / skills）</a></li>
+    <li><a href="#integration">統合の動線（mock → 実結合）</a></li>
+  </ol>
+</nav>
+
+<h2 id="split"><span class="num">01</span>4分割の原則</h2>
+
+<p>
+  分割の軸は「機能ごと」ではなく<strong>「リアルタイム×永続」×「FE×BE」の2軸</strong>。
+  ワードウルフはゲーム進行（Channel）とその前後（REST）で技術がきれいに分かれるため、
+  この軸なら4人の作業がファイルレベルでほぼ交差しない。レーンの定義は
+  <a href="index.html#lanes">実装フロー §06</a> が正で、ここでは運用ルールだけを決める。
+</p>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>レーン</th><th>担当領域</th><th>対応画面</th><th>対向レビュー</th></tr></thead>
+  <tbody>
+    <tr><td><strong>A</strong> 進行中BE</td><td>GameServer・Channel・フェーズ遷移</td><td>—（配信の裏側）</td><td rowspan="2"><strong>A ↔ B</strong><br>（Channel契約を挟んで対面）</td></tr>
+    <tr><td><strong>B</strong> リアルタイムFE</td><td>Channelクライアント・ゲーム中画面</td><td>08〜20</td></tr>
+    <tr><td><strong>C</strong> 永続BE</td><td>Ecto・auth / users / rooms / friends のREST</td><td>—（RESTの裏側）</td><td rowspan="2"><strong>C ↔ D</strong><br>（REST契約を挟んで対面)</td></tr>
+    <tr><td><strong>D</strong> RESTFE + 基盤</td><td>REST画面・make gen / CI / lint 管理</td><td>01〜07 / 21〜24</td></tr>
+  </tbody>
+</table>
+</div>
+
+<ol>
+  <li><strong>ペアは「契約を挟んだ対面」で組む。</strong> AのPRはBが、BのPRはAがレビューする（C・Dも同様）。
+      自分が消費する側のコードをレビューするので、契約とのズレに一番早く気づける。</li>
+  <li><strong>レーン間のやり取りはコードでなく契約で行う。</strong> 「この形で返して」は口頭やSlackでなく
+      契約PR（<a href="index.html#cycle">§05</a>の手順）で伝える。</li>
+  <li><strong>画面の見た目は mock が正。</strong> 画面を作るときは <code>_docs/mock/src/pages/</code> の
+      該当ページを移植し、データ境界だけを差し替える（<a href="data-first.html">データ前提の画面設計</a>）。</li>
+</ol>
+
+<h2 id="ownership"><span class="num">02</span>ディレクトリ所有マップ</h2>
+
+<p>
+  「所有」= そのディレクトリ内は所有レーンが自由に変更してよく、他レーンは PR + 所有者レビュー必須。
+  <strong>矢印無しで2レーン以上が書く場所を作らない</strong>のが原則。
+</p>
+
+<pre><code>frontend/src/
+├── pages/            <span class="c">画面01-07, 21-24 → D ／ 画面08-20 → B</span>
+├── components/
+│   ├── ui/           <span class="c">D（汎用部品。mockから移植）</span>
+│   ├── game-ui/      <span class="c">B（ゲーム固有部品）</span>
+│   └── layout/       <span class="c">D</span>
+├── hooks/            <span class="c">Channel系 → B ／ それ以外 → D</span>
+├── lib/              <span class="c">api-client → D ／ channel-client → B</span>
+└── types/            <span class="c">全員共有・生成物（手編集禁止。make gen のみ）</span>
+
+backend/lib/
+├── word_wolf/
+│   ├── contract/     <span class="c">全員共有・生成物（手編集禁止）</span>
+│   ├── accounts/ rooms/ friends/   <span class="c">C（Ectoコンテキスト）</span>
+│   └── games/        <span class="c">GameServer・進行ロジック → A ／ 結果の永続化 → C</span>
+└── word_wolf_web/
+    ├── controllers/  <span class="c">C</span>
+    ├── channels/     <span class="c">A</span>
+    └── router.ex     <span class="c">共有ファイル（§06の運用に従う）</span>
+</code></pre>
+
+<div class="callout">
+  <span class="label">生成物ディレクトリの特例</span>
+  <p><code>frontend/src/types/</code> と <code>backend/lib/word_wolf/contract/</code> は誰も「所有」しない。
+  変更は契約PR + <code>make gen</code> の結果のコミットだけで発生し、手で編集したらCI（<code>make gen-check</code>）で落ちる。</p>
+</div>
+
+<h2 id="naming"><span class="num">03</span>ファイル命名ルール</h2>
+
+<h3>フロントエンド（mockの実績に合わせる）</h3>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>対象</th><th>ルール</th><th>例</th></tr></thead>
+  <tbody>
+    <tr><td>ファイル・ディレクトリ</td><td><strong>kebab-case</strong></td><td><code>game-timer.tsx</code>, <code>components/game-ui/</code></td></tr>
+    <tr><td>画面</td><td><code>&lt;画面名&gt;-page.tsx</code>。密接な小画面群は <code>-pages.tsx</code> でまとめてよい</td><td><code>game-countdown-page.tsx</code>, <code>legal-pages.tsx</code></td></tr>
+    <tr><td>hooks</td><td><code>use-</code> 始まりのファイル名</td><td><code>use-room-channel.ts</code></td></tr>
+    <tr><td>テスト</td><td>対象と同じ場所に <code>&lt;対象&gt;.test.tsx</code></td><td><code>App.test.tsx</code></td></tr>
+    <tr><td>コンポーネント名</td><td>PascalCase（ファイル名とは変換関係）</td><td><code>game-timer.tsx</code> → <code>GameTimer</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>バックエンド（Elixir標準に従う）</h3>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>対象</th><th>ルール</th><th>例</th></tr></thead>
+  <tbody>
+    <tr><td>ファイル</td><td><strong>snake_case</strong>・モジュール名と1:1対応</td><td><code>health_controller.ex</code> → <code>HealthController</code></td></tr>
+    <tr><td>モジュール</td><td>ドメイン層 <code>WordWolf.*</code> ／ Web層 <code>WordWolfWeb.*</code></td><td><code>WordWolf.Rooms</code>, <code>WordWolfWeb.RoomChannel</code></td></tr>
+    <tr><td>boolean を返す関数</td><td><code>?</code> で終える（<code>is_</code> 始まりはガード用マクロのみ）</td><td><code>known_event?/1</code></td></tr>
+    <tr><td>失敗時に例外を投げる版</td><td><code>!</code> で終える。<code>{:ok, _} / {:error, _}</code> 版を基本にする</td><td><code>get_room!/1</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>共通: 名前の正本は契約</h3>
+<p>
+  エンドポイント・イベント・スキーマ・フィールドの名前は<strong>契約に書いてある通りに使う</strong>。
+  勝手に略さない（<code>roomState</code> を <code>rs</code> にしない）、勝手に訳さない（<code>assignment</code> を
+  <code>oday</code> にしない）。コード内の語彙が契約とずれた瞬間、grepで追えなくなる。
+</p>
+
+<h2 id="functions"><span class="num">04</span>関数定義のルール</h2>
+
+<h3>フロントエンド</h3>
+
+<pre><code><span class="c">// コンポーネントは named export の function 宣言（mockの流儀。default export・アロー代入は使わない）</span>
+export function GameTimer({ value, label = '残り時間', urgent }: GameTimerProps) { ... }
+
+<span class="c">// propsの型は「コンポーネント名 + Props」で同ファイルに置く</span>
+interface GameTimerProps { ... }
+
+<span class="c">// イベントハンドラは handle 始まり、渡すpropsは on 始まり</span>
+const handleSubmit = () =&gt; ...    // 内部
+&lt;WordCard onReveal={...} /&gt;       // props</code></pre>
+
+<ul>
+  <li><strong>1関数50行以内・ネスト4段まで。</strong>超えたら分割のサイン（§05）。</li>
+  <li><strong>early return で正常系を最後に書く</strong>（ガード節を上に集める）。</li>
+  <li><strong>データは変更せず作り直す</strong>（<code>push</code> でなくスプレッド。Reactのstateは特に）。</li>
+  <li>API呼び出し・Channel操作を<strong>コンポーネント内に直接書かない</strong>。<code>lib/</code> か hooks に置き、
+      コンポーネントは「型付きの関数を呼ぶだけ」にする。</li>
+</ul>
+
+<h3>バックエンド</h3>
+
+<pre><code><span class="c"># public関数には @spec。契約に対応する形は必ず生成型（Types.*）を使う</span>
+@spec payload() :: Types.health()
+defp payload do ... end
+
+<span class="c"># 分岐は if の入れ子でなく、関数節 + パターンマッチ + ガードで書く</span>
+def handle_in("chat.send", %{"text" => text}, socket) when is_binary(text) do ... end
+def handle_in("room.ready", payload, socket) do ... end</code></pre>
+
+<ul>
+  <li><strong>public関数を上、defp を下</strong>に置き、モジュールを上から読めるようにする。</li>
+  <li>controller / channel は<strong>薄く保つ</strong>: 入出力の変換だけを書き、判断はコンテキスト
+      （<code>WordWolf.Rooms</code> 等）か GameServer に置く。</li>
+  <li>失敗は <code>{:error, :room_full}</code> のように<strong>契約の <code>ErrorCode</code> と対応するatom</strong>で返し、
+      HTTP/Channelへの変換は境界（FallbackController / Channelのreply）で一括して行う。</li>
+</ul>
+
+<h2 id="files"><span class="num">05</span>ファイル分割のルール</h2>
+
+<ul>
+  <li><strong>目安200〜400行、上限800行。</strong>上限を超える分割待ちの巨大ファイルを作らない。</li>
+  <li><strong>種類でなく機能で切る。</strong><code>utils.ts</code> にゲームロジックを足さない —
+      投票の集計なら <code>lib/vote.ts</code>、フェーズ計算なら <code>lib/phase.ts</code> を作る。</li>
+  <li><strong>FEの分割順序:</strong> ① JSXが長い → 子コンポーネントを同ディレクトリに切り出す
+      ② state管理が長い → カスタムhookへ ③ 純粋な計算 → <code>lib/</code> へ（ここだけ単体テスト必須）。</li>
+  <li><strong>BEは1モジュール=1ファイル</strong>（Elixir標準）。コンテキストが太ったら
+      <code>rooms.ex</code> を窓口に残して <code>rooms/invite.ex</code> のようにサブモジュールへ委譲する。</li>
+  <li><strong>切り出しは自レーンのディレクトリ内で行う。</strong>共有場所（<code>components/ui/</code> 等）への昇格は
+      2レーン目の利用者が現れた時点で、利用者側がPRを出す。</li>
+</ul>
+
+<h2 id="conflicts"><span class="num">06</span>競合を避ける運用</h2>
+
+<p>4人並走で衝突するのは決まって「共有ファイル」。以下の4つだけ特別扱いする。</p>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>共有ファイル</th><th>運用</th></tr></thead>
+  <tbody>
+    <tr><td><code>router.ex</code> / ルーティング定義</td><td>行を足すだけのPRにして<strong>即マージ</strong>。他の変更と混ぜない</td></tr>
+    <tr><td><code>index.css</code>（デザイントークン）</td><td>トークン追加はD経由。各画面のスタイルは各ファイルで</td></tr>
+    <tr><td><code>mix.exs</code> / <code>package.json</code></td><td>依存追加は単独PR。バージョンは <a href="tools.html">使用ツール</a> の固定方針に従う</td></tr>
+    <tr><td>契約（<code>_docs/spec/api/*.yaml</code>）</td><td>契約PR（<a href="index.html#cycle">§05</a>）。FE/BE両担当のApprove必須</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>ブランチ戦略（main / develop）</h3>
+
+<pre><code>main                  <span class="c">安定版。develop からのマージだけを受け付ける（直コミットしない）</span>
+└── develop           <span class="c">統合ブランチ。全レーンのPRの向き先</span>
+    ├── a/&lt;内容&gt;      <span class="c">レーンブランチ。develop から切り、develop へPR</span>
+    ├── b/&lt;内容&gt;      <span class="c">（例: b/lobby-page, d/auth-pages）</span>
+    ├── c/&lt;内容&gt;
+    └── d/&lt;内容&gt;</code></pre>
+
+<ul>
+  <li><strong>main は常にデモできる状態を保つ。</strong> develop → main のマージは「動く区切り」
+      （週の締め・マイルストーン）でのみ行う。</li>
+  <li><strong>契約PR（yaml + 生成物）も develop へ。</strong> 4レーンが同じ develop を見るので、型のズレが統合前に出る。</li>
+  <li>hotfix だけ main から切ってよい。マージ後に develop へも取り込む。</li>
+</ul>
+
+<ul>
+  <li><strong>ブランチ名:</strong> <code>&lt;レーン&gt;/&lt;内容&gt;</code>（例: <code>d/auth-pages</code>, <code>a/game-server-voting</code>）。
+      誰のレーンの作業か履歴から分かるようにする。</li>
+  <li><strong>コミット:</strong> <code>feat: / fix: / refactor: / docs: / test: / chore:</code> の接頭辞（既存履歴と同じ）。</li>
+  <li><strong>マージ順で迷ったら:</strong> 契約PR → 生成物 → BE → FE。逆流（FEの都合で契約を直す）は
+      契約PRからやり直す。</li>
+</ul>
+
+<h2 id="skills"><span class="num">07</span>AIツールの使い分け（AGENTS.md / skills）</h2>
+
+<p>
+  各自が Claude Code / GitHub Copilot / Codex など<strong>別々のAIツール</strong>を使っても
+  同じ規約で作業できるよう、エージェント向けルールは<strong>ルートの <code>AGENTS.md</code> を正本</strong>にする。
+</p>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>ツール</th><th>読むファイル</th><th>扱い</th></tr></thead>
+  <tbody>
+    <tr><td>共通（Codex / Cursor / Copilot coding agent 等）</td><td><code>AGENTS.md</code>（ルート）</td><td><strong>正本</strong>。ルール変更はまずここ</td></tr>
+    <tr><td>Claude Code</td><td><code>CLAUDE.md</code>（<code>@AGENTS.md</code> を取り込み）+ <code>.claude/skills/</code></td><td>skills は手順の自動実行用（下記）</td></tr>
+    <tr><td>GitHub Copilot（VS Code チャット）</td><td><code>.github/copilot-instructions.md</code></td><td>AGENTS.md の<strong>要約</strong>。AGENTS.md 変更時に反映する</td></tr>
+    <tr><td>BE作業時</td><td><code>backend/AGENTS.md</code>（phx.new 生成）</td><td>Phoenix固有の指針。近い方が優先される</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  Claude Code では繰り返す作業手順を <code>.claude/skills/</code> に<strong>スキルとして定義</strong>し、
+  同じ手順・同じ規約で自動実行できるようにする。リポジトリ直下に置くので4人全員に共有される。
+</p>
+
+<pre><code>.claude/skills/
+├── README.md            <span class="c">スキルの書き方（テンプレート付き）</span>
+└── add-endpoint/
+    └── SKILL.md         <span class="c">エンドポイント追加の手順（実装フロー §11 の実行版）</span></code></pre>
+
+<ul>
+  <li><strong>1スキル = 1タスク。</strong> ディレクトリ名は kebab-case、本体は <code>SKILL.md</code> 固定。</li>
+  <li><strong>frontmatter の <code>description</code> に「何をするか」と「いつ使うか」を書く。</strong>
+      エージェントはこれを見て発動を判断するため、トリガー条件が一番重要。</li>
+  <li><strong>手順の正本は docs 側に置き、スキルからリンクする。</strong> 両方に書くと必ず片方が古くなる。
+      スキルには「実行するコマンドと順序」だけを書く。</li>
+  <li><strong>追加・変更は develop へのPR。</strong> 所有レーンなし（全員共有）、レビューは誰でもよい。
+      他ツール（Copilot等）しか使わないメンバーは、同じ手順が <code>AGENTS.md</code> と
+      この規約に文書として存在するため、そちらを参照して手で実行する。</li>
+</ul>
+
+<h2 id="integration"><span class="num">08</span>統合の動線（mock → 実結合）</h2>
+
+<p>
+  4レーンが並走して<strong>最後の1回で結合しない</strong>ための動線。原則は
+  「<strong>結合＝向き先の切り替えだけ</strong>」— コードに mock 分岐を書かず、
+  接続先を1つの環境変数で段階的に差し替える（<a href="data-first.html">データ前提の画面設計</a>の3段階）。
+</p>
+
+<pre><code>段階0  契約を固める     対象スライスの契約PR + make gen（全員のスタート地点）
+段階1  fixture         通信なしで画面・関数を作る。誰にも依存しない
+段階2  偽物に接続       D: make mock（prism :4010）に向ける ── 契約にだけ依存
+                        B: fixture payload を流す偽socketで画面を駆動（channel-client 内で完結）
+段階3  実物に切替       VITE_API_BASE を実BE（:4000 / Caddy）へ ── コード変更ゼロで結合
+検証    make proxy（契約逸脱の検出）+ fixtures 共有テスト + compose スモーク
+週次    develop 上で全結合 → 動く区切りで main へPR</code></pre>
+
+<ul>
+  <li><strong>切替は <code>VITE_API_BASE</code> の1変数だけ</strong>（<code>frontend/src/lib/api-client.ts</code>）。
+      未指定なら同一オリジン（= Caddy 経由）に向く。</li>
+  <li><strong>fixtures（期待JSON）が A↔B / C↔D の合意点。</strong> 契約PRで手書きし、
+      FE（vitest）とBE（ExUnit）が<strong>同じファイル</strong>を読む。結合前にすり合わせが終わる。</li>
+  <li><strong>Channel は prism でモックできない</strong>ため、Bは fixtures を流す偽socketで作り、
+      Aの実装後に <code>channel-client.ts</code> の中身だけを phoenix クライアントへ差し替える。
+      画面側のコードは触らないのが正しい状態。</li>
+  <li><strong>週1回の「全結合日」を決める。</strong> compose up で PoC スモーク
+      （ログイン → 部屋作成 → 参加 → 開始）を全員で通し、通ったら develop → main のPR。</li>
+</ul>
+
+<footer>
+  <p>
+    関連文書:
+    <a href="index.html">実装フロー</a> ·
+    <a href="data-first.html">データ前提の画面設計</a> ·
+    <a href="tools.html">使用ツール</a> ·
+    <a href="../spec/api/README.md">API契約</a>
+  </p>
+  <p>この文書は手書きの正本。<code>_docs/spec/api/*.html</code> は生成物なので直接編集しない。</p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+/*
+ * =============================================================================
+ *  frontend/src/index.css
+ * -----------------------------------------------------------------------------
+ *  Created : 2026-08-21  yayoi111 共通CSSの入口
+ *  Authors : 2026-08-29  hanabanana111 (d/home-page) 元のホームUI
+ *            2026-08-31  otnk666 (b/login-register) 元の共通UI
+ *            2026-09-02  Jasmine-Gray (d/layered-bg-animation) 元の背景レイヤー
+ *  Updated : 2026-09-12  yayoi111 (d/character-ui-cleanup) 重複・未使用CSS整理
+ * -----------------------------------------------------------------------------
+ *  同期元は _docs/mock/src/。make ui-styles で更新する。
+ *  モック : _docs/mock/src/index.css
+ *  関連   : _tools/sync-ui-styles.py
+ *  所有   : レーンD
+ * =============================================================================
+ */
+
+@import "tailwindcss";
+@import "shadcn/tailwind.css";
+@import "@fontsource/barlow-condensed/latin-600.css";
+@import "@fontsource/barlow-condensed/latin-700.css";
+@import "@fontsource-variable/noto-sans-jp";
+@import "@fontsource/shippori-mincho/600.css";
+
+@import "./styles/foundation.css";
+@import "./styles/shell.css";
+@import "./styles/scene.css";
+@import "./styles/controls.css";
+@import "./styles/characters.css";
+@import "./styles/home.css";
+@import "./styles/rooms.css";
+@import "./styles/auth.css";
+@import "./styles/social.css";
+@import "./styles/game.css";
+@import "./styles/results.css";
+@import "./styles/motion.css";
+@import "./styles/accessibility.css";

@@ -1,0 +1,650 @@
+[
+  {
+    "id": "group_ddf38e8eb501a0b49f40",
+    "genre": "PLACE",
+    "words": [
+      "駅",
+      "空港"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_8dd82d90c7676556cefd",
+    "genre": "PLACE",
+    "words": [
+      "映画館",
+      "劇場"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_4ff7330c5ae5c58eaf09",
+    "genre": "PLACE",
+    "words": [
+      "遊園地",
+      "動物園"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_46670fb5ee22b50e50f5",
+    "genre": "PLACE",
+    "words": [
+      "水族館",
+      "プラネタリウム"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_286a01d8745583b43372",
+    "genre": "PLACE",
+    "words": [
+      "スーパー",
+      "コンビニ"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_f1e47fa59b34fea8e779",
+    "genre": "PLACE",
+    "words": [
+      "カフェ",
+      "ファミレス"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_36b3948697ba38fdf8f2",
+    "genre": "PLACE",
+    "words": [
+      "温泉",
+      "銭湯"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_d6f82dc82f1e8542ea4d",
+    "genre": "PLACE",
+    "words": [
+      "海",
+      "プール"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_efadfb7e4093ec405d75",
+    "genre": "PLACE",
+    "words": [
+      "ホテル",
+      "旅館"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_083fd7bce99a0646a810",
+    "genre": "PLACE",
+    "words": [
+      "美術館",
+      "博物館"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_bc084e28ee317e5117a9",
+    "genre": "PLACE",
+    "words": [
+      "屋台",
+      "キッチンカー"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_aa2078941230306a8bcd",
+    "genre": "PLACE",
+    "words": [
+      "商店街",
+      "ショッピングモール"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_2cb8ef4df5af81cb7c10",
+    "genre": "FOOD",
+    "words": [
+      "カレー",
+      "シチュー"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_cacaf72cb8fb3a6ee0dc",
+    "genre": "FOOD",
+    "words": [
+      "餃子",
+      "春巻き"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_982ce990a804f384b3ee",
+    "genre": "FOOD",
+    "words": [
+      "お好み焼き",
+      "たこ焼き"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_edff60875221e2652114",
+    "genre": "FOOD",
+    "words": [
+      "プリン",
+      "茶碗蒸し"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_911618a13ddf51befb94",
+    "genre": "FOOD",
+    "words": [
+      "おにぎり",
+      "サンドイッチ"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_108a777296b61db3c62d",
+    "genre": "FOOD",
+    "words": [
+      "肉まん",
+      "小籠包"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_d1f8fb39490dfeb8dbb1",
+    "genre": "FOOD",
+    "words": [
+      "焼肉",
+      "バーベキュー"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_93707bae5432c4a2879e",
+    "genre": "FOOD",
+    "words": [
+      "しゃぶしゃぶ",
+      "すき焼き"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_aeee3dd2e435ec5190ec",
+    "genre": "FOOD",
+    "words": [
+      "ざるそば",
+      "そうめん"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_5b499da2fe77e7ebddd4",
+    "genre": "FOOD",
+    "words": [
+      "ドーナツ",
+      "ベーグル"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_b11c10c7c3c5ddf0c36e",
+    "genre": "FOOD",
+    "words": [
+      "かき氷",
+      "アイスクリーム"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_ebf20709280d3af2181b",
+    "genre": "FOOD",
+    "words": [
+      "パンケーキ",
+      "クレープ"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_989f8a2df6282005e4d7",
+    "genre": "HOBBY",
+    "words": [
+      "釣り",
+      "潮干狩り"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_602db104500efc0071f9",
+    "genre": "HOBBY",
+    "words": [
+      "キャンプ",
+      "車中泊"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_b3348493da10e9fae9d6",
+    "genre": "HOBBY",
+    "words": [
+      "登山",
+      "ハイキング"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_14b4fba497d96db295d9",
+    "genre": "HOBBY",
+    "words": [
+      "ジョギング",
+      "散歩"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_6fb23cd514c7739e9247",
+    "genre": "HOBBY",
+    "words": [
+      "写真撮影",
+      "スケッチ"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_c709ae201e76bad5dc56",
+    "genre": "HOBBY",
+    "words": [
+      "料理",
+      "お菓子作り"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_85c9b8af37bd0eb2a645",
+    "genre": "HOBBY",
+    "words": [
+      "家庭菜園",
+      "ガーデニング"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_59883515d6dd5b2950ef",
+    "genre": "HOBBY",
+    "words": [
+      "編み物",
+      "刺繍"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_bc3c2e3cd57b03e6fab7",
+    "genre": "HOBBY",
+    "words": [
+      "将棋",
+      "チェス"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_12f4173e8bb633339bdf",
+    "genre": "HOBBY",
+    "words": [
+      "卓球",
+      "テニス"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_20e2a5326f3601b26256",
+    "genre": "HOBBY",
+    "words": [
+      "日記",
+      "ブログ"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_8db53c2ce0c833f2ca30",
+    "genre": "HOBBY",
+    "words": [
+      "宝くじ",
+      "競馬"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_4502454eb89696cf20f7",
+    "genre": "DAILY_ITEM",
+    "words": [
+      "目覚まし時計",
+      "キッチンタイマー"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_7fd93c4509ae28c9d3cc",
+    "genre": "DAILY_ITEM",
+    "words": [
+      "ハンカチ",
+      "ティッシュ"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_886717c78a63faa81208",
+    "genre": "DAILY_ITEM",
+    "words": [
+      "リュック",
+      "スーツケース"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_4ce7a90f292807e88f7e",
+    "genre": "DAILY_ITEM",
+    "words": [
+      "鏡",
+      "カメラ"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_953a83be285b7957d1f7",
+    "genre": "DAILY_ITEM",
+    "words": [
+      "扇風機",
+      "エアコン"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_42f50945a23050df7c22",
+    "genre": "DAILY_ITEM",
+    "words": [
+      "こたつ",
+      "電気毛布"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_d046e31ef18dd01ce540",
+    "genre": "DAILY_ITEM",
+    "words": [
+      "香水",
+      "消臭スプレー"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_3058705b7c3e5cc61bec",
+    "genre": "DAILY_ITEM",
+    "words": [
+      "マスク",
+      "サングラス"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_bad4ab6e3924327d8d54",
+    "genre": "DAILY_ITEM",
+    "words": [
+      "財布",
+      "貯金箱"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_9a684962774ccec3ee22",
+    "genre": "DAILY_ITEM",
+    "words": [
+      "スリッパ",
+      "サンダル"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_b4486fd63175a5eab897",
+    "genre": "DAILY_ITEM",
+    "words": [
+      "ソファ",
+      "ベッド"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_eafeb9e62ee3dd63174c",
+    "genre": "DAILY_ITEM",
+    "words": [
+      "付箋",
+      "メモ帳"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_2ed6a86afa16415be5ec",
+    "genre": "WORK_SCHOOL",
+    "words": [
+      "宿題",
+      "予習"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_137a5d4f20c072ff5cd1",
+    "genre": "WORK_SCHOOL",
+    "words": [
+      "授業",
+      "会議"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_bec55bf8dc9dd43d520c",
+    "genre": "WORK_SCHOOL",
+    "words": [
+      "テスト",
+      "面接"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_fa6b6f8d3cd892779473",
+    "genre": "WORK_SCHOOL",
+    "words": [
+      "文化祭",
+      "体育祭"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_be131413078aed651c5b",
+    "genre": "WORK_SCHOOL",
+    "words": [
+      "修学旅行",
+      "社員旅行"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_aa8b52d79955518bcade",
+    "genre": "WORK_SCHOOL",
+    "words": [
+      "部活",
+      "習い事"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_7b8bb3f9876d4751d312",
+    "genre": "WORK_SCHOOL",
+    "words": [
+      "遅刻",
+      "早退"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_afbe857aee896be209a1",
+    "genre": "WORK_SCHOOL",
+    "words": [
+      "カンニング",
+      "丸写し"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_a9efe60aa608e3263af1",
+    "genre": "WORK_SCHOOL",
+    "words": [
+      "居眠り",
+      "内職"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_e7a491b8c9d2b2e6e2f2",
+    "genre": "WORK_SCHOOL",
+    "words": [
+      "昇進",
+      "昇給"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_7738499ce119754355d2",
+    "genre": "WORK_SCHOOL",
+    "words": [
+      "アルバイト",
+      "インターン"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_712ae29931e0d20f372a",
+    "genre": "WORK_SCHOOL",
+    "words": [
+      "退職",
+      "卒業"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_685e4140e4e078347858",
+    "genre": "ENTERTAINMENT",
+    "words": [
+      "ホラー映画",
+      "怪談"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_d82efdcb9028a681dfda",
+    "genre": "ENTERTAINMENT",
+    "words": [
+      "手品",
+      "催眠術"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_9d781fb76b90a9a9790d",
+    "genre": "ENTERTAINMENT",
+    "words": [
+      "漫才",
+      "コント"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_d3fb6f1a2cc0af54ac0f",
+    "genre": "ENTERTAINMENT",
+    "words": [
+      "映画",
+      "連続ドラマ"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_a32c4cf1de2fe77369a9",
+    "genre": "ENTERTAINMENT",
+    "words": [
+      "漫画",
+      "小説"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_6c774276ff8140e4f843",
+    "genre": "ENTERTAINMENT",
+    "words": [
+      "ライブ",
+      "フェス"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_eab637bac028d7ce7d1a",
+    "genre": "ENTERTAINMENT",
+    "words": [
+      "ボードゲーム",
+      "カードゲーム"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_b4e395e3e0081366e50a",
+    "genre": "ENTERTAINMENT",
+    "words": [
+      "脱出ゲーム",
+      "宝探し"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_3104d8252b00849bedd1",
+    "genre": "ENTERTAINMENT",
+    "words": [
+      "ジェットコースター",
+      "お化け屋敷"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_06a95dff67c882f595f0",
+    "genre": "ENTERTAINMENT",
+    "words": [
+      "花火大会",
+      "イルミネーション"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_794ecd9d46867a243958",
+    "genre": "ENTERTAINMENT",
+    "words": [
+      "ガチャガチャ",
+      "福袋"
+    ],
+    "source": "catalog"
+  },
+  {
+    "id": "group_43d05f0b794ca1115ab1",
+    "genre": "ENTERTAINMENT",
+    "words": [
+      "モノマネ",
+      "カラオケ"
+    ],
+    "source": "catalog"
+  }
+]

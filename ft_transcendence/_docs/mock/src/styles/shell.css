@@ -1,0 +1,250 @@
+/* 画面・ヘッダー・ナビゲーション。正本: _docs/mock/src/styles/shell.css */
+
+/* Floating artwork leaves the street visible between independent menu pieces. */
+.mystery-scene .case-page-header,
+.mystery-scene .case-brand-header,
+.mystery-scene .game-menu-header {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.case-page-header {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding: 0 1.4rem;
+}
+.case-header-parts {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.case-header-parts > a {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.case-title-plaque {
+  display: grid;
+  place-items: center;
+  height: 56px;
+  min-width: 130px;
+  max-width: 75vw;
+  padding: 0 1.5rem;
+  overflow: hidden;
+  background: url("/ui/menu-plaque.webp") center / 100% 145% no-repeat;
+  color: #eadbbd;
+  font:
+    500 0.875rem "Noto Sans JP Variable",
+    sans-serif;
+  white-space: nowrap;
+}
+.game-menu-header {
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 1.25rem;
+  width: fit-content;
+  max-width: 100%;
+  height: 72px;
+  padding: 0.5rem 1.5rem;
+  flex-shrink: 0;
+}
+.game-menu-header .wolf-mark,
+.case-brand-header .wolf-mark {
+  width: 52px;
+  height: 56px;
+  mask: none;
+  background: url("/ui/wolf-medallion.webp") center / contain no-repeat;
+}
+.mystery-scene .case-navigation {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: fit-content;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.mystery-scene .case-navigation a {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-width: 116px;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  color: #c1b49c;
+  font-size: 0.8rem;
+  transition: color 160ms ease-out;
+}
+.case-navigation a::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url("/ui/menu-plaque.webp") center / 100% 145% no-repeat;
+  opacity: 0.68;
+  transition:
+    opacity 160ms ease-out,
+    filter 160ms ease-out;
+}
+.mystery-scene .case-navigation a[aria-current="page"],
+.mystery-scene .case-navigation a:hover {
+  color: #f1d69d;
+  background: transparent;
+}
+.case-navigation a[aria-current="page"]::before,
+.case-navigation a:hover::before {
+  opacity: 1;
+  filter: brightness(1.4);
+}
+.case-navigation svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.5;
+}
+
+@layer components {
+  .game-frame {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    width: 100%;
+    max-width: none;
+    margin: 0 auto;
+  }
+  .mobile-game-shell {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+  .case-scroll {
+    scrollbar-color: var(--input) transparent;
+    scrollbar-width: thin;
+  }
+
+  @media (min-width: 640px) {
+    .game-frame {
+      height: 100dvh;
+    }
+    .mobile-game-shell {
+      border-radius: 0;
+    }
+  }
+  [data-cinematic="true"].mystery-scene {
+    padding: 0;
+  }
+  [data-cinematic="true"] .game-frame {
+    max-width: none;
+    height: 100dvh;
+  }
+  [data-cinematic="true"] .mobile-game-shell {
+    border: 0;
+    border-radius: 0;
+  }
+  .case-scroll
+    > main:not(.case-login):not(.case-registration):not(.door-stage):not(
+      .character-select
+    ):not(.result-cinematic):not(.room-menu) {
+    width: min(100%, 75rem);
+    margin-inline: auto;
+    background: rgb(242 239 230 / 97%);
+    min-height: 100%;
+  }
+}
+.mystery-scene .case-scroll > main:not(.door-stage) {
+  background: transparent;
+}
+.mystery-scene
+  .case-scroll
+  > main:not(.case-login):not(.case-registration):not(.door-stage):not(
+    .character-select
+  ):not(.result-cinematic):not(.room-menu) {
+  min-height: auto;
+}
+.mystery-scene
+  .case-scroll
+  > main:not(.case-login):not(.case-registration):not(.door-stage):not(
+    .character-select
+  ):not(.result-cinematic):not(.room-menu) {
+  border-radius: 10px;
+}
+.mystery-scene
+  .case-scroll
+  > main:not(.case-login):not(.case-registration):not(.door-stage):not(
+    .character-select
+  ):not(.result-cinematic):not(.room-menu) {
+  width: min(100% - 4rem, 88rem);
+  max-width: none;
+  margin-block: 1.5rem;
+  padding: 1.5rem;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.mystery-scene
+  .case-scroll
+  > main:not(.case-login):not(.case-registration):not(.door-stage):not(
+    .character-select
+  ):not(.result-cinematic):not(.room-menu) {
+  background: rgb(20 15 10 / 84%);
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* スマホ幅: 画面端の余白を16pxにそろえ、上部メニュー（4項目）を1行に収める */
+@media (max-width: 639px) {
+  .mystery-scene
+    .case-scroll
+    > main:not(.case-login):not(.case-registration):not(.door-stage):not(
+      .character-select
+    ):not(.result-cinematic):not(.room-menu) {
+    width: calc(100% - 2rem);
+    margin-block: 1rem;
+    padding: 0;
+  }
+  .case-page-header {
+    padding: 0 1rem;
+  }
+  .game-menu-header {
+    gap: 0.5rem;
+    width: 100%;
+    height: auto;
+    min-height: 64px;
+    padding: 0.5rem 1rem;
+  }
+  .game-menu-header .wolf-mark {
+    width: 36px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+  .mystery-scene .case-navigation {
+    flex: 1;
+    min-width: 0;
+    gap: 0.25rem;
+  }
+  .mystery-scene .case-navigation a {
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+    padding: 0.35rem 0.25rem;
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+}

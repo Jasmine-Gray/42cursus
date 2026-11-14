@@ -1,0 +1,24 @@
+Wolf head — Lorc / Game-icons.net
+https://game-icons.net/1x1/lorc/wolf-head.html
+Licensed under CC BY 3.0: https://creativecommons.org/licenses/by/3.0/
+Original SVG unchanged. Displayed in brass using a CSS mask.
+
+UI typography
+Barlow Condensed — Jeremy Tribby — SIL Open Font License 1.1
+https://github.com/jpt/barlow
+Shippori Mincho — FONTDASU — SIL Open Font License 1.1
+https://github.com/fontdasu/ShipporiMincho
+Noto Sans JP — Noto project — SIL Open Font License 1.1
+https://github.com/notofonts/noto-cjk
+
+Character standees (14 presets): generated with the built-in image_gen tool, 2026-09-12.
+Prompt set: _docs/dev/character-art-prompts.md. Transparent WebP; original aspect ratio preserved.
+
+HUD medallion, menu plaque and cinematic sabre: built-in image_gen, 2026-09-12.
+Prompts: _docs/dev/header-art.md and _tools/media/elimination-art.md.
+Elimination film: composed and rendered locally with Remotion; _tools/media/src/elimination.tsx.
+
+Victory and defeat London backdrops: built-in image_gen, 2026-09-12.
+Lighting edits of the existing Victorian alley. Prompts: _docs/dev/outcome-art.md.
+Transparent mist plate: built-in image_gen, 2026-09-12; _docs/dev/outcome-art.md.
+Victory and defeat films: locally composed with Remotion; _tools/media/src/outcome.tsx.

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>「データがある前提」で画面を作る — ワードウルフ開発ガイド</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">ft_transcendence / word wolf — development guide</p>
+  <h1>「データがある前提」で画面を作る</h1>
+  <p class="lede">
+    画面を分担すると、各画面はバックエンドの完成を待たず
+    <strong>「データはもう存在する」前提</strong>で作ることになる。その概念を図でまとめた。
+    手順は <a href="index.html">実装フロー</a>、ツールは <a href="tools.html">使用ツール</a>。
+  </p>
+  <nav class="pagenav">
+    <a href="index.html">実装フロー</a>
+    <a href="data-first.html" aria-current="page">データ前提の画面設計</a>
+    <a href="tools.html">使用ツール</a>
+    <a href="conventions.html">分担と規約</a>
+  </nav>
+  <div class="meta">
+    <span>最終更新: 2026-08-19</span>
+    <span>ステータス: Draft 0.2</span>
+    <span>この文書が正本（生成物ではないので直接編集する）</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <p>目次</p>
+  <ol>
+    <li><a href="#idea">概念 — 画面 = f(データ)</a></li>
+    <li><a href="#why">なぜ — 待ちが消える</a></li>
+    <li><a href="#stages">データの実物は3段階で差し替わる</a></li>
+    <li><a href="#rules">画面側のルール — 差し替えを1か所に閉じ込める</a></li>
+    <li><a href="#states">落とし穴 — 「データがある」は4状態の1つ</a></li>
+    <li><a href="#apply">画面01〜04への適用</a></li>
+    <li><a href="#glossary">用語対応表</a></li>
+  </ol>
+</nav>
+
+<h2 id="idea"><span class="num">01</span>概念 — 画面 = f(データ)</h2>
+
+<div class="figure">
+<svg viewBox="0 0 860 230" role="img" aria-label="画面はデータを表示へ変換する関数であり、データの出どころを知らないことを示す図">
+  <defs>
+    <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/>
+    </marker>
+  </defs>
+  <style>
+    .bx { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; rx: 8; }
+    .bx-c { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; rx: 8; }
+    .bx-g { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 5 3; rx: 8; }
+    .bt { fill: var(--ink); font: 600 13px var(--mono); }
+    .bs { fill: var(--ink-2); font: 11px -apple-system, sans-serif; }
+    .bandt { fill: var(--ink-3); font: 600 11.5px var(--mono); letter-spacing: .08em; }
+    .fl { stroke: var(--ink-3); stroke-width: 1.4; fill: none; marker-end: url(#ar1); }
+    .fll { fill: var(--accent); font: 600 11px var(--mono); }
+    .okt { fill: var(--ok); font: 600 12px -apple-system, sans-serif; }
+    .ngt { fill: var(--danger); font: 600 12px -apple-system, sans-serif; }
+  </style>
+
+  <text class="bandt" x="40" y="30">入力 — データ</text>
+  <rect class="bx-g" x="40" y="44" width="250" height="84"/>
+  <text class="bt" x="58" y="68">データ（実物は何でもよい）</text>
+  <text class="bs" x="58" y="88">形は契約 openapi.yaml で固定</text>
+  <text class="bs" x="58" y="106">モック / prism / 実API</text>
+
+  <path class="fl" d="M290,86 L348,86"/>
+
+  <text class="bandt" x="350" y="30">変換 — 画面</text>
+  <rect class="bx-c" x="350" y="44" width="230" height="84"/>
+  <text class="bt" x="368" y="68">画面 = f(データ)</text>
+  <text class="bs" x="368" y="88">受け取った形を表示へ変換する</text>
+  <text class="bs" x="368" y="106">出どころを知らない</text>
+
+  <path class="fl" d="M580,86 L638,86"/>
+
+  <text class="bandt" x="640" y="30">出力 — 表示</text>
+  <rect class="bx" x="640" y="44" width="180" height="84"/>
+  <text class="bt" x="658" y="68">表示</text>
+  <text class="bs" x="658" y="88">同じデータなら</text>
+  <text class="bs" x="658" y="106">常に同じ画面</text>
+
+  <text class="okt" x="40" y="172">○ 画面が知ってよいこと: データの形（型 = 契約からの生成物）</text>
+  <text class="ngt" x="40" y="200">✕ 知ってはいけないこと: データがどこから来たか（モックか実APIか）</text>
+</svg>
+  <p class="figcap">
+    「データがある前提」= 画面を、契約で形が決まったデータを表示へ変換する関数として作ること。
+  </p>
+</div>
+
+<h2 id="why"><span class="num">02</span>なぜ — 待ちが消える</h2>
+
+<div class="figure">
+<svg viewBox="0 0 860 290" role="img" aria-label="実物を待つ直列開発と、契約だけ合意して並走する開発の比較図">
+  <defs>
+    <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/>
+    </marker>
+  </defs>
+  <style>
+    .fl2 { stroke: var(--ink-3); stroke-width: 1.4; fill: none; marker-end: url(#ar2); }
+  </style>
+
+  <path class="fl2" d="M140,32 L820,32"/>
+  <text class="bandt" x="760" y="24">時間</text>
+
+  <text class="bandt" x="40" y="72">A. 実物を待つ — 直列</text>
+  <rect class="bx" x="140" y="84" width="300" height="40"/>
+  <text class="bt" x="156" y="109">BE: API 実装</text>
+  <path class="fl2" d="M440,104 L460,104"/>
+  <rect class="bx" x="460" y="84" width="300" height="40"/>
+  <text class="bt" x="476" y="109">FE: 画面（完成待ちのあと）</text>
+  <text class="ngt" x="140" y="152">✕ 画面担当はBEが終わるまで着手できない</text>
+
+  <text class="bandt" x="40" y="196">B. 形だけ先に合意 — 並走</text>
+  <rect class="bx-c" x="140" y="208" width="110" height="66"/>
+  <text class="bt" x="154" y="232">契約合意</text>
+  <text class="bs" x="154" y="252">形を固定</text>
+  <path class="fl2" d="M250,226 L288,220"/>
+  <path class="fl2" d="M250,256 L288,262"/>
+  <rect class="bx" x="290" y="204" width="330" height="32"/>
+  <text class="bt" x="304" y="225">FE: 画面（データがある前提）</text>
+  <rect class="bx" x="290" y="246" width="330" height="32"/>
+  <text class="bt" x="304" y="267">BE: 実装（契約どおり返す）</text>
+  <path class="fl2" d="M620,220 L640,232"/>
+  <path class="fl2" d="M620,262 L640,250"/>
+  <rect class="bx" x="640" y="222" width="90" height="38"/>
+  <text class="bt" x="656" y="246">結合</text>
+  <text class="okt" x="750" y="246">○ 早い</text>
+</svg>
+  <p class="figcap">
+    実物を待つと直列。形（契約）だけ先に固定すれば、FEは「データがある前提」でBEと同時に走れる。
+  </p>
+</div>
+
+<h2 id="stages"><span class="num">03</span>データの実物は3段階で差し替わる</h2>
+
+<div class="figure">
+<svg viewBox="0 0 860 260" role="img" aria-label="データの出どころは3段階で差し替わるが、契約の型を境界にして画面は変わらないことを示す図">
+  <defs>
+    <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/>
+    </marker>
+  </defs>
+  <style>
+    .fl3 { stroke: var(--ink-3); stroke-width: 1.4; fill: none; marker-end: url(#ar3); }
+  </style>
+
+  <text class="bandt" x="40" y="30">差し替わる側 — データの出どころ</text>
+  <rect class="bx-g" x="40" y="44" width="270" height="56"/>
+  <text class="bt" x="58" y="66">段階1: 手書きモックデータ</text>
+  <text class="bs" x="58" y="84">mock-data.ts 相当。npm run dev だけで動く</text>
+
+  <rect class="bx-g" x="40" y="114" width="270" height="56"/>
+  <text class="bt" x="58" y="136">段階2: モックサーバー</text>
+  <text class="bs" x="58" y="154">prism mock openapi.yaml。通信込みで動く</text>
+
+  <rect class="bx-g" x="40" y="184" width="270" height="56"/>
+  <text class="bt" x="58" y="206">段階3: 実API</text>
+  <text class="bs" x="58" y="224">Phoenix。BE側もスタブ→実装と差し替わる</text>
+
+  <path class="fl3" d="M310,72 L392,128"/>
+  <path class="fl3" d="M310,142 L392,142"/>
+  <path class="fl3" d="M310,212 L392,158"/>
+
+  <text class="bandt" x="392" y="30">境界 — 契約の型</text>
+  <rect class="bx-c" x="392" y="108" width="190" height="70"/>
+  <text class="bt" x="410" y="132">api.d.ts / events.ts</text>
+  <text class="bs" x="410" y="150">openapi.yaml から生成</text>
+  <text class="bs" x="410" y="166">3段階すべて同じ形</text>
+
+  <path class="fl3" d="M582,142 L640,142"/>
+  <text class="fll" x="588" y="130">props</text>
+
+  <text class="bandt" x="640" y="30">変わらない側 — 画面</text>
+  <rect class="bx" x="640" y="108" width="182" height="70"/>
+  <text class="bt" x="658" y="132">画面（View）</text>
+  <text class="bs" x="658" y="150">f(データ) = 表示</text>
+  <text class="bs" x="658" y="166">出どころを知らない</text>
+</svg>
+  <p class="figcap">
+    出どころが 1→2→3 と差し替わっても境界の「形」は同じなので、画面のコードは変わらない。
+    変わってしまうなら分離に失敗している（設計の警報）。<code>_docs/mock/</code> の25画面は段階1の実証。
+  </p>
+</div>
+
+<h2 id="rules"><span class="num">04</span>画面側のルール — 差し替えを1か所に閉じ込める</h2>
+
+<div class="figure">
+<svg viewBox="0 0 860 370" role="img" aria-label="画面からデータの出どころまでの層構造と、各層のルールを示す図">
+  <defs>
+    <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/>
+    </marker>
+  </defs>
+  <style>
+    .fl4 { stroke: var(--ink-3); stroke-width: 1.4; fill: none; marker-end: url(#ar4); }
+    .sep { stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 6 4; }
+  </style>
+
+  <rect class="bx" x="120" y="36" width="400" height="56"/>
+  <text class="bt" x="138" y="58">画面 — ページ + 部品（game-ui）</text>
+  <text class="bs" x="138" y="78">propsで受け取って描画するだけ</text>
+
+  <line class="sep" x1="120" y1="112" x2="520" y2="112"/>
+  <text class="fll" x="532" y="116">props / hooks 境界</text>
+
+  <path class="fl4" d="M320,132 L320,96"/>
+
+  <rect class="bx" x="120" y="132" width="400" height="56"/>
+  <text class="bt" x="138" y="154">カスタムフック — useMe() など</text>
+  <text class="bs" x="138" y="174">取得と4状態（§05）をここで吸収する</text>
+
+  <path class="fl4" d="M320,228 L320,192"/>
+
+  <rect class="bx" x="120" y="228" width="400" height="56"/>
+  <text class="bt" x="138" y="250">APIクライアント — openapi-fetch</text>
+  <text class="bs" x="138" y="270">生成型で型付け。ラッパは認証とベースURLのみ</text>
+
+  <path class="fl4" d="M320,324 L320,288"/>
+
+  <rect class="bx-g" x="120" y="324" width="120" height="40"/>
+  <text class="bt" x="136" y="349">mock-data</text>
+  <rect class="bx-g" x="260" y="324" width="120" height="40"/>
+  <text class="bt" x="276" y="349">prism</text>
+  <rect class="bx-g" x="400" y="324" width="120" height="40"/>
+  <text class="bt" x="416" y="349">実API</text>
+
+  <text class="bandt" x="620" y="48">ルール</text>
+  <text class="ngt" x="620" y="78">✕ ページ内で fetch</text>
+  <text class="ngt" x="620" y="104">✕ 手書き interface</text>
+  <text class="ngt" x="620" y="130">✕ 契約の値を手で写す</text>
+  <text class="okt" x="620" y="172">○ 型は生成物を import</text>
+  <text class="okt" x="620" y="198">○ モックデータにも生成型を注釈</text>
+  <text class="okt" x="620" y="224">○ 表示用の変換は純関数に切り出す</text>
+  <text class="okt" x="620" y="250">○ 差し替えは最下層の1か所だけ</text>
+</svg>
+  <p class="figcap">
+    画面から遠い層ほど差し替わる。出どころの差し替えを最下層に閉じ込めるのが全ルールの目的。
+    モックデータに生成型を注釈しておくと、契約変更のズレが型エラーで自動検出される。
+  </p>
+</div>
+
+<h2 id="states"><span class="num">05</span>落とし穴 — 「データがある」は4状態の1つ</h2>
+
+<div class="figure">
+<svg viewBox="0 0 860 330" role="img" aria-label="画面が持つ4状態（loading・success・empty・error）を4つの画面スケッチで示す図">
+  <style>
+    .ph { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; rx: 14; }
+    .ph-c { fill: var(--surface); stroke: var(--accent); stroke-width: 2; rx: 14; }
+    .sk { fill: var(--line); rx: 4; }
+    .ct { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; rx: 4; }
+    .btn { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; rx: 13; }
+    .btnt { fill: var(--accent); font: 600 11px -apple-system, sans-serif; }
+    .stt { fill: var(--ink); font: 600 13px var(--mono); }
+    .cap { fill: var(--ink-2); font: 11px -apple-system, sans-serif; }
+    .wtri { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.5; }
+    .wt { fill: var(--warn); font: 700 16px var(--mono); }
+    .emp { fill: none; stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 5 4; }
+    .empt { fill: var(--ink-3); font: 600 12px -apple-system, sans-serif; }
+  </style>
+
+  <text class="stt" x="135" y="46" text-anchor="middle">loading</text>
+  <rect class="ph" x="60" y="60" width="150" height="220"/>
+  <rect class="sk" x="80" y="90" width="110" height="16"/>
+  <rect class="sk" x="80" y="122" width="110" height="16"/>
+  <rect class="sk" x="80" y="154" width="70" height="16"/>
+  <text class="cap" x="135" y="306" text-anchor="middle">スケルトンで高さ確保</text>
+
+  <text class="stt" x="340" y="46" text-anchor="middle">success</text>
+  <rect class="ph-c" x="265" y="60" width="150" height="220"/>
+  <circle cx="305" cy="105" r="18" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+  <rect class="ct" x="333" y="92" width="62" height="10"/>
+  <rect class="ct" x="333" y="110" width="42" height="10"/>
+  <rect class="ct" x="285" y="150" width="110" height="30"/>
+  <rect class="ct" x="285" y="192" width="110" height="30"/>
+  <text class="cap" x="340" y="306" text-anchor="middle">モックが見せる唯一の状態</text>
+
+  <text class="stt" x="545" y="46" text-anchor="middle">empty</text>
+  <rect class="ph" x="470" y="60" width="150" height="220"/>
+  <circle class="emp" cx="545" cy="130" r="28"/>
+  <text class="empt" x="545" y="135" text-anchor="middle">0件</text>
+  <rect class="btn" x="500" y="196" width="90" height="26"/>
+  <text class="btnt" x="545" y="213" text-anchor="middle">部屋を探す</text>
+  <text class="cap" x="545" y="306" text-anchor="middle">空の文言と次の導線</text>
+
+  <text class="stt" x="750" y="46" text-anchor="middle">error</text>
+  <rect class="ph" x="675" y="60" width="150" height="220"/>
+  <path class="wtri" d="M750,102 L778,150 L722,150 z"/>
+  <text class="wt" x="750" y="146" text-anchor="middle">!</text>
+  <rect class="btn" x="705" y="196" width="90" height="26"/>
+  <text class="btnt" x="750" y="213" text-anchor="middle">再試行</text>
+  <text class="cap" x="750" y="306" text-anchor="middle">ErrorCode → 日本語文言</text>
+</svg>
+  <p class="figcap">
+    モックデータは success しか見せない。着手時に4状態を列挙し、fixtures に empty / error 用も置いて
+    段階1のうちに4状態すべてを描画しておく。実結合時の「一瞬 undefined でクラッシュ」「0件でレイアウト崩壊」はここで防ぐ。
+  </p>
+</div>
+
+<h2 id="apply"><span class="num">06</span>画面01〜04への適用</h2>
+
+<div class="figure">
+<svg viewBox="0 0 860 290" role="img" aria-label="画面01から04それぞれが前提にするデータと契約上のoperationIdの対応図">
+  <style>
+    .chip { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; rx: 11; }
+    .chipt { fill: var(--accent); font: 600 11px var(--mono); }
+  </style>
+
+  <rect class="bx" x="40" y="44" width="390" height="100"/>
+  <text class="bt" x="58" y="68">01 ログイン</text>
+  <rect class="chip" x="58" y="80" width="60" height="22"/>
+  <text class="chipt" x="70" y="95">login</text>
+  <text class="bs" x="58" y="126">主役は送る形（入力）とエラー応答</text>
+
+  <rect class="bx" x="430" y="44" width="390" height="100"/>
+  <text class="bt" x="448" y="68">02 登録</text>
+  <rect class="chip" x="448" y="80" width="82" height="22"/>
+  <text class="chipt" x="460" y="95">register</text>
+  <text class="bs" x="448" y="126">検証ルールは契約schemaを直読み（手で写さない）</text>
+
+  <rect class="bx" x="40" y="160" width="390" height="100"/>
+  <text class="bt" x="58" y="184">03 アバター設定</text>
+  <rect class="chip" x="58" y="196" width="64" height="22"/>
+  <text class="chipt" x="70" y="211">getMe</text>
+  <rect class="chip" x="132" y="196" width="112" height="22"/>
+  <text class="chipt" x="144" y="211">updateAvatar</text>
+  <text class="bs" x="58" y="242">アバター候補6種はFEの静的アセット（契約外）</text>
+
+  <rect class="bx" x="430" y="160" width="390" height="100"/>
+  <text class="bt" x="448" y="184">04 ホーム</text>
+  <rect class="chip" x="448" y="196" width="64" height="22"/>
+  <text class="chipt" x="460" y="211">getMe</text>
+  <rect class="chip" x="522" y="196" width="104" height="22"/>
+  <text class="chipt" x="534" y="211">listMyGames</text>
+  <text class="bs" x="448" y="242">戦績0件（empty）が初回ユーザーの通常状態</text>
+</svg>
+  <p class="figcap">
+    各画面が「ある前提」にするデータと契約上の出どころ。01・02のフォーム画面では前提が逆向きに働く —
+    受け取る形ではなく<strong>送る形</strong>が契約で固定されている前提で入力検証を作る。
+  </p>
+</div>
+
+<h2 id="glossary"><span class="num">07</span>用語対応表</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>用語</th><th>意味</th><th>ここでの実体</th></tr></thead>
+  <tbody>
+    <tr><td>contract-first</td><td>実装より先にAPIの形を合意する</td><td><code>openapi.yaml</code> / <code>asyncapi.yaml</code> が正本</td></tr>
+    <tr><td>SSOT</td><td>正本を1か所にだけ置く</td><td>形の正本 = 契約。型もモックもそこから導出</td></tr>
+    <tr><td>presentational / container</td><td>表示と取得を分ける設計</td><td>§04の層 — ページが表示、フックが取得</td></tr>
+    <tr><td>view model</td><td>表示に都合のよい中間データ</td><td>§04「表示用の変換」純関数の出力</td></tr>
+    <tr><td>fixture</td><td>テストが読む固定の期待データ</td><td><code>contracts/fixtures/*.json</code>（FE/BE共用）</td></tr>
+    <tr><td>mock server</td><td>契約から自動応答するニセAPI</td><td><code>prism mock</code>（段階2）</td></tr>
+    <tr><td>stub</td><td>固定値を返すBEの仮実装</td><td>Phoenixのスタブ（段階3の前半）</td></tr>
+  </tbody>
+</table>
+</div>
+
+<footer>
+  <p>
+    関連文書:
+    <a href="index.html">実装フロー</a> ·
+    <a href="tools.html">使用ツール</a> ·
+    <a href="../spec/api/README.md">API契約</a> ·
+    <a href="../mock/README.md">UIモック</a>
+  </p>
+  <p>この文書は手書きの正本。<code>_docs/spec/api/*.html</code> は生成物なので直接編集しない。</p>
+</footer>
+
+</div>
+</body>
+</html>

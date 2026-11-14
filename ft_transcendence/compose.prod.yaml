@@ -1,0 +1,82 @@
+# ==============================================================================
+#  compose.prod.yaml
+# ------------------------------------------------------------------------------
+#  Created : 2026-09-28  yayoi111      (d/production-startup) 本番モード用サービスを定義
+# ------------------------------------------------------------------------------
+#  役割    : Phoenix prod と静的フロントエンドを分離したローカル本番構成
+#  関連    : Makefile, backend/Dockerfile.prod, frontend/Dockerfile.prod,
+#            _tools/caddy/Caddyfile.prod
+# ==============================================================================
+
+name: word_wolf_prod
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?missing POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?missing POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?missing POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    command: >-
+      sh -ec "mix ecto.create --quiet && mix ecto.migrate --quiet &&
+      mix run -e '{:ok, _} = WordWolf.DevSeeds.sync_word_groups()' && exec mix phx.server"
+    environment:
+      MIX_ENV: prod
+      DATABASE_URL: ecto://${POSTGRES_USER:?missing POSTGRES_USER}:${POSTGRES_PASSWORD:?missing POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:?missing POSTGRES_DB}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:?missing SECRET_KEY_BASE}
+      PHX_HOST: ${PHX_HOST:-localhost}
+      PHX_PORT: ${APP_PORT:-8443}
+      LAN_HOST: ${LAN_HOST:-127.0.0.1}
+    volumes:
+      - avatar_uploads:/app/priv/static/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:4000/health"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 120s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  proxy:
+    image: caddy:2-alpine
+    ports:
+      - "${APP_PORT:-8443}:443"
+    environment:
+      LAN_HOST: ${LAN_HOST:-127.0.0.1}
+    volumes:
+      - ./_tools/caddy/Caddyfile.prod:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  caddy_data:
+  avatar_uploads:

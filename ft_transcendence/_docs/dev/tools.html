@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>使用ツール — ワードウルフ開発ガイド</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">ft_transcendence / word wolf — toolchain decision</p>
+  <h1>使用ツール</h1>
+  <p class="lede">
+    契約から型を作るツール<strong>6</strong>、lint・整形・静的解析・テスト<strong>11</strong>。
+    すべて2026-08-19時点の最新に揃え、<strong>4週間の期間中は上げない</strong>。
+  </p>
+  <nav class="pagenav">
+    <a href="index.html">実装フロー</a>
+    <a href="data-first.html">データ前提の画面設計</a>
+    <a href="tools.html" aria-current="page">使用ツール</a>
+    <a href="conventions.html">分担と規約</a>
+  </nav>
+  <div class="meta">
+    <span>最終更新: 2026-08-19</span>
+    <span>版はすべて2026-08-19に実際に確認したもの</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <p>目次</p>
+  <ol>
+    <li><a href="#principle">選定の原則</a></li>
+    <li><a href="#contract">契約から型を作るツール</a></li>
+    <li><a href="#quality">lint / 整形 / 静的解析 / テスト</a></li>
+    <li><a href="#install">導入コマンド</a></li>
+    <li><a href="#io">入力と出力</a></li>
+    <li><a href="#reject">採用しないツール</a></li>
+    <li><a href="#version">版の確認とバージョン運用</a></li>
+    <li><a href="#risk">導入前に決めること</a></li>
+  </ol>
+</nav>
+
+<h2 id="principle"><span class="num">01</span>選定の原則</h2>
+
+<ol>
+  <li>
+    <strong>生成するのは型まで。実行時コードは生成しない。</strong>
+    42の評価では自分が説明できないコードは失格になり得るため、生成物は<em>型</em>に限る。
+    APIの呼び出し方、キャッシュ、hooks、状態管理は手で書く。
+  </li>
+  <li>
+    <strong>1つの仕事に1つのツール。</strong>
+    多機能な統合ジェネレータより、入力と出力が1対1で追える小さいツールを選ぶ。
+    壊れたときに原因が即座に分かる。
+  </li>
+  <li>
+    <strong>開始時点の最新に揃え、期間中は追随しない。</strong>
+    W1で全バージョンを固定し、lockfile と <code>mix.lock</code> をコミットする。
+    上げるなら専用PRを立て、<code>make gen</code> の差分をレビューする。
+  </li>
+</ol>
+
+<h2 id="contract"><span class="num">02</span>契約から型を作るツール</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>用途</th><th>ツール</th><th>版</th><th>置き場所</th><th>導入</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>REST型の生成</td>
+      <td><code>openapi-typescript</code></td><td>7.13.0</td>
+      <td><span class="tag fe">frontend / dev</span></td><td><span class="tag core">W1</span></td>
+    </tr>
+    <tr>
+      <td>型付きAPIクライアント</td>
+      <td><code>openapi-fetch</code></td><td>0.17.0</td>
+      <td><span class="tag fe">frontend</span></td><td><span class="tag core">W1</span></td>
+    </tr>
+    <tr>
+      <td>Channel payload型・イベント名の生成<br><span class="who">TypeScript と Elixir の両方</span></td>
+      <td><code>_tools/gen-contract-types.py</code><br><span class="who">自作 / python3 + PyYAML</span></td>
+      <td>—</td>
+      <td><span class="tag be">リポジトリ直下</span></td><td><span class="tag core">W1</span></td>
+    </tr>
+    <tr>
+      <td>BEのtypespec生成</td>
+      <td>同上（<code>--only backend</code>）</td><td>—</td>
+      <td><span class="tag be">backend</span></td><td><span class="tag core">W1</span></td>
+    </tr>
+    <tr>
+      <td>フォーム検証 + fixtures検証</td>
+      <td><code>ajv</code> + <code>ajv-formats</code><br>
+          <code>@hookform/resolvers/ajv</code></td><td>8.20.0 / 5.9.1</td>
+      <td><span class="tag fe">frontend</span></td><td><span class="tag core">W1</span></td>
+    </tr>
+    <tr>
+      <td>BEの入出力検証</td>
+      <td><code>open_api_spex</code> + <code>yaml_elixir</code></td><td>3.22.3 / 2.12.2</td>
+      <td><span class="tag be">backend / mix.exs</span></td><td><span class="tag core">W1</span></td>
+    </tr>
+    <tr>
+      <td>モックサーバー / 契約適合検証</td>
+      <td><code>@stoplight/prism-cli</code></td><td>5.16.0</td>
+      <td><span class="tag be">npx（インストールしない）</span></td><td><span class="tag core">W1</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout">
+  <span class="label">フォーム検証にZodを生成しない理由</span>
+  <p>OpenAPI 3.1.1 のスキーマは JSON Schema 2020-12 そのものなので、<strong>契約のスキーマを
+  ajv にそのまま渡せる</strong>（<code>@hookform/resolvers</code> 5.9.1 は <code>./ajv</code> を公式に持つ）。
+  生成ステップが1つ減り、検証ルールの出どころが契約だけになる。
+  Zodを生成する <code>openapi-zod-client</code> は zod 3系依存のため採用しない（§06）。</p>
+</div>
+
+<h3>継続（すでに使っている）</h3>
+<div class="tablewrap">
+<table>
+  <thead><tr><th>用途</th><th>ツール</th><th>版</th><th>備考</th></tr></thead>
+  <tbody>
+    <tr><td>OpenAPIのlint</td><td><code>@redocly/cli</code></td><td>2.46.1</td>
+        <td><code>spec/api/README.md</code> に手順あり</td></tr>
+    <tr><td>AsyncAPIのvalidate</td><td><code>@asyncapi/cli</code></td><td>6.0.2</td><td>同上</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>単発（W3の総点検で1回だけ）</h3>
+<div class="tablewrap">
+<table>
+  <thead><tr><th>用途</th><th>ツール</th><th>版</th><th>備考</th></tr></thead>
+  <tbody>
+    <tr><td>契約からの自動ケース生成</td><td><code>schemathesis</code></td><td>4.24.3</td>
+        <td>常用しない。W3で1回回してエッジケースの取りこぼしを洗う</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="quality"><span class="num">03</span>lint / 整形 / 静的解析 / テスト</h2>
+
+<h3>frontend</h3>
+<div class="tablewrap">
+<table>
+  <thead><tr><th>役割</th><th>ツール</th><th>版</th><th>備考</th></tr></thead>
+  <tbody>
+    <tr><td>lint</td><td><code>oxlint</code></td><td>1.79.0</td>
+        <td><strong>mockで採用済み</strong>（1.75）。移植時に1.79へ。ESLintより桁違いに速く、設定も1ファイル</td></tr>
+    <tr><td>整形</td><td><code>prettier</code></td><td>3.9.6</td><td>oxlintは整形しないので併用する</td></tr>
+    <tr><td>Tailwindクラス順</td><td><code>prettier-plugin-tailwindcss</code></td><td>0.8.1</td>
+        <td>クラス順を自動ソート。4人で触る前提だと差分ノイズが激減する</td></tr>
+    <tr><td>型チェック</td><td><code>typescript</code></td><td>7.0.2</td>
+        <td>mockは <code>~6.0.2</code> 固定。<strong>W1で <code>tsc -b</code> と vite build の通過を確認してから上げる</strong>。通らなければ6系据え置き</td></tr>
+    <tr><td>テスト</td><td><code>vitest</code></td><td>4.1.11</td><td>mockで採用済み</td></tr>
+    <tr><td>カバレッジ</td><td><code>@vitest/coverage-v8</code></td><td>4.1.11</td><td>80%要件の計測用</td></tr>
+    <tr><td>E2E</td><td><code>playwright</code></td><td>1.62.1（mock実績）</td>
+        <td>複数ブラウザコンテキストで4人対戦・再接続を検証（W3）</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>backend</h3>
+<div class="tablewrap">
+<table>
+  <thead><tr><th>役割</th><th>ツール</th><th>版</th><th>備考</th></tr></thead>
+  <tbody>
+    <tr><td>整形</td><td><code>mix format</code></td><td>標準</td>
+        <td><code>.formatter.exs</code> をコミットして全員同じ設定にする</td></tr>
+    <tr><td>lint</td><td><code>credo</code></td><td>1.7.19</td><td>コード一貫性。<code>--strict</code> はW2以降に検討</td></tr>
+    <tr><td>セキュリティ静的解析</td><td><code>sobelow</code></td><td>0.15.0</td>
+        <td>Phoenix専用。Subjectのセキュリティ要件に直結するので<strong>必ず入れる</strong></td></tr>
+    <tr><td>依存の脆弱性</td><td><code>mix_audit</code></td><td>2.1.5</td><td><code>mix deps.audit</code></td></tr>
+    <tr><td>カバレッジ</td><td><code>excoveralls</code></td><td>0.18.5</td><td>80%要件の計測用</td></tr>
+    <tr><td>型・到達不能検査</td><td><code>dialyxir</code></td><td>1.4.7</td>
+        <td>Dialyzer。<strong>CIのみ・PLTをキャッシュ</strong>。保存時には走らせない（遅い）</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>共通</h3>
+<div class="tablewrap">
+<table>
+  <thead><tr><th>役割</th><th>ツール</th><th>版</th><th>備考</th></tr></thead>
+  <tbody>
+    <tr><td>pre-commitフック</td><td><code>lefthook</code></td><td>2.1.10</td>
+        <td>リポジトリ直下の1ファイルでFE（oxlint/prettier）とBE（mix format/credo）を回せる。
+        husky + lint-staged より速く設定が単純</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h4>CIの実行順</h4>
+<pre><code>1. 整形の確認     prettier --check / mix format --check-formatted
+2. lint          oxlint / mix credo
+3. 型            tsc --noEmit / mix dialyzer（PLTキャッシュ）
+4. テスト        vitest run --coverage / mix test --cover
+5. 契約          make spec-lint / make gen && git diff --exit-code / prism proxy
+6. セキュリティ   mix sobelow --exit / mix deps.audit</code></pre>
+
+<p>
+  前段が落ちたら後段は走らせない。整形とlintは<code>lefthook</code>のpre-commitでも回すので、
+  CIで落ちるのは基本的にフック未導入のときだけになる。
+</p>
+
+<h2 id="install"><span class="num">04</span>導入コマンド</h2>
+
+<div class="stack two">
+  <div class="panel">
+    <h4>frontend — 実装で使うもの</h4>
+<pre><code>cd frontend
+npm i openapi-fetch react-hook-form \
+      @hookform/resolvers ajv ajv-formats phoenix
+npm i -D openapi-typescript @types/phoenix</code></pre>
+  </div>
+  <div class="panel">
+    <h4>frontend — 品質ツール</h4>
+<pre><code>npm i -D oxlint prettier \
+      prettier-plugin-tailwindcss \
+      typescript vitest @vitest/coverage-v8</code></pre>
+  </div>
+</div>
+
+<div class="panel">
+  <h4>backend — mix.exs</h4>
+<pre><code><span class="c"># 契約</span>
+{:open_api_spex, "~&gt; 3.22"},
+{:yaml_elixir, "~&gt; 2.12"},
+
+<span class="c"># 品質（開発・テスト時のみ）</span>
+{:credo,       "~&gt; 1.7",  only: [:dev, :test], runtime: false},
+{:sobelow,     "~&gt; 0.15", only: [:dev, :test], runtime: false},
+{:mix_audit,   "~&gt; 2.1",  only: [:dev, :test], runtime: false},
+{:dialyxir,    "~&gt; 1.4",  only: [:dev, :test], runtime: false},
+{:excoveralls, "~&gt; 0.18", only: :test}</code></pre>
+  <p style="font-size:13px">
+    契約YAMLは実行時に読む。<strong>コードから仕様を生成する向きには使わない</strong>。
+  </p>
+</div>
+
+<h4>インストールせずnpxで都度実行するもの</h4>
+<pre><code><span class="c"># 契約のlint / validate（make spec-lint）</span>
+npx @redocly/cli lint _docs/spec/api/openapi.yaml
+npx @asyncapi/cli validate _docs/spec/api/asyncapi.yaml
+
+<span class="c"># FE先行開発用のモックサーバー</span>
+npx @stoplight/prism-cli mock _docs/spec/api/openapi.yaml -p 4010
+
+<span class="c"># 実BEのレスポンスが契約どおりか検証（CI）</span>
+npx @stoplight/prism-cli proxy _docs/spec/api/openapi.yaml http://localhost:4000 --errors
+
+<span class="c"># W3の総点検（ローカルspecを使う場合はベースURLを指定。詳細は --help）</span>
+uvx schemathesis run _docs/spec/api/openapi.yaml --url https://localhost</code></pre>
+
+<h4>Makefileに集約する</h4>
+<pre><code><span class="c"># 実物はリポジトリ直下の Makefile（make help で一覧）</span>
+gen: gen-frontend gen-backend
+
+gen-frontend:
+	npx --yes openapi-typescript@7.13.0 _docs/spec/api/openapi.yaml \
+	  -o frontend/src/types/api.d.ts
+	python3 _tools/gen-contract-types.py --only frontend
+
+gen-backend:
+	python3 _tools/gen-contract-types.py --only backend
+
+gen-check: gen
+	<span class="c"># 生成物の手編集・未コミットを落とす（git status で判定）</span>
+
+spec-lint:
+	npx @redocly/cli lint _docs/spec/api/openapi.yaml
+	npx @asyncapi/cli validate _docs/spec/api/asyncapi.yaml
+
+lint:
+	cd frontend &amp;&amp; npx prettier --check . &amp;&amp; npx oxlint &amp;&amp; npx tsc --noEmit
+	cd backend  &amp;&amp; mix format --check-formatted &amp;&amp; mix credo
+
+audit:
+	cd backend &amp;&amp; mix sobelow --exit &amp;&amp; mix deps.audit</code></pre>
+
+<h2 id="io"><span class="num">05</span>入力と出力</h2>
+
+<p>「どのツールがどのファイルを作るか」を固定する。ここに無いファイルは手書きのコード。</p>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>ツール</th><th>入力</th><th>出力</th><th>手編集</th></tr></thead>
+  <tbody>
+    <tr><td><code>openapi-typescript</code></td><td><code>openapi.yaml</code></td>
+        <td><code>frontend/src/types/api.d.ts</code></td><td><span class="tag no">禁止</span></td></tr>
+    <tr><td><code>_tools/gen-contract-types.py</code></td><td><code>asyncapi.yaml</code></td>
+        <td><code>frontend/src/types/ws/events.ts</code><br>
+            <code>backend/lib/word_wolf/contract/events.ex</code></td>
+        <td><span class="tag no">禁止</span></td></tr>
+    <tr><td>同上</td><td><code>openapi.yaml</code></td>
+        <td><code>backend/lib/word_wolf/contract/types.ex</code></td>
+        <td><span class="tag no">禁止</span></td></tr>
+    <tr><td><code>openapi-fetch</code></td><td><code>api.d.ts</code></td>
+        <td>出力なし（ライブラリとして実装から呼ぶ）</td><td>—</td></tr>
+    <tr><td><code>ajv</code></td>
+        <td>契約の <code>components.schemas</code> と <code>contracts/fixtures/*.json</code></td>
+        <td>出力なし（フォーム検証とテストで使う）</td><td>—</td></tr>
+    <tr><td><code>open_api_spex</code></td><td><code>openapi.yaml</code>（実行時）</td>
+        <td>メモリ上の <code>%OpenApi{}</code>。Plugとテストで使う</td><td>—</td></tr>
+    <tr><td><code>prism</code></td><td><code>openapi.yaml</code></td>
+        <td>モックサーバー / 契約逸脱の検出</td><td>—</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout warn">
+  <span class="label">手書きのままにするもの</span>
+  <p><code>contracts/fixtures/*.json</code>、
+  UIのエラー文言、Ectoスキーマ、GameServerのルール。
+  詳細は<a href="index.html#boundary">実装フロー §03</a>。</p>
+</div>
+
+<h2 id="reject"><span class="num">06</span>採用しないツール</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>ツール</th><th>理由</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>openapi-zod-client</code><br><span class="who">1.18.3</span></td>
+      <td><strong>依存が <code>zod: ^3.19.1</code> で、現行zodは4.4.3</strong>。さらに
+      <code>@zodios/core</code>・<code>axios</code>・<code>prettier 2</code> を引き込む。
+      「最新で揃える」方針と衝突するうえ、使わないクライアント実装まで生成される。
+      フォーム検証は契約のJSON Schemaをajvで直接使う（§02）</td>
+    </tr>
+    <tr>
+      <td><code>@hey-api/openapi-ts</code><br><code>orval</code> / <code>kubb</code></td>
+      <td>SDK・Zod・TanStack Query hooksまで1つの設定で生成でき機能的には上位。
+      ただし<strong>実行時コードの生成量が多く「説明できるコード」の原則と衝突する</strong>。
+      0.x系で設定が変わりやすく、Node 22+が前提。
+      hooksの手書きが辛くなった時点で乗り換え候補にする</td>
+    </tr>
+    <tr>
+      <td><code>eslint</code> + <code>typescript-eslint</code><br><span class="who">10.8.1 / 8.67.0</span></td>
+      <td>oxlintで足りる。設定が二重になり、速度差も大きい。
+      oxlintで拾えないルールが実際に問題化したときだけ再検討する</td>
+    </tr>
+    <tr>
+      <td><code>@biomejs/biome</code><br><span class="who">2.5.9</span></td>
+      <td>lintと整形が1つになり魅力的だが、mockに<strong>oxlint設定が既にある</strong>ため乗り換えコストが無駄。
+      Tailwindクラスのソートも prettier plugin の方が確実。移行するなら4週の期間外</td>
+    </tr>
+    <tr>
+      <td><code>styler</code><br><span class="who">1.12.2</span></td>
+      <td>Elixirコードを自動で書き換えるため、初期導入すると差分が巨大化してレビュー不能になる。
+      入れるなら実装が固まった後</td>
+    </tr>
+    <tr>
+      <td><code>ex_json_schema</code> / <code>json_xema</code></td>
+      <td>draft 4（前者）と draft 4/6/7（後者）まで。契約はOpenAPI 3.1.1 =
+      JSON Schema 2020-12 なので合わない</td>
+    </tr>
+    <tr>
+      <td><code>phoenix_swagger</code><br><code>open_api_spex</code> のコード先行スタイル</td>
+      <td>Elixirコードで仕様を定義してYAMLを吐く向き。契約の正本がコード側へ移り、
+      「契約が唯一の正」が崩れる</td>
+    </tr>
+    <tr>
+      <td><code>oapi_generator</code></td>
+      <td>OpenAPIから<em>クライアント</em>を生成するツール。サーバー側の用途と違う</td>
+    </tr>
+    <tr>
+      <td><code>@asyncapi/modelina</code><br><span class="who">5.10.1</span></td>
+      <td><strong>AsyncAPI 3.1.0 に未対応</strong>（3.0.0 まで）。3.0.0 に落として試しても、
+      messageのpayloadがインライン定義のため <code>AnonymousSchema_16</code> のような名前で出力され使えない。
+      契約をツールに合わせて曲げるより自前生成が安い（<code>_tools/gen-contract-types.py</code>、約380行）</td>
+    </tr>
+    <tr>
+      <td>AsyncAPI Generator のテンプレート群</td>
+      <td>Phoenix Channels向けテンプレートが無い。payload型・イベント名・対応表は自前生成で足りる</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="version"><span class="num">07</span>版の確認とバージョン運用</h2>
+
+<pre><code><span class="c"># npm パッケージ</span>
+npm view openapi-typescript version
+
+<span class="c"># Hex パッケージ</span>
+mix hex.info open_api_spex
+
+<span class="c"># PyPI パッケージ</span>
+uvx --from schemathesis schemathesis --version</code></pre>
+
+<ul>
+  <li><strong>W1で全部固定する。</strong><code>package-lock.json</code> と <code>mix.lock</code> を必ずコミットする</li>
+  <li><strong>期間中は上げない。</strong>上げるなら専用PRを立て、<code>make gen</code> の差分と CI の結果をレビューする</li>
+  <li>唯一の例外は脆弱性対応（<code>mix deps.audit</code> / <code>npm audit</code> が指摘したもの）</li>
+</ul>
+
+<h2 id="risk"><span class="num">08</span>導入前に決めること</h2>
+
+<div class="callout stop">
+  <span class="label">未決 — ツール導入より先</span>
+  <p><strong>1. 認証方式。</strong><code>openapi.yaml</code> は <code>bearerAuth</code>（セッショントークン）だが、
+  <code>architecture/tech-stack.md</code> §4 は「HttpOnly Cookie / トークンをLocalStorageに置かない」。
+  <code>openapi-fetch</code> のラッパがトークンを保持するかが変わる。</p>
+  <p><strong>2. ゲーム中操作の経路。</strong><code>tech-stack.md</code> §3 は「原則Channel」だが、
+  契約と <code>backend-spec.md</code> では start / vote は HTTP POST（配信のみChannel）。契約が正なので §3 を修正する。</p>
+</div>
+
+<div class="callout warn">
+  <span class="label">要確認 — モックの実依存と tech-stack.md の乖離</span>
+  <p><code>_docs/mock/package.json</code> の実際の構成が <code>tech-stack.md</code> の記載と一致していない。
+  <code>frontend/</code> へ移植する前にどちらを正にするか決める。</p>
+  <ul>
+    <li><strong>ルーティング</strong>: mockは <code>wouter</code> 3.10.0 / 文書は React Router（最新8.3.0）
+      — 動いている <code>wouter</code> を採用して文書を直すのが移植コストゼロ</li>
+    <li><strong>UI基盤</strong>: mockは <code>@base-ui/react</code> + <code>shadcn</code> CLI / 文書に記載なし</li>
+    <li><strong>REST状態管理</strong>: mockは未使用 / 文書は TanStack Query
+      — 使うなら <code>@tanstack/react-query</code> 5.101.4 を追加する（REST画面レーンの判断）</li>
+    <li><strong>TypeScript</strong>: mockは <code>~6.0.2</code> 固定 / 最新は 7.0.2 — W1で通過確認してから上げる</li>
+  </ul>
+</div>
+
+<footer>
+  <p>
+    関連文書:
+    <a href="index.html">実装フロー</a> ·
+    <a href="../spec/api/README.md">API契約</a> ·
+    <a href="../spec/api/index.html">REST仕様書(HTML)</a> ·
+    <a href="../spec/api/realtime.html">Realtime仕様書(HTML)</a> ·
+    <a href="../requirements/module-plan.md">モジュール構成</a>
+  </p>
+  <p>この文書は手書きの正本。<code>_docs/spec/api/*.html</code> は生成物なので直接編集しない。</p>
+</footer>
+
+</div>
+</body>
+</html>
